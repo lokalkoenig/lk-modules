@@ -1,0 +1,172 @@
+.sending {
+   position: relative; 
+}
+
+.sending:before {
+    position: absolute;
+    z-index: 1000;
+    background: rgba(255,255,255,0.3);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    content: '';
+    text-align: center;
+    background-image: url(/sites/all/modules/lokalkoenig/ajax-loader.gif);
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.region-highlighted {
+   display: none; 
+}
+
+#vku-form-vku-edit #edit-submit--2 {
+        clear: both;
+        display: inline-block;
+        float: right;
+        margin-top: -30px;
+}
+  
+  .special {
+     background: url(/sites/all/themes/bootstrap_lk/design/stripe.png);
+     background-repeat: repeat-y;
+     background-position: 115px 0px;  
+     margin: 0 !important;
+  
+  }
+  
+  .special>li>.row>.col-md-10 {
+     background-repeat: repeat-x;
+     padding-bottom: 15px;
+     padding-top: 10px;
+         border-bottom: 2px #EEF dashed;
+  }
+
+
+  .special>li#page_contact>.row>.col-md-10 {
+    background: none;
+    padding-bottom: 25px;
+  }
+  
+  .special>li>.row>.col-md-2>.glyphicon {
+    font-size: 1.4em;
+    float: right;
+    margin-right: -5px;
+    margin-top: 18px;
+    background: White;
+  }
+  
+  
+  .special>li>.row>.col-md-2>.glyphicon.glyphicon-move {
+    cursor: pointer;
+    font-size: 2em;
+    margin-top: 60px;
+    margin-right: 11px;
+  }
+  .special>li>.row>.col-md-2>.glyphicon.glyphicon-move:hover {
+    color: #eea200;
+  }
+  
+   .form-item-vku-company {
+      float: left;
+      width: 48%;
+      margin-right: 2%;
+   }
+   
+   .form-item-vku-untertitel {
+      float: left;
+   }
+   
+   .btn-inverse-red {
+      color: #d2322d;
+   }
+   
+   .btn-inverse-red:hover {
+    color: #d2322d;
+   }
+   
+  .btn-inverse-green {
+    display: none;
+    color: #5cb85c !important;
+   }
+   
+   .btn-inverse-green span {
+    color: White !important;
+   }
+
+   
+   .btn-inverse-red .btn {
+      color: White;
+      margin-left: 10px;
+   }
+   
+   .page.disabled * {
+      color: Silver;
+   }
+   
+   .page.disabled#page_title form * {
+      color: #3e5266;
+   }
+   
+   .page.disabled#page_title form .btn {
+      color: White;
+
+   }
+   
+   
+   
+   .page.disabled .btn-inverse-red,
+   .page.disabled .btn-blue-arrow,
+   .page.disabled .btn-primary,
+   .page.disabled p,
+   .page.disabled a.btn-danger {
+    display: none;
+   }
+  
+  .page.disabled .col-md-2 {
+      visibility: hidden;
+  }
+  
+  .page.disabled .btn-inverse-green {
+     display: block;
+     position: relative;
+   }
+   
+   
+   .msg-full {
+       position: fixed;
+       top:  0px;
+       left: 0px;
+       right: 0px;
+       height: 100%; 
+       z-index: 1000;
+       display: none;
+       cursor: pointer;
+   }
+   
+   .msg-full .inner {
+       display: table;
+       width: 100%;
+       height: 100%;
+   }
+   
+   .msg-full .inner .center {
+       display: table-cell;
+       vertical-align: middle;
+       background: rgba(255,255,255, 0.8);
+       font-weight: bold;
+       text-align: center;
+   }
+   
+   .row.edit-form .table tr:first-child td {
+        border-top: 0;
+   }
+   
+   
+   .single form {
+       display: none;
+       position: relative;
+       top: 15px;
+       clear: both;
+   }     

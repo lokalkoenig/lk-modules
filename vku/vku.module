@@ -1,0 +1,52 @@
+<?php
+  // VKU
+
+include("inc/cronjobs.inc");
+include("inc/views_data.inc");
+include("inc/menu_theme.inc");
+include("inc/functions.php");
+include("vkuCreator.class.inc");
+//include 'documents/app.php';
+
+if(!function_exists('is_local')){
+    function is_local(){
+        return false;
+    }
+}    
+function vku_init(){
+  // Add VKU-Add-Script
+  if(lk_vku_access()){
+      drupal_add_js(drupal_get_path('module', 'vku') .'/js/javascript.js', 'file');
+  }
+}
+
+function lk_check_ajaxrequest($vars){
+
+  if($_GET["ajax"]){
+        drupal_json_output($vars);
+        drupal_exit();
+  }
+
+  drupal_set_message($vars["message"]);
+  drupal_goto($vars["goto"]);
+  drupal_exit();
+}
+
+
+function vku_node_view($node, $view_mode, $langcode) {
+    
+    if($node -> type != "kampagne") return ;
+    
+    if(!in_array($view_mode, array('full', 'teaser', 'grid'))){
+        return ;
+    }
+    
+    if(!lk_vku_access()){
+      $node -> vku = false;
+    }
+    else {
+       $node -> vku = true;
+       $node -> vku_id = vku_get_active_id();
+       $node -> vku_active = false; 
+    }
+}

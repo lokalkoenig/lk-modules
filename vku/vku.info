@@ -1,0 +1,4 @@
+name = "Lokalkönig VKU"
+description = "Generierung von Verkaufsunterlagen"
+core = "7.x"
+package = Lokalkoenig

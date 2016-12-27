@@ -1,0 +1,4 @@
+name = "VKU Connection"
+description = "Beinhaltet alle nötigen Lokal-Module"
+core = "7.x"
+package = Lokalkoenig

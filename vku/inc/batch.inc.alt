@@ -1,0 +1,65 @@
+<?php
+
+function batch_vku_pdf(){
+  $dbq = db_query("SELECT nid FROM node WHERE type='kampagne' AND status='1'");
+  $operations = array();
+  
+ 
+  
+  while($all = $dbq -> fetchObject()){
+     
+      $operations[] = array(
+      '__vku_create_testpdf',
+      array(
+        $all -> nid
+      ),
+    );
+  }
+  
+  $batch = array(
+    'operations' => $operations,
+    'finished' => '__vku_create_testpdf_fin',
+    'title' => t('Processing Example Batch'),
+    'init_message' => t('Example Batch is starting.'),
+    'progress_message' => t('Processed @current out of @total.'),
+    'error_message' => t('Example Batch has encountered an error.'),
+     'file' => drupal_get_path('module', 'vku') . '/batch.inc',
+  );
+ 
+  batch_set($batch);
+  batch_process('<front>');
+}
+
+function __vku_create_testpdf_fin(){
+  drupal_set_message("Done!");
+  drupal_goto("<front>");
+
+}
+
+
+function __vku_create_testpdf($nid){
+  
+  require('sites/all/modules/lokalkoenig/vku/fpdf17/fpdf.php');
+  require('sites/all/modules/lokalkoenig/vku/pdf_class.php');
+  //define('PART_ONLY', 1);
+  
+  $node = node_load($nid);
+  
+  $pdf = new PDF('L');
+
+  $pdf->AddFont('Lato-Regular','', 'Lato-Regular.php');
+  $pdf->AddFont('Lato-Bold','', 'Lato-Bold.php');
+  
+  $pdf -> SetMargins(0);
+  $pdf -> SetTopMargin(30);
+  $pdf->AliasNbPages();
+  $pdf -> SetTextColor(69, 67, 71);
+
+  require('sites/all/modules/lokalkoenig/vku/pages/b-medias.php');
+  //drupal_get_messages();
+  $fn = "node-". $node -> nid .".pdf";
+  $dir = "sites/all/modules/lokalkoenig/vku/pdfrender/";
+  $pdf->Output($dir . $fn, 'F');
+}
+
+?>

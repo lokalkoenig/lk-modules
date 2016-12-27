@@ -1,0 +1,234 @@
+.ac_results:before {
+    display: none !important;
+}
+
+#searchbegin {
+    width: 150px !important;
+}
+
+form#kampasearch {
+    position: relative;
+    top: 2px;
+}
+
+.sending-data {
+   position: relative; 
+}
+
+.vku-more:hover {
+    text-decoration: underline;
+}
+
+.sending-data:before {
+    position: absolute;
+    z-index: 1000;
+    background: rgba(255,255,255,0.3);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    content: '';
+    text-align: center;
+    background-image: url(ajax-loader.gif);
+    background-position: center center;
+    background-repeat: no-repeat;
+    pointer-events: fill;
+}
+
+
+
+.sending-data:after {
+    top: 50%;
+   
+    text-align: center;
+    font-size: 3em;
+    color: #428bca;
+    position: absolute;
+    left: 0;
+    right: 0;
+    font-family: 'Glyphicons Halflings';
+    display: inline-block;
+}
+
+
+.sending-data.done:before {
+    background-image: none;
+}
+
+.sending-data.done:after {
+    content: "\e013";
+    color: #5cb85c;  
+}
+
+
+
+
+
+.tgrid .list_vku  hover {
+   pointer-events: none;
+}
+
+.btn.btn-hollow {
+    background: White;
+}
+
+.btn.btn-hollow:hover {
+    background: rgb(250, 250, 250);
+}
+
+.btn-primary.btn-hollow  {
+    color: #428bca !important;
+}
+
+.btn.btn-danger.btn-hollow, .btn.btn-danger.btn-hollow:hover  {
+    color: #d43f3a;
+}
+
+.btn-hollow:focus {
+    color: White !important;
+}
+
+.btn.btn-transparent {
+    background: transparent;
+    color: White;
+}
+
+ul.dropdown-menu-vku .item {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    transition: background 0.4s;
+}
+
+ul.dropdown-menu-vku .item:not(.active):not(.no-hover):hover {
+    background: rgb(245, 245, 245);     
+}
+
+ul.dropdown-menu-vku .item.active {
+    background: #3276b1;
+    color: white;
+    text-align: center;
+}
+
+ul.dropdown-menu-vku .item.active .hide-active {
+    display: none;
+}
+
+.btn-group-vku {
+    float: left; 
+    width: 250px; 
+    display: inline-block; 
+    margin-right: 10px;
+    position: relative;
+}
+
+.btn-group-vku>button, .btn-group-vku>a {
+    width: 100%;
+    position: relative;
+    padding: 3.5px 0px;
+    display: block;
+    color: White;
+}
+
+.btn-open-vku {
+    position: relative; 
+    padding: 3px 12px; 
+    display: block; 
+    width: 100%; 
+    text-align: left;
+}
+
+.btn-group-vku.open>button {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.btn-group-vku.open>.btn {
+    background: #3276b1;
+    border-color: #285e8e;
+    border-bottom: 0;
+    z-index: 1000;  
+}
+
+
+.btn-group-vku a.vku-main-link {
+  margin-right: 36px; 
+  margin-left: 0px;  
+  line-height: 13px; 
+  display: block; 
+  text-align: center;  
+  font-size: 10px;  
+  color: White !important;
+}
+
+.btn-group-vku a.vku-main-link .vku-title {
+    font-size: 14px;
+}
+
+.btn-group-vku.open>.dropdown-menu {
+    border-radius: 0;
+    padding: 0;
+    border: 1px #285e8e solid;
+    box-shadow: none !important;
+    margin-top: 0px;
+    box-shadow: none !important;
+    border-top: 0;
+}
+
+/** New Modal Header style */
+.modal-lk .modal-header  {
+    color: White;
+    background: #3276b1;
+}
+
+.modal-lk .close {
+    color: White;
+    
+}
+
+.modal-lk .close:hover {
+     color: White;
+}
+
+.modal-lk .modal-content {
+    border-radius: 0;
+}
+
+.btn-group-vku .dropdown-toggle {
+    background: transparent;
+    position: absolute;
+    top: 0;
+    right:0;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    text-align: right;
+    border-left: 1px #285e8e solid;
+}
+
+.btn-group-vku .dropdown-toggle .caret {
+    margin-right: 14px;
+    border-top-color: White;
+}
+
+.btn-group-vku .dropdown-toggle:hover {
+   background: #285e8e; 
+}
+
+.btn-group-vku.open .dropdown-toggle {
+    border-left-color: #285e8e;
+    border-bottom: 1px #285e8e solid;
+    z-index: 3000;
+}
+
+.btn-group-vku button .vku-title a {
+    color: White;
+}
+
+body .help-block {
+    background: transparent;
+    padding: 7px 25px;
+}
+
+body .help-block:before {
+    left: 5px;
+}
