@@ -1,0 +1,328 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "hash": "cc190e0e958233e97a2bd3845bc72ec3",
+    "content-hash": "badaa906dfba8c76fd197043ca22c213",
+    "packages": [
+        {
+            "name": "internations/solr-utils",
+            "version": "v0.6.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/InterNations/SolrUtils.git",
+                "reference": "ade1c00cd746eebc5130e44261c43d0524ce0c7f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/InterNations/SolrUtils/zipball/ade1c00cd746eebc5130e44261c43d0524ce0c7f",
+                "reference": "ade1c00cd746eebc5130e44261c43d0524ce0c7f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "internations/kodierungsregelwerksammlung": "dev-master",
+                "phpunit/phpunit": "~5|~4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "InterNations\\Component\\Solr\\Util": "src/",
+                    "InterNations\\Component\\Solr\\ExpressionInterface": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Lars Strojny",
+                    "email": "lars.strojny@internations.org"
+                }
+            ],
+            "description": "Solr/Lucene utilities for PHP",
+            "time": "2016-07-13 15:52:47"
+        },
+        {
+            "name": "pclzip/pclzip",
+            "version": "2.8.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ivanlanin/pclzip.git",
+                "reference": "19dd1de9d3f5fc4d7d70175b4c344dee329f45fd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ivanlanin/pclzip/zipball/19dd1de9d3f5fc4d7d70175b4c344dee329f45fd",
+                "reference": "19dd1de9d3f5fc4d7d70175b4c344dee329f45fd",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "pclzip.lib.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Vincent Blavet"
+                }
+            ],
+            "description": "A PHP library that offers compression and extraction functions for Zip formatted archives",
+            "homepage": "http://www.phpconcept.net/pclzip",
+            "keywords": [
+                "php",
+                "zip"
+            ],
+            "time": "2014-06-05 11:42:24"
+        },
+        {
+            "name": "phpoffice/common",
+            "version": "v0.2.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHPOffice/Common.git",
+                "reference": "c9be70c80637c28c728be78e66aad4878a34f8dd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHPOffice/Common/zipball/c9be70c80637c28c728be78e66aad4878a34f8dd",
+                "reference": "c9be70c80637c28c728be78e66aad4878a34f8dd",
+                "shasum": ""
+            },
+            "require": {
+                "pclzip/pclzip": "^2.8",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "phpdocumentor/phpdocumentor": "2.*",
+                "phploc/phploc": "2.*",
+                "phpmd/phpmd": "2.*",
+                "phpunit/phpunit": "3.7.*",
+                "sebastian/phpcpd": "2.*",
+                "squizlabs/php_codesniffer": "2.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpOffice\\Common\\": "src/Common/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL"
+            ],
+            "authors": [
+                {
+                    "name": "Mark Baker"
+                },
+                {
+                    "name": "Franck Lefevre",
+                    "homepage": "http://rootslabs.net"
+                }
+            ],
+            "description": "PHPOffice Common",
+            "homepage": "http://phpoffice.github.io",
+            "keywords": [
+                "common",
+                "component",
+                "office",
+                "php"
+            ],
+            "time": "2016-07-07 17:26:55"
+        },
+        {
+            "name": "phpoffice/phpexcel",
+            "version": "1.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHPOffice/PHPExcel.git",
+                "reference": "e69a5e4d0ffa7fb6f171859e0a04346e580df30b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHPOffice/PHPExcel/zipball/e69a5e4d0ffa7fb6f171859e0a04346e580df30b",
+                "reference": "e69a5e4d0ffa7fb6f171859e0a04346e580df30b",
+                "shasum": ""
+            },
+            "require": {
+                "ext-xml": "*",
+                "ext-xmlwriter": "*",
+                "php": ">=5.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "PHPExcel": "Classes/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL"
+            ],
+            "authors": [
+                {
+                    "name": "Maarten Balliauw",
+                    "homepage": "http://blog.maartenballiauw.be"
+                },
+                {
+                    "name": "Mark Baker"
+                },
+                {
+                    "name": "Franck Lefevre",
+                    "homepage": "http://blog.rootslabs.net"
+                },
+                {
+                    "name": "Erik Tilt"
+                }
+            ],
+            "description": "PHPExcel - OpenXML - Read, Create and Write Spreadsheet documents in PHP - Spreadsheet engine",
+            "homepage": "http://phpexcel.codeplex.com",
+            "keywords": [
+                "OpenXML",
+                "excel",
+                "php",
+                "spreadsheet",
+                "xls",
+                "xlsx"
+            ],
+            "time": "2014-03-02 15:22:49"
+        },
+        {
+            "name": "phpoffice/phppresentation",
+            "version": "0.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHPOffice/PHPPresentation.git",
+                "reference": "b70f7eaddf2ccb8d44a5fec0618ac26efbf6c656"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHPOffice/PHPPresentation/zipball/b70f7eaddf2ccb8d44a5fec0618ac26efbf6c656",
+                "reference": "b70f7eaddf2ccb8d44a5fec0618ac26efbf6c656",
+                "shasum": ""
+            },
+            "require": {
+                "ext-xml": "*",
+                "ext-zip": "*",
+                "php": ">=5.3.0",
+                "phpoffice/common": "0.2.*"
+            },
+            "require-dev": {
+                "phpdocumentor/phpdocumentor": "2.*",
+                "phploc/phploc": "2.*",
+                "phpmd/phpmd": "2.*",
+                "phpunit/phpunit": "3.7.*",
+                "sebastian/phpcpd": "2.*",
+                "squizlabs/php_codesniffer": "2.*"
+            },
+            "suggest": {
+                "ext-gd2": "Required to add images"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpOffice\\PhpPresentation\\": "src/PhpPresentation/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL"
+            ],
+            "authors": [
+                {
+                    "name": "Mark Baker"
+                },
+                {
+                    "name": "Ivan Lanin",
+                    "homepage": "http://ivan.lanin.org"
+                },
+                {
+                    "name": "Franck Lefevre",
+                    "homepage": "http://rootslabs.net"
+                }
+            ],
+            "description": "PHPPresentation - Read, Create and Write Presentations documents in PHP",
+            "homepage": "http://phpoffice.github.io",
+            "keywords": [
+                "LibreOffice",
+                "PowerPoint",
+                "odp",
+                "php",
+                "ppt",
+                "pptx",
+                "presentations"
+            ],
+            "time": "2016-01-24 10:39:19"
+        },
+        {
+            "name": "sybio/gif-frame-extractor",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Sybio/GifFrameExtractor.git",
+                "reference": "13e9880add3ae9cca10a48a0a3897fe3d0069f71"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Sybio/GifFrameExtractor/zipball/13e9880add3ae9cca10a48a0a3897fe3d0069f71",
+                "reference": "13e9880add3ae9cca10a48a0a3897fe3d0069f71",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "GifFrameExtractor": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Clément Guillemain",
+                    "homepage": "http://clementguillemain.fr",
+                    "role": "Developer / Freelancer"
+                }
+            ],
+            "description": "PHP class that separates all the frames (and their duration) of an animated GIF",
+            "homepage": "https://github.com/Sybio/GifFrameExtractor",
+            "keywords": [
+                "animated",
+                "duration",
+                "frame",
+                "gif",
+                "php",
+                "separate",
+                "time"
+            ],
+            "time": "2012-10-13 09:06:51"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

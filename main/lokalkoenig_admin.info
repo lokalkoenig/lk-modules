@@ -1,0 +1,4 @@
+name = "Lokalkönig Basis Module"
+description = "Definiert einfache Methoden inkl. dem Bootstrap"
+core = "7.x"
+package = Lokalkoenig

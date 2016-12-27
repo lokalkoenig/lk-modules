@@ -1,0 +1,9 @@
+{
+    "name": "Maikito",
+    "cases": [{
+       "LK\\Tests\\TestSolr": "Solr Search Test",
+       "LK\\Tests\\TestVKU": "VKU Test (Generieren von Test-VKU)",
+       "LK\\Tests\\AlertTest": "Alert Test",
+       "LK\\Tests\\PPTTest": "VKU Test PPT"     
+    }]  
+}

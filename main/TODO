@@ -1,0 +1,17 @@
+ADD http://lk.dev/admin/structure/views/view/log
+
+REMOVE http://lk.dev/admin/structure/views/view/intern_lk_log/edit/page_1
+REMOVE VIEW log2016
+REMOVE View Lokalkönig Logbuch
+
+
+MAKE CONVERT JOBS
+   
+    
+    
+    
+    
+ 
+REMOVE TABLE na_node_access_log
+REMOVE TABLE lk_vku_log
+REMOVE TABLE lk_common_log

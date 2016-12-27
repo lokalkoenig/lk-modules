@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * Autoloader
+ */
+require_once __DIR__ .'/../src/autoload.php';
+require_once __DIR__ .'/views/schema.inc';
+require_once __DIR__ .'/cron/cronjobs.inc';
+require_once __DIR__ .'/depricated.inc.php';
+require_once __DIR__ .'/blocks.inc.php';
+
+function lokalkoenig_admin_menu(){
+ 
+    // add Menu
+    // lkadmin/stats
+     $items['lkadmin/overview'] = array(
+      'access callback' => 'lk_is_moderator',
+      'page callback' => 'lokalkoenig_admin_show_stats',
+      'title' => 'Statistiken',
+      'file' => "pages/stats_overview.inc",
+      'type' => MENU_CONTEXT_NONE); 
+     
+     $items['lkadmin/test'] = array(
+      'access callback' => 'lk_is_moderator',
+      'page callback' => '\\LK\\Tests\\Controller\\TestController::run',
+      'title' => 'Tests',
+      'type' => MENU_CONTEXT_NONE); 
+             
+     $items['lkadmin/settings'] = array(
+      'access callback' => 'lk_is_moderator',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('lokalkoenig_admin_settings_page'),
+      'file' => "pages/lkadmin_settings.inc",
+      'title' => 'Tests',
+      'type' => MENU_CONTEXT_NONE); 
+    
+     $items['lkadmin/stats'] = array(
+        'title' => 'Lokalkoenig Statistiken',
+       'page callback' => '\\LK\\Admin\\StatsController::pageStats',
+        'access arguments' => array('access administration menu'),
+        'type' => MENU_CONTEXT_NONE,
+    );  
+    
+    $items['lkadmin/pakete'] = array(
+        'title' => 'Paketgrößen',
+         'page callback' => '\\LK\\Admin\\StatsController::pagePakete',
+        'access arguments' => array('access administration menu'),
+        'type' => MENU_CONTEXT_NONE,
+    ); 
+     
+    return $items;
+}
+
+
+
+
+function lokalkoenig_admin_theme(){
+    
+    $themes = array();
+    $themes["lokalkoenig_admin_navigation"] = array(
+       'template' => 'templates/lokalkoenig_admin_navigation', // your template file called custompage.tpl.php
+       'variables' => array(),
+    );
+ 
+return $themes;    
+}
+
+function lokalkoenig_admin_init(){
+    
+    if(arg(0) == "lkadmin" OR arg(0) == "logbuch" OR arg(0) == "verlage" OR arg(0) == "lkstats" OR arg(0) == "kampagnen" OR arg(0) == "lkabrechnung"){
+        lk_set_icon('cog');
+        
+        drupal_add_css(drupal_get_path('module', 'lokalkoenig_admin') .'/css/admin.css');
+    }   
+}
+
+
+/**
+ * Sets the Param "field_kamp_suche" as default value on the 
+ * in the page admin/structure/computed_field_recompute
+ * 
+ * @param type $form
+ * @param type $form_state
+ * @param type $form_id
+ */
+function lokalkoenig_admin_form_alter(&$form, &$form_state, $form_id){
+  
+  if($form_id == 'computed_field_tools_recompute_form'){
+    $form['fields']['computed_field_to_recompute']['#default_value'] = 'field_kamp_suche';
+    $form["entities"]['#access'] = false; 
+  }
+  
+  if(arg(0) == "kampagnen" AND $form_id == 'views_exposed_form' AND isset($form["field_kamp_status_value"])){
+     //dpm($form);  
+     unset($form["field_kamp_status_value"]["#size"]);
+     $form["field_kamp_status_value"]["#type"] = 'select';
+     $form["field_kamp_status_value"]["#options"] = array(
+      '' => "-- ALLE --",
+      'new' => "Neu",
+      'proof' => "Zu überprüfen",
+      'published' => "Online",
+      'canceled' => "Abgelehnt"
+     ); 
+  }  
+}
+
