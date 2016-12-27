@@ -1,4 +1,0 @@
-name = "Lokalkönig Basis Theme Modul"
-description = "Beinhaltet alle nötigen Funktionen für das Theme"
-core = "7.x"
-package = Lokalkoenig
