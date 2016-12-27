@@ -6,7 +6,7 @@ include("inc/views_data.inc");
 include("inc/menu_theme.inc");
 include("inc/functions.php");
 include("vkuCreator.class.inc");
-//include 'documents/app.php';
+include("vorlagen.inc");
 
 if(!function_exists('is_local')){
     function is_local(){

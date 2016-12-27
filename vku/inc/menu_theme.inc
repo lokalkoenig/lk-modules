@@ -267,6 +267,15 @@ function vku_theme(){
             ),
         );        
        
+  
+  $themes['vkuconnection_settings'] = array(
+            'template' => 'templates/vkuconnection_settings', // your template file called custompage.tpl.php
+            'variables' => array(
+              'items' => array()
+            ),
+        );
+ 
+  
 return $themes;
 }
 
@@ -515,6 +524,34 @@ return $themes;
 
 
     
+     // VKU Templates
+     
+    $items['vku/create/vorlage'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'vkuconnection_create_vorlage',
+      'page arguments' => array(),
+      'file' => 'inc/vorlagen/vkuconnection_create_vorlage.php',
+      'title' => 'VKU-Vorlage callback',
+      'type' => MENU_CONTEXT_NONE);  
+
+  $items['vku/%/template/%'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'vkuconnection_takeover_vorlage',
+      'page arguments' => array(1, 3),
+      'file' => 'inc/vorlagen/vkuconnection_takeover_vorlage.php',
+      'title' => 'VKU-Entries add',
+      'type' => MENU_CONTEXT_NONE);  
+ 
+  $items['user/%user/vkusettings'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'vkuconn_settings',
+      'page arguments' => array(1),
+      'file' => 'inc/vorlagen/settings.php',
+      'title' => 'VKU-Einstellungen',
+      'type' => MENU_CONTEXT_NONE);   
+
+     
+     
 
     // Admin
     $items['logbuch/editlizenz/%'] = array(
