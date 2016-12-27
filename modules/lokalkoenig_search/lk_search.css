@@ -1,0 +1,107 @@
+
+
+.block-current-search {
+  float: right;
+  width: 700px;
+  position: relative;
+  z-index: 5;
+  margin-top: 10px;
+}
+
+.block-current-search h2 {
+  display: none;
+}
+
+.block-current-search .facetapi-facet {
+  float: left;
+}
+
+.current-search-item-text {
+  float: right;
+  font-size: 1.6em;
+  height: 2.5em;
+}
+
+.current-search-item-active ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+
+
+.current-search-item-active ul li {
+  float: left;
+}
+
+/**
+.current-search-item-active li.first a:before {
+  content: '(';
+   padding-right: 1em;
+}
+
+.current-search-item-active li.last a:after {
+  content: ')';
+  padding-left: 1em;
+} */
+
+.current-search-item-active ul:before,
+.current-search-item-active ul:after
+ {
+ font-size: 20px;
+  font-weight: bold;
+   content: '('; 
+  padding-right: 5px;
+  float: left;
+   padding: 5px 3px;
+} 
+
+.current-search-item-active ul:after {
+   content: ')'; 
+}
+
+
+.current-search-item-active li a.btn-default {
+  background: none;
+  
+  background-position: right top;
+  padding: 5px 3px;
+  background-repeat: no-repeat;
+  border: none;
+  font-weight: bold;
+  font-size: 15px;
+  background-image: url(/sites/all/themes/bootstrap_lk/design/remove.png);
+  padding-right: 10px;
+  box-shadow: none;
+}
+
+.current-search-item-active.no-delete li a.btn-default {
+  background-image: none;
+  padding: 5px 3px;
+}
+
+
+
+.current-search-item-active li:after {
+  content: '+'; 
+  padding: 4px 6px;
+  float: right;
+} 
+
+
+
+
+.current-search-item-active li.last:after {
+  display: none;
+}
+ 
+
+
+.current-search-item-active li a.btn-default:hover {
+  text-decoration:line-through;
+  color: #f7a800;  
+}
+
+.current-search-item-active.no-delete li a.btn-default:hover {
+   text-decoration:none;
+}

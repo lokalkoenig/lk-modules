@@ -1,0 +1,4 @@
+name = "Lokalkönig Dashboard"
+description = "Das Modul generiert das Dashboard eines Nutzers"
+core = "7.x"
+package = Lokalkoenig

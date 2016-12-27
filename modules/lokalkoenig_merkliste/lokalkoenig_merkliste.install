@@ -1,0 +1,52 @@
+<?php
+
+
+function lokalkoenig_merkliste_schema() {
+
+  $schema['lokalkoenig_merkliste'] = array(
+    'description' => 'Zeichnet Ereignisse in der Datenbank auf',
+    'fields' => array(
+      'id'  => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Primary Key: Unique ID.',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "",
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => "",
+      ),
+      'ml_created' => array(
+        'type' => 'int',
+        'length' => 11,
+        'not null' => TRUE,
+    
+        'description' => 'Date of the action',
+      ),
+      'ml_title' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => 'Surname of the person.',
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'nid'    => array('nid'),
+      'uid' => array('uid')
+    ),
+  );
+
+  return $schema;
+}
+
+
+?>

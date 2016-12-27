@@ -1,0 +1,188 @@
+<?php
+  
+  $show_verk = array();
+
+ if(!isset($node -> online)){
+    $node -> online = false;
+ }
+ 
+ // Checken PLZ
+ if(lk_vku_access()){
+ // Alle PLZ ermitteln die betroffen sind
+      $dbq = db_query("SELECT tax.name as name FROM 
+                                    field_data_field_plz_sperre as p, 
+                                    field_data_field_medium_node as n,
+                                    taxonomy_term_data as tax 
+                                    WHERE 
+                                    p.entity_id=n.entity_id AND
+                                    n.entity_type = 'plz'  
+                                    AND n.field_medium_node_nid='". $node -> nid ."'
+                                    AND p.field_plz_sperre_tid=tax.tid 
+                                    ORDER BY tax.name ASC");
+     if(!lk_is_moderator()){
+        //Ausgaben laden
+      
+        $trans = array();                              
+        $tids = na_getUserPlz($user);   
+        foreach($tids as $tid){
+          $term = taxonomy_term_load($tid);
+          $may = $term -> name[0] . $term -> name[0];
+          $trans[$may] = $may;
+        }
+        
+        // PLZ - Verlag - Bereiche
+        
+        
+        
+      }
+      
+      $taxos = array();
+      foreach($dbq as $all){      
+          $index =  $all -> name[0] . $all -> name[1]; 
+          $taxos[$index] = $index;
+      }     
+      
+     
+                 
+      
+      if(lk_is_moderator()){
+         foreach($taxos as $index){
+             $show_verk[$index] = '<big style="font-weight:bold;">' . $index . "</big> <small>XXX</small>";
+         }
+      }
+      else {
+        $show_verk = array();
+        foreach($taxos as $index){
+            if(isset($trans[$index])){
+               $show_verk[$index] = '<big style="font-weight:bold;">' . $index . "</big> <small>XXX</small>";
+            }
+        }
+      }
+   }
+ 
+?>
+
+
+<div class="clearfix width">
+  <?php if($node -> plzaccess == false) { 
+     global $user;
+
+    $current_lizenz = vku_user_has_lizenz_node($nid, $user);
+  
+  // Keine aktuelle Lizenz  
+  if(!$current_lizenz){
+      $result = na_check_user_has_access(0, $node -> nid);
+ 
+ if(isset($result["time"])){  ?>
+  <div class="alert alert-success"><span class="glyphicon glyphicon-chevron-right"></span> Die Kampagne ist für Sie wieder ab dem <strong><?php print date("d.m.Y", $result["time"]); ?></strong> wieder verfügbar.</div>    
+<?php
+  }
+  else {
+   ?>
+     <div class="alert alert-success"><span class="glyphicon glyphicon-chevron-right"></span> Die Kampagne ist nicht verfügbar.</div>
+   <?php
+  }
+  }
+  } 
+?>
+  
+  <div class="pull-left" style="width: 282px; margin-right: 40px;">
+  <div class="thumbnail-noborder">
+   <?php print render($content["field_kamp_teaserbild"]); ?>
+  </div>
+  </div>
+    
+  <div class="pull-left" style="width: 678px;">
+    <h2 style="margin-top: 0; font-weight: bold;"><?php print $title; ?></h2>
+    <h3 style="font-weight: normal; margin-top: 0; margin-bottom: 20px;"><?php print render($content["field_kamp_untertitel"]); ?></h3>
+    
+    <ul class="list-inline status-icons">
+     <li><span class="prodid prodid_big"><?php print _lk_get_kampa_sid($node); ?></span></li> 
+      <li><img src="/sites/all/themes/bootstrap_lk/design/icon-printanzeige.png" alt="Printanzeige" /> Printanzeige</li>
+      <li><img src="/sites/all/themes/bootstrap_lk/design/icon-webanzeige.png" alt="Webanzeige" /> Onlineanzeige</li>
+       
+      
+      <?php
+        if(lk_is_moderator()){
+        ?>
+          <li><span class="prodid prodid_big" data-toggle="tooltip" data-placement="top" title="Versenden Sie diese Kampagne an Ihre Mitarbeiter"><a href="<?php print url('messages/new', array("query" => array("node" => $node -> nid))); ?>" style="color: White;"><span class="glyphicon glyphicon-envelope"></span></a></span></li>
+          <li class="small"><a path="<?php print url('node/' . $nid . "/switchrecomend"); ?>" nid="<?php print $nid; ?>" class="stickynode prodid_big prodid <?php if($node -> sticky == 1) print 'on'; ?>"><span data-toggle="tooltip" title="Als redaktionelle Empfehlung markieren" class="glyphicon glyphicon-star"></span></a></li>
+        <?php
+        }
+        elseif($node -> online){
+        ?>
+            <li><span class="prodid prodid_big" data-toggle="tooltip" data-placement="top" title="Versenden Sie diese Kampagne"><a href="#" <?php if($node -> online){ ?>class="recomendnode"<?php } ?> nid="<?php print $nid; ?>" style="color: White;"><span class="glyphicon glyphicon-envelope"></span> Versenden</a></span></li>
+      
+        <?php
+        }
+      ?>
+      
+    </ul>
+    
+    <div class="kampagnen-teaser" style="height: 90px;">
+      <?php print render($content["field_kamp_teasertext"]); ?>
+    </div>
+   
+     <ul class="list-inline list-kampa-options list-kampa-options-big">
+      <li class="list_merkliste <?php if($node -> merkliste) { ?> hover<?php } ?>">
+        <span class="badge"><span class="glyphicon glyphicon-ok"></span></span> 
+        <?php  if(isset($node -> online) AND $node -> online){ ?>
+          
+          <?php if($node -> merkliste) { ?>
+            <a href="javascript:void(0);" class="merklistejs merkliste on" href="#" mlid="<?php print $node -> merkliste_id; ?>" nid="<?php print $node -> nid; ?>" items="<?php print $node -> merkliste_title; ?>"><span><?php print MERKLISTE_STR_ON; ?></span></a>   
+          
+          <?php } else { ?>
+             <a href="javascript:void(0);" class="merklistejs merkliste" href="#" mlid="" nid="<?php print $node -> nid; ?>" items=""><?php print MERKLISTE_STR; ?></a>
+          <?php
+          }?>
+        <?php } else { ?>
+          <a href="javascript:void(0);" data-toggle="tooltip" title="Deaktiviert: Kampagne nicht online" class="merkliste" href="#" mlid="" nid="<?php print $node -> nid; ?>" items=""><?php print MERKLISTE_STR; ?></a>
+        <?php } ?>
+      </li>
+      <?php 
+        if($node -> online == false){
+        ?>
+          <li class="list_vku"><span class="badge"><span class="glyphicon glyphicon-euro"></span></span> <a href="#" title="Kampagne nicht online">Verkaufsunterlage</a></li>
+        <?php
+        }
+        elseif($node -> plzaccess == true) { ?>
+        <li class="list_vku <?php if($node -> vku_active) print ' hover'; ?>"><span class="badge"><span class="glyphicon glyphicon-euro"></span></span> <a nid="<?php print $node -> nid; ?>" href="<?php print url('vku/add/' . $nid); ?>" class="addvkujs">Verkaufsunterlage</a></li>
+      <?php } ?>
+    </ul>  
+   
+   
+    <?php
+      if($node -> plzaccess == true) {
+        // Checken ob andere User VKU's mit der Kampagne erstellt haben
+        $result = vku_get_use_count($nid, $user);
+        if($result){
+            print '<hr />' . theme("lk_vku_usage", array('class' => 'clearfix', "account" => $user, "entries" => vku_get_use_details($nid, $user)));
+        }
+      } 
+    
+    ?>
+  
+    
+  
+  </div>
+</div>    
+
+<?php if($show_verk) : ?>
+
+<div class="width">
+   <div class="row clearfix">
+      <div class="col-xs-6 text-right">
+          <strong>Die Kampagne wurde bereits für folgende <br />Posteleitzahlenbereiche lizensiert:</strong>
+      </div>
+      
+      <div class="col-xs-6" style="padding-top: 16px;">
+          <?php print implode(", ", $show_verk); ?>
+      </div>
+   
+   </div>
+
+
+</div>
+
+
+<?php endif; ?>

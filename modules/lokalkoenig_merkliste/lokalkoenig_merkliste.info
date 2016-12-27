@@ -1,0 +1,4 @@
+name = "Lokalkönig Merkliste"
+description = "Merkliste"
+core = "7.x"
+package = Lokalkoenig

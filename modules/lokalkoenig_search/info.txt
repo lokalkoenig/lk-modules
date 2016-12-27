@@ -1,0 +1,4 @@
+
+
+http://www.wunderkraut.com/blog/apache-solr-configuring-partial-word-search-functionality/2012-12-12
+

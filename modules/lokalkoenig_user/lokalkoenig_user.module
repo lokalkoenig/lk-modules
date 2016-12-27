@@ -1,0 +1,533 @@
+<?php
+
+define("LK_SYSTEM_USER_UID", 11);
+
+require_once("inc/menu_theme.php");
+require_once("pages/verlagsstruktur.inc");
+
+
+function lk_check_user_profile_access($account_obj){
+    
+    $account = \LK\get_user($account_obj);
+    $current = \LK\current();
+    
+    
+    if(!$current){
+        return false;
+    }
+       
+    // Own Profile, yes
+    if($account == $current){
+        
+        
+        return user_view_access($account_obj);  
+    }
+    
+    if($current -> isModerator()){
+       return user_view_access($account_obj);  
+    }
+    
+    // When profile access
+    if($current -> hasRight('profile access')){
+       $verlag = $current -> getVerlagObject();
+       if($verlag){
+           $ma = $verlag -> getAllUsers();
+           if(in_array($account -> getUid(), $ma)){
+               return user_view_access($account_obj);  
+           }
+           else {
+               return false;
+           }
+       }
+       else {
+           return false;
+       }
+    }
+    
+    if($current -> isTeamLeiter()){
+        $team = $current -> getTeamObject();
+        $ma = $team -> getUser();
+        
+        if(in_array($account -> getUid(), $ma)){
+               return user_view_access($account_obj);  
+           }
+           else {
+               return false;
+           }
+    }
+    
+   return user_view_access($account_obj);  
+}
+
+
+
+function lk_user_profile_page($account = NULL){
+global $user;
+  
+    if($account == NULL){
+        $account = $user;
+    }
+    
+    if($account -> uid == 0){
+        drupal_goto("user/login");
+    }
+    
+    $obj = \LK\get_user($account);
+    if($user -> uid == $account -> uid){
+        drupal_set_title("Ihr Profil");
+    }
+    else {
+       drupal_set_title("Profil von " . $account -> name);
+       lk_set_subtitle(ucfirst($obj ->getRole()));
+    }
+    
+    $stats = theme('mitarbeiterinfo', array('account' => $account));
+    
+    if($obj ->isAgentur() OR $obj ->isModerator()){ }
+    else {
+      $stats .= _lk_statsUser(array("user" => $account -> uid, 'form' => false));
+    }
+    
+    return $stats;
+}
+
+
+function form_lk_feedback($form, $form_state){
+  
+  $form["#action"] = url("notify-support", array("query" => array("page" => current_path())));
+  
+  $form['subject'] = array(
+    '#type' => 'textfield', 
+    '#title' => ('Betreff'), 
+    '#default_value' => 'Feedback zu ' . drupal_get_title(), 
+    '#size' => 60, 
+    '#maxlength' => 128, 
+    '#required' => TRUE
+  );
+  $get = $_GET;
+  unset($get["q"]);
+  $url = url(current_path(), array("query" => $get, "absolute" => true));
+
+  $ersetzen = array(
+    '[!url]' => $url
+  );
+   
+  $path = url(current_path(), array("query" => $_GET));
+  
+  $form['text'] = array(
+    '#type' => 'textarea', 
+    '#title' => ('Nachricht'), 
+    '#rows' => 10,
+    '#default_value' => "Hallo Lokalkönig,\nich habe ein Feedback zu " . $url . " :\n\n", 
+    '#required' => TRUE
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Abschicken',
+  );
+    
+return $form;
+}
+
+
+function lokalkoenig_user_block_info(){
+ 
+ $blocks['lk_user_block_agentur'] = array(
+    // info: The name of the block.
+    'info' => 'Block: User-Top-Ansicht',
+    // Block caching options (per role, per user, etc.)
+  );
+  
+  
+  $blocks['lk_user_block_left'] = array(
+    // info: The name of the block.
+    'info' => 'Block: User-Left-Ansicht',
+    // Block caching options (per role, per user, etc.)
+  );
+  
+
+return $blocks;
+}
+
+/**
+ * Checks if the User has PLZ
+ * 
+ * @param type $user
+ * @return type
+ */
+function _lk_check_if_user_has_plz($user){
+    
+    
+   if(!$user -> uid) {
+       return ;
+   }
+   
+   $account = \LK\get_user($user -> uid);
+   if($account ->isAgentur() OR $account ->isModerator()){
+       return ;
+   }
+   
+   if(!in_array(arg(0), array('suche', 'vku', 'merkliste', 'suche-grid', 'node'))){
+      // Node-Kampagnen-Access unterbinden
+      return ;
+   }
+   
+   $ausgaben = $account ->getCurrentAusgaben();
+   $uid = $account -> getUid();
+   
+   if(!$ausgaben){
+       if($account ->isTelefonmitarbeiter()){
+          drupal_set_message("Bitte wählen Sie Ausgaben aus, für die Sie Kampagnen suchen möchten.");
+          drupal_goto("user/" . $uid . "/setplz");
+       }
+       else {
+          drupal_set_message("Ihr Account hat fehlende Einstellungen. Bitte kontaktieren Sie Ihren Account-Manager.");
+          drupal_goto("user/" . $uid);
+       }
+   }
+}
+
+
+
+/** 
+ * Central Entry Point for Users
+ * 
+ * @global type $user
+ * @return type
+ */
+
+function lokalkoenig_user_init(){
+global $user;
+   
+   // Annonymous user
+   if($user -> uid == 0) { 
+       return ;
+   }
+   
+   $current = \LK\current();
+   $account = null;
+   
+   // Making a second
+   if(arg(0) == 'user' AND arg(1) AND arg(1) != $current -> getUid()){
+       $test_uid = (int)arg(1);
+       $test_account = \LK\get_user($test_uid);
+       
+       if($test_account){
+          $account = $test_account;  
+       }
+   }
+   
+  // Messages 
+  if(arg(0) == "messages"){
+      pathtitle("messages");  
+      
+      $path = drupal_get_path('module', 'lokalkoenig_user');
+      drupal_add_css($path . '/css/privatemsg.css');
+  }
+  
+  if(arg(2) == "vku"){
+       pathtitle("user/x/kampagnen"); 
+      
+  }
+  
+  // Kampagnen
+  if(arg(0) == "user" AND arg(2) == "kampagnen"){
+     pathtitle("user/x/kampagnen"); 
+     return ; 
+   }
+   
+   // Wenn Agentur, dann Zugriff auf andere Profile verbieten
+   if($current -> isAgentur()){
+     
+       if($account){
+         drupal_goto('user');  
+       }
+       
+       return ;
+   }
+   
+   // Titel ändern, wenn angezeigter Account ist nicht der eigene
+   if($account){
+      lk_set_subtitle((string)$account);     
+   }
+   
+   if($current -> isModerator()){
+       return ;
+   } 
+   
+   if(arg(0) == 'user' AND arg(2) == 'edit' AND in_array(arg(3), array("mitarbeiter", 'verlag'))){
+       if(!$current -> isVerlag()){
+            lk_note('debug', "Zugriff auf Funktion (". arg(3) .")");
+            drupal_goto('user/' . $current ->getUid());     
+       }
+    }
+  
+    
+   // Check if User has PLZ 
+   _lk_check_if_user_has_plz($user);
+  
+   
+   if(!$account){
+      return ; 
+   }   
+   
+   if($account -> uid == $current -> getUid()){
+       return ;
+   }
+   
+   
+    // Checken ob User is in Verlag
+  $vid = $account -> getVerlag();
+  $test_vid = $current -> getVerlag();
+       
+   // Check if User is in Verlag
+   if($vid != $test_vid){
+        // Redirect to own Profile
+        //drupal_set_message(lk_note('debug', "Zugriff auf fremden Verlag [". $vid ."]"));
+        drupal_goto('user/' . $user -> uid . "/dashboard");  
+   }
+   
+   if($current -> isVerlag() OR $current -> isVerlagController()){
+      if($current ->isVerlagController() AND $account ->isVerlag()){
+          // grant some
+          $grants = array("struktur", "ausgaben", 'abrechnung', 'verlagstats', 'verlagsprotokoll');
+          $arg2 = arg(2); 
+          if($arg2 AND in_array($arg2, $grants)){
+               return ; 
+          }
+      } 
+       
+       // Deny any Access to other Pathes
+       if(arg(2)){
+          drupal_goto('user/' . $account ->getUid());  
+      }
+       
+      return ;
+   }
+   
+    // Checke ob User Verlag ist und ob er auf bestimmte Seiten Zugriff haben kann 
+    // Teamleiter
+   
+   if($current -> isTeamleiter()){
+      $team = $account -> getTeam();
+      $test_team = $current -> getTeam(); 
+      
+      if($team != $test_team){
+        // Redirect to own Profile
+        drupal_goto('user/' . $current ->getUid());  
+      }
+      
+      // Deny any access to other Pathes
+      if(arg(2)){
+          drupal_goto('user/' . $account ->getUid());  
+      }
+      
+      return ;
+   }
+   
+   drupal_goto('user');  
+} 
+
+
+
+
+
+
+function lokalkoenig_user_block_view($delta = '') {
+global $user;
+  
+  $block = array();
+  
+  if($delta == 'lk_user_block_left'){
+      
+      if(arg(0) == "user" OR arg(0) == "messages" OR arg(0) == "team"){  
+        // User Anonymous
+        if($user -> uid == 0) {
+             return array('content' => theme('lk_user_block_left_anonym', array("account" => $user)));                      
+        }
+        
+        // Kampagnen voll darstellen
+        if(arg(2) == "kampagnen"){
+            return array();
+        }
+        
+        $current = \LK\current();
+        
+        if($current ->isModerator()){
+            
+            
+            $uid = $current -> getUid();
+            
+            if(arg(0) == 'messages'){
+                $uid = $user -> uid;
+            }
+            elseif(arg(0) == 'user'){
+               $uid = arg(1);
+               
+               if(!$uid){
+                   return array();
+               }
+            }
+            
+            if(arg(0) == 'team'){
+                $test = $team = \LK\get_team(arg(1));
+                if($test){
+                    $uid = $team ->getVerlag();
+                }
+            }
+            
+            $account = user_load($uid);  
+        }
+        else {
+            $account = user_load($current ->getUid());  
+        }
+        
+        $array = array("account" => $account, 'team' => false);
+        
+        if(arg(0) == 'team'){
+            $team = \LK\get_team(arg(1));
+            
+            if($team){
+                $array["team"] = $team;
+            }
+        }
+        
+        
+        return array('content' => theme('lk_user_block_left', $array));
+    }
+  }
+  
+  // Top - Block
+  if($delta == 'lk_user_block_agentur'):
+      if($user -> uid == 0) {
+          return array();
+      }
+      
+      $user -> count_msg_new = privatemsg_unread_count();
+      $block['subject'] = 'Kampagne erstellen';
+      
+      $array = array();  
+      $array["form"] =  drupal_get_form('form_lk_feedback');
+      $array["account"] =  $user;
+      
+      
+      $array["vku_menu"] = '';
+      if(vku_is_update_user()){
+        $array["vku_menu"] = vku_get_top_menu(); 
+      }  
+      
+      // Update VKU add
+      $block["content"] = theme('lk_user_block_top', $array);
+  
+  endif;
+  
+return $block;  
+}
+
+
+/** Hide cancel methods from other users */
+function lokalkoenig_user_user_cancel_methods_alter(&$methods){
+global $user;
+    
+  if($user -> uid != 1) { 
+        unset($methods["user_cancel_delete"]); 
+  }
+  
+  unset($methods["user_cancel_reassign"]);
+  unset($methods["user_cancel_block_unpublish"]);
+}
+
+
+function lokalkoenig_user_form_alter(&$form, &$form_state, $form_id){
+    
+  if($form_id == "privatemsg_new") {
+      
+     $form['actions']['submit']["#attributes"]["class"] = array('btn btn-success');
+     
+     if(isset($form["token"])){
+       $form["token"]["#access"] = false;
+     }
+     if(isset($form['reply']['#markup'])){
+        $form['reply']['#markup'] = '<h3 class="privatemsg-reply"><span class="glyphicon glyphicon-envelope"></span> Antworten</h3>';
+     } 
+  }
+ 
+  if($form_id == "user_login_block"){
+      $form["#action"] = url('node/14');
+      $form["name"]["#attributes"]['placeholder'] = 'Benutzer';
+      $form["pass"]["#attributes"]['placeholder'] = 'Passwort';
+      unset($form["links"]);
+      $form["actions"]["submit"]["#value"] = 'Login'; 
+  }
+  
+  if($form_id == "user_pass"){
+      pathtitle("user/pass");
+      _formlk($form);
+  }
+  
+  
+  if($form_id == "user_pass_reset"){
+      pathtitle("user/pass/reset");
+      _formlk($form);
+  }
+ 
+  
+  if($form_id == 'user_profile_form'){
+      if(arg(3) == "main"){
+          pathtitle("user/x/edit/main");
+      }
+      else {
+          pathtitle("user/x/edit");
+      }
+     
+      if(lk_is_moderator()){
+          if($form["#user_category"] == 'account' AND $form['#user']->uid){
+              
+              if($form['#user'] -> status){
+                 hide($form["account"]["status"]);
+                 $form['actions']['cancel']['#value'] = 'Benutzerkonto deaktivieren';
+              }  
+              else {
+                 if(lk_is_mitarbeiter($form['#user'])){
+                    hide($form["account"]["status"]);
+                 }
+              }
+          }
+      }
+     
+      if(lk_is_verlag($form["#user"]) AND $form["#user"] -> uid == 0){
+          $prof = profile2_load_by_user($form["#user"]);
+          $form_state['profiles'] = $prof;
+          profile2_attach_form($form, $form_state);   
+      }
+      
+      
+      $form['#process'][] = '__lk_remove_mime';   
+      $form['profile_mitarbeiter']['field_mitarbeiter_verlag']['#access'] = false;
+      _formlk($form);
+      $form["#submit"][] = 'lk_change_userform';
+  }
+}
+
+
+function lk_change_userform($form, $form_state){
+    if(!empty($form_state["values"]["pass"])){
+      //$edit = array('pass' => trim($form_state['values']['pass']));
+      //user_save($form['#user'], $edit);
+      drupal_set_message("Ihr Passwort wurde geändert.");
+  }
+}
+
+function __lk_remove_mime($form){
+    $form['mimemail']['#access'] = false;
+    
+return $form;
+}
+
+
+
+
+
+
+?>

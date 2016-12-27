@@ -1,0 +1,645 @@
+<?php
+
+define("MERKLISTE_STR", "Merkliste");
+define("MERKLISTE_STR_ON", "Merkliste");
+define("MERKLISTE_HELP", "Klicken Sie hier um eine Kampagne Ihrer Merkliste hinzuzufügen");
+define("MERKLISTE_URI", "merkliste");
+
+  
+function lokalkoenig_merkliste_search_api_solr_query_alter($query, $snd) {
+global $user, $preserv_fs;
+
+  if(lk_is_agentur()){
+     $query['params']['fq'][1] = 'is_author:"'. $user -> uid .'"'; 
+  }
+
+  if($preserv_fs){
+    if(is_array($preserv_fs)){
+        foreach($preserv_fs as $item){
+          $query['params']['fq'][] = 'im_' . $item;
+        }
+    }
+  }
+  
+  // Need to Delete, because of visibility issues
+  if($query['params']['fq'][1] == 'is_status:"1"'){
+    unset($query['params']['fq'][1]);
+  }
+  
+  
+   
+}
+
+
+function lokalkoenig_merkliste_node_view($node, $view_mode, $langcode){
+global $user;
+
+  // Merkliste App
+  if($view_mode == 'teaser' AND $node -> type == 'kampagne'){
+    if(lk_vku_access() AND $node->status){
+        $node -> online = true;
+    }
+  }
+  
+   // Merkliste App
+  if($view_mode == 'grid' AND $node -> type == 'kampagne'){
+    if(lk_vku_access() AND $node->status){
+        $node -> online = true;
+    }
+  }
+  
+  // Add History Item  
+  if($view_mode == 'full' AND $node -> type == 'kampagne'){
+    if(lk_vku_access()){
+        db_query("DELETE FROM lk_lastviewed WHERE uid='". $user -> uid ."' AND nid='". $node -> nid ."'");
+        db_query("INSERT INTO lk_lastviewed SET uid='". $user -> uid ."', nid='". $node -> nid ."', lastviewed_time='". time() ."'");
+    }
+  }      
+}
+
+
+function lokalkoenig_merkliste_block_info(){
+
+ $blocks = array();
+
+ $blocks['lk_merkliste_block'] = array(
+    // info: The name of the block.
+    'info' => 'Block: LK-Merkliste Info Block',
+    // Block caching options (per role, per user, etc.)
+  ); 
+
+  $blocks['lk_merkliste_nav'] = array(
+    // info: The name of the block.
+    'info' => 'Block: LK-Merkliste Navigation',
+    // Block caching options (per role, per user, etc.)
+  ); 
+
+  $blocks['lk_history'] = array(
+    // info: The name of the block.
+    'info' => 'Block: LK-History Info',
+    // Block caching options (per role, per user, etc.)
+  ); 
+
+
+return $blocks;
+}
+
+
+
+
+
+function lokalkoenig_merkliste_theme(){
+   $themes = array();
+   
+    $themes["lk_merkliste_block_nav"] = array(
+            'template' => 'lk_merkliste_block_nav', // your template file called custompage.tpl.phü
+            'variables'=> array('count_ml' => 0, 'count_lv' => 0));  
+                  
+    $themes["lk_merkliste_history"] = array(
+            'template' => 'lk_merkliste_history', // your template file called custompage.tpl.phü
+            'variables'=> array());     
+  
+  $themes["lk_merkliste_actions"] = array(
+            'template' => 'lk_merkliste_actions', // your template file called custompage.tpl.phü
+            'variables'=> array('term' => NULL));     
+            
+   $themes["lk_merkliste_terms"] = array(
+            'template' => 'lk_merkliste_terms', // your template file called custompage.tpl.phü
+            'variables'=> array('select' => NULL));               
+  
+return $themes;
+}            
+
+
+
+function lokalkoenig_merkliste_block_view($delta = NULL){
+global $user; 
+
+  $block = array();
+    switch($delta){
+    
+      case 'lk_history':
+         if(arg(0) == 'history'){
+          if(_lk_get_history_count($user) > 0){
+            $block["content"] = theme('lk_merkliste_history');     
+          }
+         }
+      
+        break;  
+    
+      case 'lk_merkliste_nav':
+        $block = array(
+          'subject' => 'Merkliste',
+          'content' => theme('lk_merkliste_block_nav', 
+          array(
+            'count_ml' => lokalkoenig_merkliste_usercountml($user -> uid),
+            'count_lv' => lokalkoenig_merkliste_usercountml($user -> uid)
+          )));
+      
+        break;
+      
+      case 'lk_merkliste_block':
+        return array('content' => variable_get('lk_merkliste_info', 'Info'));
+        break;  
+        
+  }
+
+  return $block;
+}
+
+/** Erweitert das Node-Objekt um weitere Informationen */
+function lokalkoenig_merkliste_node_load($nodes, $types) {
+global $user;
+  
+  $types_we_want_to_process = array('kampagne');
+  
+  // Decide whether any of $types are relevant to our purposes.
+  if (count(array_intersect($types_we_want_to_process, $types))) {
+     while(list($nid, $node) = each($nodes)){
+        $nodes[$nid] -> merkliste = false;   
+      }
+      
+      reset($nodes);  
+  
+    $result = db_query('SELECT m.id, m.created, n.field_merkliste_node_nid as nid  FROM eck_merkliste m, field_data_field_merkliste_node n 
+      WHERE m.id=n.entity_id AND n.field_merkliste_node_nid IN(:nids) AND m.uid=\''. $user -> uid .'\'', array(':nids' => array_keys($nodes)));
+    foreach ($result as $record) {
+       $nodes[$record -> nid] -> merkliste = true;
+       $nodes[$record -> nid] -> merkliste_id = $record -> id;
+       $nodes[$record -> nid] -> merkliste_date = $record -> created;
+       $nodes[$record -> nid] -> merkliste_terms = lokalkoenig_merkliste_get_terms_items($record -> id);
+       $nodes[$record -> nid] -> merkliste_title = lokalkoenig_merkliste_get_terms($record -> id);
+    }
+  }
+}    
+
+
+/** Lädt die Taxonomy Terms zu einem Merkliste-Eintrag */
+function lokalkoenig_merkliste_get_terms_items($entity_id){
+   $e = entity_load('merkliste', array($entity_id));
+   $entity= $e[$entity_id];
+   
+   $taxos = array();
+   foreach($entity->field_merkliste_tags['und'] as $tids){
+      //$t = taxonomy_term_load($tids['tid']);
+      $taxos[] = $tids;
+   }
+
+ return $taxos;  
+}
+
+
+/** Lädt die Taxonomy Terms zu einem Merkliste-Eintrag */
+function lokalkoenig_merkliste_get_terms($entity_id){
+   $e = entity_load('merkliste', array($entity_id));
+   $entity= $e[$entity_id];
+
+   $taxos = array();
+   foreach($entity->field_merkliste_tags['und'] as $tids){
+      //$t = taxonomy_term_load($tids['tid']);
+      $taxos[] = $tids['tid'];
+   }
+
+   return implode(',', $taxos);
+}
+
+
+
+
+function lokalkoenig_merkliste_init(){
+  drupal_add_library('system', 'ui.autocomplete');
+  drupal_add_js("var ml_save_path ='". url("merkliste/save") ."'; var ml_search_path ='". url("merkliste/search") ."';", 'inline');
+  drupal_add_js(drupal_get_path('module', 'lokalkoenig_merkliste') .'/merkliste.js', 'file');
+}
+
+
+function lokalkoenig_views_query_alter(&$view, &$query)   {
+global $user; 
+  
+  if($view -> name == 'merkliste3'){
+     if($view->current_display == 'page') {
+        pathtitle('merkliste');
+        $view -> header['php']->options['php_output'] = theme('lk_merkliste_actions', array('term' => 0));
+        
+        if(arg(1)){
+            pathtitle('merkliste');
+            $tax = taxonomy_term_load(arg(1));  
+    
+            if($tax){
+                lk_set("Merkliste", $tax -> name, 'tag');
+
+                if(isset($view -> header['php']->options['php_output'])){
+                  $view -> header['php']->options['php_output'] = theme('lk_merkliste_actions', array('term' => $tax)); 
+                }        
+            }
+      }
+    }
+     
+    $query->where[1]['conditions'][1]['value'] = $user -> uid;  
+  }
+}
+
+function _lk_get_history_count($user){
+  $dbq = db_query("SELECT count(*) as count FROM lk_lastviewed WHERE uid='". $user -> uid ."'");
+  $result = $dbq -> fetchObject();
+  return $result -> count;
+}
+
+
+function lokalkoenig_merkliste_ajax_callback(){
+global $user;
+
+  $nid = (int)$_POST["nid"];
+  $return =  array();
+  $return["delete"] = 0;
+  $return["nothing"] = 0;
+   
+  $node = node_load($nid);
+  
+  if(!$node) {
+    // Error No Node
+    drupal_json_output(array('error' => 1, 'reason' => 'Node unknown'));
+    drupal_exit();
+  } 
+  
+  if(isset($_POST["delete"])){
+    if(!isset($node -> merkliste_id)){
+       drupal_json_output(array('error' => 1, 'reason' => 'No Merkliste'));
+       drupal_exit();
+    }
+    else {
+      entity_delete('merkliste', $node -> merkliste_id);      
+    
+      $return = array();
+      $return["nid"] = $nid;
+      $return["error"] = 0;
+      $return["total"] = lokalkoenig_merkliste_usercountml($user -> uid);  
+    
+      drupal_json_output($return); 
+      drupal_exit();  
+    }
+  }
+  
+  $possible = _get_merklistenterms();
+  
+  $items = array();
+  
+  // Existierende mitnehmen
+  if(isset($_POST["items"])){
+     foreach($_POST["items"] as $item){
+       if(isset($possible[$item])) $items[] = $item; 
+     }
+  }
+  
+  $new_one = trim($_POST["new"]);
+  
+  if($new_one){
+     $new_tid = 0;
+      
+     while(list($key, $val) = each($possible)){
+         if($new_one == $val) {
+            $new_tid = $key;
+             
+            if(!in_array($key, $items)) {
+              $items[] = $new_tid;  
+            }
+         }
+     }
+     
+      /// Eventuell Neu erstellen
+      if(!$new_tid) {
+        $term = new stdClass();
+        $term->name = $new_one;
+        $term->vid = 13; 
+        taxonomy_term_save($term);
+        
+        verlag_log(1, 'Merkiste', 'Neue Merkliste ' . $new_one . ' angelegt', array());
+        
+        $new_tid = $term -> tid;
+        $items[] = $new_tid; 
+       }
+  }
+  
+  
+  if(count($items) == 0){
+      if(@$node -> merkliste_id){
+          // Delete Entity
+          $return["error"] = 0;
+          $return["msg"] = 'Die Kampagne wurde von Ihrer Merkliste gelöscht.';
+          $return["mlid"] = $entity -> id; 
+          $return["delete"] = 1;
+          
+      }
+      else {
+          // Do nothing
+           $return["error"] = 0;
+           $return["msg"] = 'Die Kampagne wurde nicht gespeichert.';
+           $return["nothing"] = 1;
+      }
+  }
+  else {
+     // wenn Entity existiert 
+     if(@$node -> merkliste_id){
+        $e = entity_load('merkliste', array($node -> merkliste_id));
+        $entity= $e[$node -> merkliste_id];
+      
+        $entity->field_merkliste_tags['und'] = array();
+        foreach($items as $tid){
+          $entity->field_merkliste_tags['und'][]["tid"] = $tid;
+        }
+      
+        entity_save('merkliste', $entity);
+        $return["error"] = 0;
+        $return["msg"] = 'Die Merklisten wurden gespeichert.';
+        $return["mlid"] = $entity -> id; 
+     }
+     else {
+         $entity = entity_create('merkliste', array('type' =>'merkliste'));
+         $entity->field_merkliste_tags['und'] = array();
+            foreach($items as $tid){
+              $entity->field_merkliste_tags['und'][]["tid"] = $tid;
+            }
+        $entity -> uid = $user -> uid;
+        //$entity->field_merkliste_aktiv['und'][0]['value'] = 1;
+        $entity->field_merkliste_node['und'][0]['nid'] = $node -> nid;
+    
+        entity_save('merkliste', $entity);
+        $return["mlid"] = $entity -> id; 
+        $return["msg"] = 'Die Merklisten wurde gespeichert.';
+     }
+  }
+  
+  $return["tags"] = implode(',', $items);
+  $return["total"] = lokalkoenig_merkliste_usercountml($user -> uid);  
+  $return["select"] = theme('lk_merkliste_terms', array("select" => _get_merklistenterms()));  //lokalkoenig_merkliste_usercountml();
+  $return["nid"] = $nid;
+  $return["error"] = 0;
+
+  drupal_json_output($return); 
+  drupal_exit();
+}
+
+function lokalkoenig_merkliste_node_delete($node){
+  if($node -> type == 'kampagne'){
+     lokalkoenig_merkliste_change_kampagnen_status_unpublished($node);
+  }
+}
+
+// Kampagne wurde herausgenommen, wir löschen alle Einträge auf der Merkliste
+function lokalkoenig_merkliste_change_kampagnen_status_unpublished($node){
+global $user;
+   
+   // Delete from lastviewed 
+   db_query("DELETE FROM lk_lastviewed WHERE nid='". $node -> nid ."'");
+   
+   $query = new EntityFieldQuery();
+   $query->entityCondition('entity_type', 'merkliste');
+   $query -> entityCondition('bundle', 'merkliste');
+   $query -> fieldCondition('field_merkliste_node', 'nid', $node -> nid); 
+   $result = $query->execute();
+   
+   if(isset($result["merkliste"])){
+         while(list($key, $val) = each($result["merkliste"])){
+           entity_delete('merkliste', $key);
+         }
+    }
+}
+
+
+function lokalkoenig_merkliste_menu(){
+
+  $items['merkliste/save'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'lokalkoenig_merkliste_ajax_callback',
+      'title' => 'Merkliste Ajax Callback',
+      'type' => MENU_CONTEXT_NONE);
+      
+   $items['merkliste/search'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'lokalkoenig_merkliste_ajax_callback_search',
+      'title' => 'Merkliste Ajax Callback Suche',
+      'type' => MENU_CONTEXT_NONE);    
+  
+   
+  $items['history/flush'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'lokalkoenig_merkliste_flush_history',
+      'page arguments' => array(1),
+      'title' => 'Verlauf löschen',
+      'type' => MENU_CONTEXT_NONE);    
+
+   $items['merkliste/convert/%'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'lokalkoenig_merkliste_ajax_callback_vku',
+      'title' => 'Merkliste Ajax Callback Add VKU',
+      'page arguments' => array(2),
+      'file' => 'merkliste2vku.inc', 
+      'type' => MENU_CONTEXT_NONE);    
+      
+   $items['merkliste/delete/%'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'lokalkoenig_merkliste_ajax_callback_delete',
+      'title' => 'Merkliste Löschen',
+      'page arguments' => array(2),
+      'file' => 'merkliste2vku.inc', 
+      'type' => MENU_CONTEXT_NONE);  
+      
+    $items['merkliste/rename/%'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'lokalkoenig_merkliste_ajax_callback_rename',
+      'title' => 'Merkliste Umbenennen',
+      'page arguments' => array(2),
+      'file' => 'merkliste2vku.inc', 
+      'type' => MENU_CONTEXT_NONE);    
+      
+      
+     $items['merkliste/send/%'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'lokalkoenig_merkliste_ajax_callback_send',
+      'title' => 'Merkliste versenden',
+      'page arguments' => array(2),
+      'file' => 'merkliste2message.inc', 
+      'type' => MENU_CONTEXT_NONE);     
+      
+            
+
+    //
+
+return $items;
+}
+
+function lokalkoenig_merkliste_ajax_callback_search(){
+global $user;
+
+  $term =  $_GET["term"];
+  $results = array();
+  
+  $result = db_query("SELECT term_name FROM lk_merklisten_terms WHERE uid='". $user -> uid ."' AND term_name LIKE :pattern", array(':pattern' => db_like($term) . '%'));
+  foreach($result as $all){
+    $results[] = array('id' => $all -> term_name, 'label' => $all -> term_name);
+  }
+  
+  if(!$results) $results[] = array('id' => $term, 'label' => $term);
+  
+  drupal_json_output($results); 
+  drupal_exit();
+}
+
+
+function lokalkoenig_merkliste_flush_history(){
+global $user;
+
+  db_query("DELETE FROM lk_lastviewed WHERE uid='". $user -> uid ."'");  
+  drupal_set_message("Ihr Verlauf wurde gelöscht.");
+  drupal_goto('history');   
+
+}
+
+
+function lokalkoenig_merkliste_usercountml($uid){
+  if(isset($GLOBALS["merkliste_count"])){
+     return $GLOBALS["merkliste_count"];
+  }
+
+  // Load Views Block
+  $count = 0;
+  $view = views_get_view_result('merkliste3', 'block_ml');
+  $tags = _get_merklistenterms();
+  $count = count($view);
+  $GLOBALS["merkliste_count"] = $count;
+  $GLOBALS["merkliste_entries"] = $tags;
+
+ return $count;
+}
+
+
+function _get_merklistenterms(){
+   $view = views_get_view_result('merkliste3', 'block_ml');  
+   $tags = array();
+   foreach($view as $vars){
+     $tags[$vars -> taxonomy_term_data_field_data_field_merkliste_tags_tid] = $vars -> taxonomy_term_data_field_data_field_merkliste_tags_name;
+   }
+   
+return $tags;   
+}
+
+
+function lokalkoenig_merkliste_privatemsg_message_insert($message){  
+  if(isset($message -> nids)){
+    foreach($message -> nids as $nid){
+       $message->field_msg_kampagnen['und'][]['nid'] = $nid;
+    }
+  }
+}
+
+
+function lokalkoenig_merkliste_form_alter(&$form, &$form_state, $form_id){
+
+  if($form_id == 'privatemsg_new'){
+    if(isset($_GET["ml"])){
+        $term = taxonomy_term_load($_GET["ml"]);
+       
+        if($term){
+            $view = views_get_view_result('merkliste3', 'page', $term -> tid);
+            
+             $array = array();
+              foreach($view as $entity){
+                $array[] = $entity->field_field_merkliste_node[0]['raw']['nid'];
+               }
+            
+            if($array){
+              $form['subject']['#default_value'] = 'Merkliste: ' . $term -> name; 
+              
+              $ex = $form['field_msg_kampagnen']['und'][0];
+              
+              for($x = 0; $x < count($array); $x++){
+                   $form['field_msg_kampagnen']['und'][$x] = $ex;
+                   $form['field_msg_kampagnen']['und'][$x]['nid']['#default_value'] = $array[$x];    
+              }
+            }
+        }
+    }  
+  }
+
+
+}
+
+
+
+function lokalkoenig_merkliste_views_data() {
+  $data['lk_lastviewed']['table']['group'] = ('Last Viewed');
+
+  $data['lk_lastviewed']['table']['base'] = array(
+    'field' => 'id',
+    'title' => ('Last Viewed'), 
+    'help' => ('LK LaViewed speichert die Nodes in einer Tabelle'), 
+    'weight' => -10,
+  );
+
+  $data['lk_lastviewed']['table']['join'] = array(
+    'node' => array(
+      'left_field' => 'nid', 
+      'field' => 'nid',
+    ),
+    'users' => array(
+      'left_field' => 'uid', 
+      'field' => 'uid',
+    ),
+  );
+
+  $data['lk_lastviewed']['lastviewed_id'] = array(
+    'title' => ('LVID ID'), 
+    'help' => ('Die ID des Merkliste-Eintrages'),
+    'field' => array(
+      'handler' => 'views_handler_field', 
+      'click sortable' => true,
+    ), 
+  );
+
+
+  $data['lk_lastviewed']['nid'] = array(
+    'title' => ('NID'), 
+    'help' => ('Die NODE-ID des Eintrags'),
+    'relationship' => array(
+      'base' => 'node',
+      'field' => 'nid',
+      'handler' => 'views_handler_relationship', 
+      'label' => ('NID'),
+    ),
+  );
+  
+  
+  $data['lk_lastviewed']['uid'] = array(
+    'title' => ('User-ID'), 
+    'help' => ('Some example content that references a User-ID.'),
+    'relationship' => array(
+      'base' => 'users',
+      'field' => 'uid',
+      'handler' => 'views_handler_relationship', 
+      'label' => ('User ID'),
+    ),
+  );
+  
+
+  
+
+  $data['lk_lastviewed']['lastviewed_time'] = array(
+    'title' => ('Datum des Eintrags'), 
+    'help' => ('Datum des Eintrags'), 
+    'field' => array(
+      'handler' => 'views_handler_field_date', 
+      'click sortable' => TRUE,
+    ), 
+    'sort' => array(
+      'handler' => 'views_handler_sort_date',
+    ), 
+    'filter' => array(
+      'handler' => 'views_handler_filter_date',
+    ),
+  );
+
+  return $data;
+}
+
+
+?>

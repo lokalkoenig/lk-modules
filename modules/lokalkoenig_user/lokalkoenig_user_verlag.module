@@ -1,0 +1,252 @@
+<?php
+
+require("functions.php");
+require("verlag/menu_theme.php");
+require_once("pages/unteraccounts_edit.inc");
+require("inc/lokalkoenig_user_verlag_views_data.php");
+
+function lokalkoenig_user_verlag_check_user_access_is_verlag($account){
+  
+  $obj = \LK\get_user($account);
+  if(!$obj OR !$obj ->isVerlag()){
+      return false;
+  }
+  
+  $current = \LK\current();
+  if($current -> isModerator()){
+      return true;
+  }
+  
+  if($current -> isVerlag() OR $current -> isVerlagController()){
+      $test = $current -> getVerlag();
+      $test2 = $obj -> getVerlag();
+      
+      if($test == $test2){
+          return true;
+      }
+  }
+  
+  return false;
+}
+
+function lokalkoenig_user_verlag_form_alter_may_hide_plz(&$form){
+    $current = \LK\current();
+    if(!$current -> hasRight("edit plz")){
+        $form['profile_verlag']['field_plz_sperre']['#access'] = false;
+        $form['profile_verlag']['field_anzeige_des_ma_protokolls']['#access'] = false;
+        $form['profile_verlag']['field_sperrung_vku']['#access'] = false;
+        $form['profile_verlag']['field_testverlag']['#access'] = false;
+        $form['profile_verlag']['field_sperrung_vku_hinweis']['#access'] = false;
+        $form['profile_verlag']['field_sperrung_vku_pdf']['#access'] = false;
+
+    }
+    
+    return $form;
+}
+
+function lokalkoenig_user_verlag_form_alter(&$form, &$form_state, $form_id) {
+
+  if($form_id == 'user_profile_form'){
+    if($form["#user_category"] == 'verlag' AND $form["#user"] -> uid) {
+           $form["#process"][] = 'lokalkoenig_user_verlag_form_alter_may_hide_plz';
+           drupal_add_js("var verlag_vku_vorschau_url='". url("user/" . $form["#user"] -> uid . "/testpdf") ."'", 'inline'); 
+           drupal_add_js("sites/all/modules/lokalkoenig/functions/lokalkoenig_user/js/vku_vorschau.js");
+    }
+  }
+
+
+  if($form_id == 'views_exposed_form'){
+    if($form["#id"] == 'views-exposed-form-lk-log-page-1'){
+      $form['uid']['#autocomplete_path'] = 'user/' . arg(1) . '/usersearch'; 
+    } 
+    
+     if($form["#id"] == 'views-exposed-form-lk-log-page-2'){
+         $form['#action'] = url(current_path());
+    }     
+  }
+}
+
+
+function lokalkoenig_user_views_query_alter(&$view, &$query)   {
+  
+  if($view -> name == 'last_viewed'){
+     $time = time() - (60*60*24*7);
+    
+    if(isset($_GET["lastviewed_time"])){
+        if($_GET["lastviewed_time"] == 'All') $time = 0;
+        
+        if($_GET["lastviewed_time"] == 2) $time = time() - (60*60*24*30);
+        if($_GET["lastviewed_time"] == 3) $time = time() - (60*60*24*30*2);
+        
+    }
+    else $time = 0;
+    
+    if($time){
+      $query -> where[1]['conditions'][1]['field']  = 'lk_lastviewed.lastviewed_time >= ' . $time;
+    }
+  }
+  
+  if($view -> name == 'lk_log'){
+    if($view->current_display == 'page_4') return ;
+    if($view->current_display == 'page_5') return ;
+    
+    $time = time() - (60*60*24*7);
+    
+    if(isset($_GET["log_date"])){
+        if($_GET["log_date"] == 'All') $time = 0;
+        
+        if($_GET["log_date"] == 2) $time = time() - (60*60*24*30);
+        if($_GET["log_date"] == 3) $time = time() - (60*60*24*30*2);
+    }
+    
+    if($time){
+      $query -> where[1]['conditions'][0]['field']  = 'lk_verlag_log.log_date >= ' . $time;
+    }
+  }
+}
+
+function lokalkoenig_user_verlag_editaccount($verlag, $uid){
+  return drupal_render(drupal_get_form('lk_user_edit_ma'));
+}
+
+function lk_verlag_log_entry_administrative($entry, $lizenz){
+  if(!$entry -> log_verlag_uid) return '';
+  
+  $return = '<div style="width: 300px;" class="well pull-right"><span class="label label-default">Administrieren</span><br />';
+  $verlag = _lk_user($entry -> log_verlag_uid);
+  $return .= 'Verlag: ' .  _format_user($verlag);
+  $return .= '<hr />' . l('<span class="glyphicon glyphicon-pencil"></span> Lizenz editieren', 'logbuch/editlizenz/' . $lizenz -> id, array('html' => true, "query" => drupal_get_destination(), 'attributes' => array('class' => 'btn btn-sm btn-success')));
+  $return .= '</div>';
+
+  return $return; 
+}
+
+
+function lk_verlag_log_entry($entry){
+  
+  //dpm($entry);
+  
+  $dbq = db_query("SELECT * FROM lk_verlag_log WHERE log_id='". $entry -> log_id ."'");
+  $result = $dbq -> fetchObject();
+  
+  $admin = '';
+  $user = _lk_user($result -> log_uid);
+  $return = '' . date("H:i", $result -> log_date) . ": " . _format_user($user) . '<br />' . $result->log_message . '';
+  
+  if($result -> nid){
+      $node = node_load($result -> nid);
+      if($node AND $node -> status){
+        $return .= "<br /><span class='glyphicon glyphicon-lock'></span> <u>Kampagne:</u> <em>" . l($node -> title, "node/" . $node -> nid) . '</em>'; 
+      }
+  }
+  
+  if($entry -> vku_id){
+    $vku = new VKUCreator($entry -> vku_id);
+    if($vku -> is()){
+         $return .= '<br /><span class="glyphicon glyphicon-shopping-cart"></span> 
+         <u>Verkaufsunterlage:</u> <em>' . $vku -> get("vku_title") . '</em> 
+         vom ' . format_date($vku -> get("vku_created"));
+    }  
+    
+    if($entry -> log_type == 'Lizenzen'){
+        // Show also die Bereiche
+        
+        $dbq2 = db_query("SELECT * FROM lk_vku_lizenzen WHERE vku_id='". $entry -> vku_id ."'");
+        $lizenz = $dbq2 -> fetchObject();
+        
+        if($lizenz){
+          
+           if(lk_is_moderator() AND (arg(0) == 'logbuch' OR (arg(0) == 'node' AND arg(2) == 'lizenzen'))){
+                $admin = lk_verlag_log_entry_administrative($result, $lizenz);
+            }
+          
+          
+          $ausgaben = array();
+          $dbq2 = db_query("SELECT a.ausgabe_id FROM lk_vku_lizenzen l, lk_vku_lizenzen_ausgabe a WHERE a.lizenz_id=l.id AND l.vku_id='". $entry -> vku_id ."'");
+          foreach($dbq2 as $all){
+              $ausgaben[] = format_ausgabe_kurz($all -> ausgabe_id);
+          }
+          
+          $return .= '<br /><span class="glyphicon glyphicon-globe"></span> <u>Erworben für:</u> ' . implode(" ", $ausgaben);
+          
+          $downloads = array();
+          $dbq2 = db_query("SELECT uid, download_date FROM lk_vku_lizenzen_downloads WHERE lizenz_id='". $lizenz -> id ."' ORDER BY download_date ASC");
+          foreach($dbq2 as $all){
+               $account = _lk_user($all -> uid);
+               if($account -> uid == 0 OR lk_is_mitarbeiter($account) OR lk_is_verlag($account)){
+                  $downloads[] = \LK\u($account -> uid) . " am " . format_date($all -> download_date);
+               }
+          }
+          
+          if(!$downloads){
+           $return .= '<br /><span class="glyphicon glyphicon-download"></span> <u>Downloads:</u> <em>Keine</em>';
+         }
+          else
+          $return .= '<br /><span class="glyphicon glyphicon-download"></span> <u>Downloads:</u> <ol style="margin-bottom: 20px;"><li>' . implode("</li><li>", $downloads) . '</li></ol>';
+        }
+        else {
+           if(lk_is_moderator() AND (arg(0) == 'logbuch' OR (arg(0) == 'node' AND arg(2) == 'lizenzen'))){
+                $admin = '<div class="pull-right"><em>Lizenz nicht mehr vorhanden</em></div>';
+            }
+        }
+    }  
+  }
+  
+  return '<div class="clearfix">' . $admin . '' . $return . '</div><hr />';
+}
+
+
+function verlag_log($log_level, $log_type, $log_message, $options = array()){
+global $user;
+  
+  if(!isset($options["uid"])) $account = $user;
+  else $account = $options["uid"]; 
+  
+  if(!isset($options["nid"])) $options["nid"] = '0';
+  if(!isset($options["vku_id"])) $options["vku_id"] = '0';
+  
+  $obj = \LK\get_user($account);
+  if(!$obj){
+      return ;
+  }
+  
+  $verlag = $obj ->getVerlag();
+  
+  // Dont put in when no Verlag
+  if(!$verlag){
+      return ;
+  }
+
+  $team_id = $obj ->getTeam();
+      
+  $insert = array(
+        'log_date' => time(),
+        'log_level' => $log_level,
+        'log_ausgabe' => 0,
+        'log_type' =>  $log_type,
+        'log_message' => $log_message,
+        'log_uid' => $obj -> getUid(),
+        'nid' => $options["nid"],
+        'vku_id' => $options["vku_id"],
+        'log_team' => $team_id 
+     );
+     
+     if($options["nid"]){
+         $log_message .= ' (Kampagne: '. $options["nid"] .') ';
+     }
+   
+     if($options["vku_id"]){
+         $log_message .= ' (VKU: '. $options["vku_id"] .') ';
+     }
+     
+     // Log into common log aswell
+     lk_note($log_type, $log_message, $obj ->getUid());
+     
+     // Dont use anymore
+     $insert["log_verkaufsleiter_uid"] = 0;
+     $insert["log_verlag_uid"] = $verlag;   
+     db_insert('lk_verlag_log')->fields($insert)->execute();
+  }
+
+   
+?>

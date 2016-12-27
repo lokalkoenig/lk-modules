@@ -1,0 +1,102 @@
+
+#plzselect, 
+  #plzselect ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+
+#plzselect>li {
+  font-size: 15px;
+  padding: 0.7em;
+  border-bottom: 1px silver solid;
+}
+
+#plzselect>li>ul>li {
+  font-size: 13px;
+  padding: 0.5em;
+  padding-left: 1em;
+}
+
+#plzselect>li>ul>li>ul>li {
+  font-size: 12px;
+  padding-left: 2em;
+  line-height: 1.5em;
+}
+
+#plzselect .glyphicon {
+  margin-right: 5px;
+}
+
+#plzselect .county, #plzselect .plz {
+  cursor: pointer; 
+  padding: 0.2em;
+}
+
+#plzselect .county:hover, #plzselect .plz:hover {
+  background: silver;
+}
+
+#plzselect .plz.selected {
+  background: #357ebd; 
+  color: White;
+}
+
+#plzselect .county.has, 
+  #plzselect .state.has {
+   background: #bce8f1; 
+}  
+
+
+div#ui-datepicker-div  {
+    border: 1px Silver solid;
+    background: White;
+}
+
+.lkplz input.form-text {
+  width: 80%;
+}
+
+#eck-entity-form-edit-plz-plz .lkplz input.form-text {
+  width: 100%;
+}
+
+
+
+/**
+span.state, 
+  span.county {
+    cursor: pointer;
+    display: block;
+    border-bottom: 1px silver solid;
+    font-size: 1.2em;
+   
+    font-weight: bold;
+}
+
+span.county {
+  font-size: 1em;
+   padding-left: 2em;
+}
+
+span.plz {
+  padding-left: 4em;
+  font-size: 0.9em;
+
+}
+ */
+
+.selected {
+    color: Red;
+    font-weigt: bold;
+}
+
+#plzselect>li {
+  font-size: 1.05em;
+}
+
+#plzselect ul  {
+  display: none;
+  
+}

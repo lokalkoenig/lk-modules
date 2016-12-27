@@ -1,0 +1,4 @@
+name = "Lokalkönig User"
+description = "Das Modul kümmert sich um die User-Darstellung"
+core = "7.x"
+package = Lokalkoenig

@@ -1,0 +1,363 @@
+<?php
+
+use LK\Solr\SearchQueryParser;
+use LK\Solr\Search;
+
+
+function _lk_get_search_options_array(){
+   return false;    
+}
+
+function lk_theme_search_result_view($search){
+   $view = views_get_view('suchev2');
+  $view->set_display('page_2');
+  while(list($key, $val) = each($search)){
+    $view -> exposed_input[$key] = $val;
+  }
+  
+  $link = url("suche", array('absolute' => true, "query" => $search));
+  $view->set_items_per_page(4);
+  $view->execute();              //
+  $response = $view->result;
+
+  $nodes = array();
+  foreach($response as $res){
+     $nodes[] = $res -> entity->nid; 
+  }
+   
+return array('total' => $view->total_rows, 'show' => count($nodes), 'link' => $link, "nodes" => $nodes);
+}
+
+
+function lk_theme_search_result_block($search){
+
+// search_api_views_fulltext=Hund
+  $view = views_get_view('suchev2');
+  $view->set_display('page_2');
+  while(list($key, $val) = each($search)){
+    $view -> exposed_input[$key] = $val;
+  }
+  
+  $pager = $view->display_handler->get_option('pager');
+  $pager['type'] = 'some';
+  $pager['options']['items_per_page'] = 4;
+  $view->set_items_per_page(4);
+
+  $view->display_handler->set_option('pager', $pager);
+  
+  //$view->pre_execute();
+  //$output = $view->display_handler->preview();
+  //$view->post_execute();
+  $view->execute();              //
+  $response = $view->result;
+  //dpm($view);
+   $view->execute();
+   
+   $link = url("suche", array("query" => $search));
+   
+   
+  
+    $view -> footer = array();
+   
+   return '<div class="suche-in-msg well well-white clearfix">
+   <h3 style="margin-top: 0;">Suchergebnisse <small><a href="'. $link .'">Suchergebnisse öffnen <span class="glyphicon glyphicon-chevron-right"></span></a></small></h3>
+   '.  theme('lk_search_parse', array('search' => $search)) .'<hr />
+   
+   
+   ' . $view->render() . '
+   </div>';
+   
+   //$objects = $view->result;
+  
+
+}
+
+
+function lokalkoenig_messages_entity_view($entity, $type, $view_mode) {
+   
+    
+   if(
+        $type == "neuigkeit" && 
+        ($view_mode == 'teaser' || $view_mode == 'full') && 
+        isset($entity->field_suchwort['und'][0]['value'])
+    ){
+     $suche = $entity->field_suchwort['und'][0]['value'];
+     
+     
+     if($suche){
+         $search = array(
+             'search_api_views_fulltext' => $suche
+         );
+         
+         $sort = 'search_api_relevance';
+         $sort_value = $entity -> field_sortierung['und'][0]['value'];
+         
+         if($sort_value == 'neueste'){
+             $sort = 'created';
+         }
+         elseif($sort_value == "beliebteste"){
+             $sort = 'field_kamp_beliebtheit';
+         }
+         
+         $search['sort_by'] = $sort;
+        
+         $entity->content['kampagnen_search'] = array(
+            '#markup' => lokalkoenig_search_preview_theme($search),
+            '#weight' => 10,
+        );
+     }
+   } 
+   
+}
+
+
+/************** */
+
+function lokalkoenig_messages_cronapi($op, $job = NULL) {
+  
+  $items['parse_active_alerts'] = array(
+    'description' => 'Send Alerts',
+    'rule' => '*/5 * * * *', // Every 5 minutes
+    // i must call: example_news_fetch('all')
+    'callback' => 'cron/parse_active_alerts',
+    'file' => 'parsealerts.inc'
+  );
+
+  return $items;
+}
+
+
+/** 
+ * HOOK  
+ */
+function computed_field_field_search_query_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items){
+  $search = \LK\Solr\SearchQueryParser::get();
+  
+  if($search){
+    $entity_field[0]["value"] =  serialize($search);
+   }
+}
+
+function lokalkoenig_messages_privatemsg_message_insert($message){   
+   $search = \LK\Solr\SearchQueryParser::get();
+   
+   if($search){
+    $message -> field_search_query['und'][0]['value'] = serialize($search);
+   }
+} 
+
+
+function lokalkoenig_messages_menu_alter(&$items) {
+  if (variable_get('privatemsg_filter_default_list', 0) == 0) {
+    // Change default argument of /messages to inbox. and set the task to MENU_LOCAL_TASK.
+    $items['messages/new']['type'] = MENU_LOCAL_TASK;
+  }
+}
+
+
+function lokalkoenig_messages_mail_alter(&$message){
+    
+    if($message["id"] != 'pm_email_notify_notice') {
+        $message['params']['plain'] = TRUE;
+        $message['params']['plaintext'] = implode("", $message['body']);
+        return ;
+    }
+    
+    $from = 'Lokalkoenig@lokalkoenig.de';
+    $message['headers']['From'] = $from;
+    $message['headers']['Sender'] = $from;
+    $message['headers']['Return-Path'] = $from;
+    
+    $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+    $message['body'] = array( theme('lk_message_theme', array("message" => $message['params']['message']))); 
+}
+
+function lokalkoenig_messages_theme(){
+    
+    $themes = [];
+    $themes["lk_message_theme"] = array(
+            'template' => 'templates/lk_message_theme', // your template file called custompage.tpl.php
+            'variables' => array(
+              'message' => NULL
+            )
+    );
+
+    $themes["lokalkoenig_messages_search_result"] = array(
+            'template' => 'templates/lokalkoenig_messages_search_result', // your template file called custompage.tpl.php
+            'variables' => array(
+              'nodes' => [],
+              'title' => NULL,
+              'link' => $link,
+              'count' => 0,  
+            )
+    );
+    
+return $themes;
+}
+
+
+function lokalkoenig_messages_menu(){
+    
+    $items['lkadmin/messages/autocomplete'] = array(
+      'access callback' => 'lk_is_moderator',
+      'file' => 'pages/search.inc',
+      'page callback' => '_lk_privatemsg_autocomplete',
+      'title' => 'User Suche',
+      'type' => MENU_CONTEXT_NONE);
+
+    return $items;
+}
+
+function lokalkoenig_messages_init(){
+  if(arg(0) == 'messages' AND !lk_is_moderator()) {
+    drupal_add_js("sites/all/modules/lokalkoenig/functions/js/lokalkoenig_messages/msg.js");
+  }
+}
+
+function _lokalkoenig_messages_check_users(&$form, &$form_state){
+   
+    if(!isset($form_state["values"]["recipient"])){
+        return ;
+    }
+    
+    $to = _generate_to_options(true);
+    
+    $explode = explode(",", $form_state["values"]["recipient"]);
+    foreach($explode as $name){
+        $name = trim($name);
+        
+        $user = user_load_by_name($name);
+        
+        if(lk_is_moderator($user)){
+             continue;
+        }
+        
+        if(lk_is_agentur()){
+             $error = true;
+             break;
+        }
+         
+        if(!in_array($user -> uid, $to)){
+            form_set_error('recipient', "Nicht mögliche Auswahl entdeckt");
+            break;
+        }
+     }  
+}
+
+
+
+function lokalkoenig_search_preview_theme($search){
+    
+    $solr = new \LK\Solr\Search();
+    $solr ->addFromQuery($search);
+    $count = $solr ->getCount();
+    
+    if($count == 0){
+        return false;
+    }
+
+    $title = \LK\Solr\SearchQueryParser::toMarkup($search);
+    $link = \LK\Solr\SearchQueryParser::buildLink($search);
+    
+    $kampagnen = [];
+    $solr ->setLimit(4);
+    $nodes = $solr ->getNodes();
+    foreach ($nodes as $nid){
+        $node = node_load($nid);
+        $view = node_view($node, "grid");
+        $kampagnen[] = render($view);
+    }
+    
+    $array = [
+        'nodes' => $kampagnen, 
+        'count' => $count, 
+        'title' => $title, 
+        'link' => $link
+    ];
+    
+return theme('lokalkoenig_messages_search_result', $array);    
+}
+
+
+function lokalkoenig_messages_form_alter(&$form, &$form_state, $form_id){
+  
+   if($form_id == 'privatemsg_new'){
+      $form["field_neuigkeit"]["#access"] = false;
+      $form["field_such_query"]["#access"] = false;
+      $form['recipient']['#maxlength'] = 20048;
+      
+      
+      // GET if there are GET-Params
+      $search = \LK\Solr\SearchQueryParser::get();
+      if($search){
+          drupal_set_title("Suchergebnisse versenden");
+          
+          $form['subject']['#default_value'] = 'Fwd: Suchergebnisse';
+          $form["news2"] = array(
+                '#markup' => lokalkoenig_search_preview_theme($search),
+                '#weight' => -4
+          ); 
+          
+          $form["field_msg_kampagnen"]["#access"] = false;
+      }
+      
+      
+      
+      
+      // Neuigkeiten anhängen ...
+      if(isset($_GET["neuigkeit"])){
+          $entity = entity_load('neuigkeit', array($_GET["neuigkeit"]));
+          if($news = $entity[$_GET["neuigkeit"]]){
+              $form['subject']['#default_value'] = 'Fwd: ' . $news -> title;
+         
+              $form["field_msg_kampagnen"]["#access"] = false;
+              $form['field_neuigkeit']['und'][0]['target_id']['#value'] = 'News' . ' (' . $news -> id . ')';
+              $view = entity_view('neuigkeit', $entity, 'teaser');
+          
+              $form["news"] = array(
+                '#markup' => render($view),
+                '#weight' => -4
+              );
+           }
+      }
+     
+      if(!lk_is_moderator()){
+        unset($form["recipient"]["#autocomplete_path"]);
+        unset($form["recipient"]["#description"]);
+        
+        $form['#validate'][] = '_lokalkoenig_messages_check_users';
+        $form["field_msg_kampagnen"]["#access"] = false;
+     
+      }
+      else {
+        if(isset($_GET["subject"])){
+          $subject = trim($_GET["subject"]);
+          $form['subject']['#default_value'] = $subject;
+        }
+        
+        if(isset($_GET["nid"])){
+            $explode = explode(",", $_GET["nid"]);
+            
+            $ex = $form['field_msg_kampagnen']['und'][0];
+            
+            $x = 0;
+            foreach($explode as $nodeid){
+               $node = node_load($nodeid); 
+               
+               if($node){
+                  if($node -> status == 0)  drupal_set_message("Die Kampagne ist nicht freigegeben.");
+                  else {
+                     $form['field_msg_kampagnen']['und'][$x] = $ex;
+                     $form['field_msg_kampagnen']['und'][$x]['nid']['#default_value'] = $node -> nid;
+                     $x++;
+                  }  
+               }
+            }
+        }
+        
+        $form['recipient']['#autocomplete_path'] = 'lkadmin/messages/autocomplete'; 
+      }
+   }
+}
+
+?>

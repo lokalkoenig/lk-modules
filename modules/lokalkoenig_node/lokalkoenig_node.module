@@ -1,0 +1,216 @@
+<?php
+
+/**  
+ *  Node - View
+ **/
+ include("inc/cron.php");
+ include("inc/fields.php");
+ include("inc/kampagnen-info.php");
+
+function lokalkoenig_node_theme(){
+
+ $themes = array ('lk_node_vku_info' => array(
+            'template' => 'templates/lk_node_vku_info', // your template file called custompage.tpl.php
+            'variables' => array(
+              'vku' => null,
+              'node' => null,
+              'info' => null 
+            ),
+        ),
+    );
+ 
+ 
+  $themes["lk_vku_usage"] = array(
+            'template' => 'templates/lk_vku_usage',
+            'variables' => array(
+              'account' => NULL,
+              'entries' => array(),
+              'class' => 'well clearfix'
+            )
+            
+            ); // your template file called custompage.tpl.phü
+   
+    $themes["lk_vku_lizenz_usage"] = array(
+            'template' => 'templates/lk_vku_lizenz_usage',
+            'variables' => array(
+              'in' => array(),
+              'out' => array(),
+              'count' => 0,
+              'account' => NULL,
+              'class' => 'well clearfix'
+              )
+            ); 
+ 
+return $themes; 
+}
+
+
+function lokalkoenig_node_menu(){
+      
+    $items['nodeaccess/%node'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => '_lokalkoenig_nodeaccess_info',
+      'page arguments' => array(1),
+      'title' => 'Node-Access-Test',
+      'type' => MENU_LOCAL_TASK);   
+   
+ return $items;     
+}
+
+
+function _lokalkoenig_nodeaccess_info($node){
+  print \LK\Kampagne\AccessInfo::getAccessInfo($node);   
+  drupal_exit();  
+}
+  
+function lk_process_gif_ani($file, $test_fn = NULL){
+    require_once(dirname(__FILE__) . '/gif/GifFrameExtractor.php');
+    require_once(dirname(__FILE__) . '/gif/lk-gif.php');
+
+  return lk_process_gif_ani_refactored($file, $test_fn);
+}
+
+
+function lokalkoenig_node_node_view($node, $view_mode, $langcode){
+  if($view_mode == 'full'){
+    if($node -> type == 'kampagne' 
+      && $node -> status == 0){
+       pathtitle("node/x/preview");
+     }
+  }
+} 
+
+
+function lokalkoenig_node_node_delete($node){
+    // Gehe alles durch und lösche alle Verbindungs-Entities
+    if($node -> type == 'kampage') {
+        $kampagne = new LK\Kampagne\Kampagne($node);
+        $kampagne ->remove();
+    }
+}
+
+
+function _lk_get_kampa_sid_generate($node){
+    if(!isset($node->field_kamp_preisnivau['und'][0]['tid'])){
+        return '';
+    }
+    $term = taxonomy_term_load($node->field_kamp_preisnivau['und'][0]['tid']);
+    return $term->field_paket_kurz['und'][0]['value'] . '-' . $node -> nid;
+}
+
+
+function _lk_get_kampa_sid($node){
+  if(!isset($node->field_sid['und'][0]['value'])){
+     return _lk_get_kampa_sid_generate($node);
+  }
+   
+  return $node->field_sid['und'][0]['value'];
+}
+
+
+
+
+
+function _lk_check_node_kampagne(&$variables, $node){
+   if($node -> type == "kampagne"){
+      // teaser + full  
+      if(isset($node -> vmode)){
+        $variables['theme_hook_suggestions'][] = 'node__kampagne__' . $node -> vmode; 
+      }
+      elseif(in_array($variables["view_mode"], array('full', 'proof'))){
+         //$variables['theme_hook_suggestions'] = array();
+         
+         $taxos = _lokalkeonig_get_missing_mediums($node);
+         if($taxos["incomplete"]){
+            drupal_set_message('Sie haben noch nicht alle notwendigen Medien hochgeladen.');
+            drupal_goto('node/' . $node -> nid . '/media');
+         }
+         
+         
+         if(lk_is_agentur()){
+            $node -> submitform = drupal_render(drupal_get_form('lk_kampagnen_submit_form', $node)); 
+         }
+         
+         
+         if($node -> status){
+            $variables['theme_hook_suggestions'][] = 'node__kampagne__online'; 
+         }
+         else $variables['theme_hook_suggestions'][] = 'node__kampagne__new'; 
+      }
+   }
+}
+
+/** garantiert den Node-Access */
+function lokalkoenig_node_node_access($node, $op, $account) {
+  $type = is_string($node) ? $node : $node->type;
+  //dpm($node);
+  
+  if($type == "page" AND !user_is_logged_in()){
+      if(is_object($node) AND in_array($node -> nid, array(81, 257, 99))){
+         return NODE_ACCESS_DENY;
+      }
+  }
+  
+  if($type == "kampagne" AND $op == 'view'){
+    
+    // Wenn Anonym
+    if(user_is_anonymous()){
+      drupal_set_message("Bitte melden Sie sich mit Ihren persönlichen Zugangsdaten an.");
+      drupal_goto("user", array("query" => array("destination" => "node/" . $node -> nid)));
+      drupal_exit();
+    }
+    
+    if(lk_is_agentur($account)){
+       if($node -> uid != $account -> uid){
+          return NODE_ACCESS_DENY;
+       }
+       else {
+         return NODE_ACCESS_ALLOW;
+       }
+    }
+  }
+  
+  // Returning nothing from this function would have the same effect.
+  return NODE_ACCESS_IGNORE;
+}
+
+
+/**
+ * status: new|progress|submit|deny
+ */   
+function _lk_set_kampagnen_status($nid, $status){
+  
+   $node = node_load($nid);
+
+   if($status == 'published'){
+     $new_status = 1;
+     module_invoke_all('change_kampagnen_status_published', $node);
+   } 
+   else {
+     $new_status = 0;
+     module_invoke_all('change_kampagnen_status_unpublished', $node);
+   }
+  
+   $node -> status = $new_status;
+   $node -> field_kamp_status["und"][0]["value"] = $status;   
+   node_save($node);
+}
+
+
+/** 
+ *  Lädt alle Daten zu einer Node
+ *
+ */  
+function lokalkoenig_node_node_load($nodes, $types) {
+global $user;
+  
+  $types_we_want_to_process = array('kampagne');
+  if (count(array_intersect($types_we_want_to_process, $types))) {
+    while(list($nid, $node) = each($nodes)):
+        new \LK\Kampagne\Kampagne($node);
+    endwhile;
+  }
+}
+
+
+?>

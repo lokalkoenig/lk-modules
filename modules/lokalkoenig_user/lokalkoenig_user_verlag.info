@@ -1,0 +1,4 @@
+name = "Lokalkönig User Verlag"
+description = "Das Modul kümmert sich um die User-Verlags-Daten"
+core = "7.x"
+package = Lokalkoenig

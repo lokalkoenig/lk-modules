@@ -1,0 +1,4 @@
+name = "Lokalkönig Kampanen-Tool"
+description = "Das Modul kümmert sich um alle Daten die beim Erstellen der Kampagnen notwendig sind"
+core = "7.x"
+package = Lokalkoenig

@@ -1,0 +1,477 @@
+<?php
+
+function lk_upgrade_medienformate(){
+   
+  if(lk_is_moderator()){
+      return true;
+  }  
+
+return false;    
+}
+
+require_once('functions/blocks.php');
+require_once('functions/fields.php');
+require_once('functions/forms.php');
+require_once('functions/media_edit.inc');
+
+define("LK_ROLE_VERLAG", 5);
+define("LK_ROLE_MITARBEITER", 6);
+
+
+
+function lokalkoenig_addkampagne_file_download_access($file_item, $entity_type, $entity) {
+  return true;
+}
+
+function _lk_kampa_online_warning($node, &$form){
+  if($node -> status == 1){
+      $form["mark"] = array('#weight' => -100, '#markup' => '<div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign"></span> <strong>Diese Kampagne ist bereits Online.</strong><br />Änderungen, welche sich auf redaktionelle Änderungen beschränken sollten, sind sofort sichtbar.</div>'); 
+  }
+
+}
+
+
+function _lk_admin_kampa_links($nid){
+ return '<div class="btn-group">
+  <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown"> Kampagne <span class="caret"></span> </button>
+  
+  <ul class="dropdown-menu" role="menu"> 
+    <li><a href="'. url("node/" . $nid) .'">Kampagnenansicht</a></li> 
+    <li><a href="'. url("node/" . $nid ."/edit") .'">Kampagnen bearbeiten</a></li>
+    </ul></div>
+  ';
+ 
+ return $nid;
+}
+
+
+function _lokalkoenig_addkampagne_update_format_field($node){
+  $node -> field_kamp_format["und"] = array();
+  if($node -> status == 0) {
+      return ;
+  }
+  
+  
+  $copy = node_load($node -> nid);
+  $save = array();
+  
+  if(isset($copy -> medien)){
+        foreach($copy -> medien as $medium){
+            if(isset($medium ->field_medium_typ['und'][0]['tid'])){
+              $tax = taxonomy_term_load($medium ->field_medium_typ['und'][0]['tid']);
+              
+              if(isset($tax -> field_medientyp_format['und'][0]['tid'])){
+                $save[$tax -> field_medientyp_format['und'][0]['tid']] = 1;  
+              }  
+            }  
+        }
+      }
+  
+  
+    while(list($key, $val) = each($save)){
+        $node -> field_kamp_format["und"][]["tid"] = $key;      
+    }
+        
+    $info = field_info_field('field_kamp_format');
+    $fields = array($info['id']);
+
+ 
+    // Execute the storage function
+    field_sql_storage_field_storage_write('node', $node, 'update', $fields);
+    cache_clear_all('field:node:'.$node->nid, 'cache_field');  
+  
+  
+    
+     
+
+}
+
+function lokalkoenig_addkampagne_node_update($node) {
+   if($node -> type == 'kampagne'){
+      if($node -> status == 1){
+          _lokalkoenig_addkampagne_update_format_field($node);
+      }
+   }
+}
+
+
+function ___node_form_css($form, &$form_state){
+  
+   $path = drupal_get_path('module', 'lokalkoenig_addkampagne');
+   drupal_add_css($path . '/css/node.css');
+   drupal_add_js($path . '/js/node.js');
+
+   return $form;
+}
+
+function lokalkoenig_addkampagne_file_download($uri) {
+  global $user;
+  
+    //mail("mail@web-rider.de", $_SERVER["SERVER_ADDR"] . $_SERVER["REMOTE_ADDR"], "Bla");
+  // Does the user have access based on some criteria ?
+  if ($user -> uid == 0) {
+    if($_SERVER["SERVER_ADDR"] != $_SERVER["REMOTE_ADDR"]){
+        return -1;
+    }
+  }
+
+
+ 
+ 
+
+
+  // If the above conditions fallthru then populate HTTP header arrays
+  // for content download; If you need to grab the file object and work on
+  // it -- say output CSV from the data, you can grab it as follows ...
+  $files = file_load_multiple(array(), array('uri' => $uri));
+  // If empty, $file will be false, otherwise will contain the required file.
+  $file = reset($files);
+ 
+  //$headers = file_get_content_headers($file);
+  $info = image_get_info($uri);
+  
+  $mt = (file_get_mimetype($uri)); 
+  
+   // Sie dürfen nicht direkt auf die Quelldateien zugreifen
+  if((lk_is_verlag()  OR lk_is_mitarbeiter()) AND $mt == 'application/zip') return -1; 
+  
+  
+  
+      return array('Content-Type' => $mt);
+  
+  //return $headers;
+ 
+  //return array('Content-Type' => $mt);  
+}
+
+
+function lokalkoenig_addkampagne_css_alter(&$css) {
+  // Remove defaults.css file.
+  
+  if(isset($css["sites/all/modules/hierarchical_select/hierarchical_select.css"])){
+    unset($css["sites/all/modules/hierarchical_select/hierarchical_select.css"]);
+  }
+                  
+  if(isset($css["sites/all/modules/shs/theme/shs.form.css"])){
+    unset($css["sites/all/modules/shs/theme/shs.form.css"]);
+  }
+  //unset($css[drupal_get_path('module', 'system') . '/defaults.css']);
+}
+
+/** Theme Funktion */
+function lokalkoenig_addkampagne_theme(){
+   $themes = array();
+   $themes["lk_node_add_block"] = array(
+            'template' => 'lk_node_add_block', // your template file called custompage.tpl.phü
+            'variables'=> array('node' => NULL)
+        ); 
+    
+  $themes["lk_node_add_block_actions"] = array(
+            'template' => 'templates/lk_node_add_block_actions', // your template file called custompage.tpl.phü
+            'variables'=> array('node' => NULL)
+        ); 
+   
+   $themes["lk_node_edit_block"] = array(
+            'template' => 'lk_node_edit_block', // your template file called custompage.tpl.phü
+            'variables'=> array('node' => NULL));
+            
+            
+   $themes["lk_node_status_page"] = array(
+            'template' => 'templates/lk_node_status_page', // your template file called custompage.tpl.phü
+            'variables'=> array('node' => NULL));          
+   
+   $themes["lk_node_show_agentur_block"] = array(
+            'template' => 'templates/lk_node_show_agentur_block', // your template file called custompage.tpl.phü
+            'variables'=> array('node' => NULL));
+   
+   $themes["lk_node_show_medien_mod"] = array(
+            'template' => 'templates/lk_node_show_medien_mod', // your template file called custompage.tpl.phü
+            'variables'=> array('node' => NULL, 'medien' => NULL, 'info' => NULL));    
+            
+   $themes["lk_node_show_stats"] = array(
+            'template' => 'templates/lk_node_show_stats', // your template file called custompage.tpl.phü
+            'variables'=> array('stats' => NULL));                     
+   
+   
+return $themes;
+}
+
+/** Prevent Agentur-Access from Kampagnen-Nodes */
+function lokalkoenig_addkampagne_init(){
+  if(lk_is_agentur()){
+     if(arg(0) == "node" AND $node = node_load(arg(1)) AND $node -> type == "kampagne"){
+        
+        // Wenn Kampagne gelöscht ist, dann keinen Zugriff mehr erlauben
+        if($node -> lkstatus == "deleted"){
+            drupal_goto('user/' . $node -> uid . "/kampagnen"); 
+        }
+                         //$node -> lkstatus != "new"
+        if(!in_array($node -> lkstatus, array('new', 'canceled')) AND !in_array(arg(2), array('plz', 'status', 'contact', "stats"))){
+            drupal_goto('node/' . $node -> nid . "/status"); 
+        }   
+     }
+  }
+}
+
+
+function lokalkoenig_addkampagne_checktype($node, $arg = ''){
+global $user;
+  
+  if ($node->type == 'kampagne') {
+    if($user -> uid == 0) return false;    
+    
+   
+   
+   
+    if(!lk_is_moderator() AND !lk_is_agentur()){
+      return false;
+    }
+    
+    
+    if(lk_is_agentur()){
+      if($user -> uid != $node -> uid) return false;
+    }
+    
+    if($node -> lkstatus == 'deleted' AND lk_is_agentur()){
+      return false;
+    }
+ 
+    if($node -> status == 1 AND $arg == 'addmedia'){
+      return false;
+    }
+ 
+    if($node -> lkstatus == 'deleted' AND 
+        !in_array($arg, array('log', 'plz', 'contact', 'stats', 'admin', 'status', 'pdf'))){
+       return false;
+    }
+    
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/** Menü Hooks */
+function lokalkoenig_addkampagne_menu(){
+
+  $items['jsedit/%node/%/%'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'description' => 'PLZ-Sperre editieren',
+      'access arguments' => array(1, 'edit'),
+      'page callback' => 'lokalkoenig_addkampagne_edit_js',
+      'page arguments' => array(1,2,3),
+      'title' => 'Bearbeiten',
+      'type' => MENU_CONTEXT_NONE);
+
+
+    $items['lkautoeditbranche/%'] = array(
+      //'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'access arguments' => array('access content'),
+      'page callback' => 'lokalkoenig_addkampagne_branchen_auto',
+      'page arguments' => array(1),
+      'title' => 'Autocomplete',
+       'file' => 'autocomplete.inc',
+      'type' => MENU_CALLBACK );
+
+
+ 
+
+  /**+++++++++++++ Media Edit  ++++++++++++++++*/
+  $items['node/%node/media/%/edit'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'access arguments' => array(1,'edit'),
+      'page callback' => 'lokalkoenig_addkampagne_page_editmedia',
+      'page arguments' => array(1, 3),
+      'title' => 'Upload bearbeiten',
+      'file' => 'functions/media_edit.inc',
+      'type' => MENU_CONTEXT_NONE);
+
+   $items['node/%node/media/%/delete'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'access arguments' => array(1, 'edit'),
+      'page callback' => 'lokalkoenig_addkampagne_page_deletemedia',
+      'page arguments' => array(1, 3),
+      'title' => 'Upload entfernen',
+      'file' => 'functions/media_edit.inc',
+      'type' => MENU_CONTEXT_NONE);
+
+
+  $items['node/%node/media'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'access arguments' => array(1, 'edit'),
+      'page callback' => 'lokalkoenig_addkampagne_page_media',
+      'page arguments' => array(1),
+      'title' => 'Medien verwalten',
+      'file' => 'functions/media_edit.inc',
+      'type' => MENU_LOCAL_TASK);
+      
+  $items['node/%node/addmedia'] = array(
+      'description' => 'Fügen Sie Medien an...',
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'access arguments' => array(1, 'addmedia'),
+      'page callback' => 'lokalkoenig_addkampagne_page_addmedia',
+      'page arguments' => array(1),
+      'title' => 'Neues Medium anfügen',
+       'file' => 'functions/media_edit.inc',
+      'type' => MENU_LOCAL_TASK);    
+  
+
+  
+  /** Kampagnen Status */
+  $items['node/%node/stats'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'access arguments' => array(1, 'stats'),
+      'page callback' => 'lokalkoenig_addkampagne_stats',
+      'page arguments' => array(1),
+      'title' => 'Statistik',
+       'file' => 'functions/status.php',
+      'type' => MENU_LOCAL_TASK);
+
+   $items['node/%node/contact'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'access arguments' => array(1, 'contact'),
+      'page callback' => 'lokalkoenig_addkampagne_contact',
+      'page arguments' => array(1),
+      'file' => 'functions/status.php',
+      'title' => 'Kontakt',
+      'type' => MENU_LOCAL_TASK);
+
+  
+  /**+++++++++++++ Load PLZ Menüs  ++++++++++++++++*/
+  $items['node/%node/plz'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'description' => 'PLZ-Sperre für ein Medium',
+      'access arguments' => array(1, 'plz'),
+      'page callback' => 'lokalkoenig_addkampagne_page_plz_view',
+      'page arguments' => array(1),
+      'title' => 'PLZ-Sperre',
+      'file' => 'functions/plz_edit.inc',
+      'type' => MENU_LOCAL_TASK);
+
+    $items['node/%node/plz/addextra'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'description' => 'PLZ-Sperre für ein Medium',
+      'access arguments' => array(1, 'plz'),
+      'page callback' => 'lokalkoenig_deletekampagne_page_plz_addextra',
+      'page arguments' => array(1),
+      'title' => 'PLZ-Sperre hinzufügen',
+      'file' => 'functions/plz_edit.inc',
+      'type' => MENU_LOCAL_TASK);   
+
+
+  $items['node/%node/plz/%/edit'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      
+      'description' => 'PLZ-Sperre editieren',
+      'access arguments' => array(1, 'plz'),
+      'page callback' => 'lokalkoenig_addkampagne_page_plz_edit',
+      'page arguments' => array(1, 3),
+      'title' => 'Bearbeiten',
+      'file' => 'functions/plz_edit.inc',
+      'type' => MENU_CONTEXT_NONE);
+
+  $items['node/%node/plz/%/delete'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'description' => 'PLZ-Sperre löschen',
+      'access arguments' => array(1, 'plz'),
+      'page callback' => 'lokalkoenig_addkampagne_page_plz_delete',
+      'page arguments' => array(1, 3),
+      'title' => 'Löschen',
+      'file' => 'functions/plz_edit.inc',
+      'type' => MENU_CONTEXT_NONE);
+      
+  
+  $items['lk/plz'] = array(
+    'title' => 'PLZ-Selector',
+    'access callback' => true,
+    'file' => 'functions/plz_edit.inc',
+    'page callback' => '_lokalkoenig_user_plz_load',
+    'type' => MENU_CONTEXT_NONE
+  );
+
+   $items['node/%node/admin'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'access arguments' => array(1, 'admin'),
+      'page callback' => 'lokalkoenig_addkampagne_moderate',
+      'page arguments' => array(1),
+      'file' => 'admin.inc',
+      'title' => 'Moderation',
+      'type' => MENU_LOCAL_TASK);
+     
+   
+   
+     $items['node/%node/pdf'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'access arguments' => array(1, 'admin'),
+      'page callback' => '\\LK\\PDF\\PDF_Loader::renderTestNode', 
+      'page arguments' => array(1),
+      'file' => 'admin.inc',
+      'title' => 'PDF',
+      'type' => MENU_LOCAL_TASK);  
+    
+     $items['node/%node/status'] = array(
+      'access callback' => 'lokalkoenig_addkampagne_checktype',
+      'access arguments' => array(1, 'status'),
+      'page callback' => 'lokalkoenig_addkampagne_status',
+      'page arguments' => array(1),
+      'title' => 'Status',
+      'type' => MENU_CONTEXT_NONE);
+  
+      
+return $items;      
+}
+
+
+function lokalkoenig_addkampagne_status($node){
+
+  pathtitle('node/x/status');
+  //entity_get_controller('node')->resetCache(array($node -> nid));
+  //cache_clear_all();
+  cache_clear_all('field:node:' . $node->nid, 'cache_field');
+  
+  $copy = node_load($node -> nid, NULL, true);
+  //dpm($copy);
+  if(@count($copy -> medien) == 0){
+    drupal_goto("node/" . $node -> nid . "/addmedia");
+  } 
+   
+  
+
+return theme('lk_node_status_page', array("node" => $node));
+}
+
+/** 
+ * Verknüpft einen Upload/Presentation mit einer Kampagne
+ */  
+function lokalkoenig_addkampagne_entity_presave($entity, $type) {
+  if($type == 'medium'){
+      if(arg(0) == 'node'){
+         $entity -> field_medium_node["und"][0]["nid"] = arg(1); 
+         
+         if(isset($_GET["parent"])){
+            $entity -> field_medium_main_reference["und"][0]["target_id"] = $_GET["parent"]; 
+         }
+         
+         if(isset($_GET["variante"])){
+            $entity -> variante = 1; 
+         }
+         
+         if(isset($_GET["medium"])){
+            $entity -> field_medium_typ["und"][0]["tid"] = $_GET["medium"]; 
+         }
+      }    
+  }
+}
+
+function lokalkoenig_addkampagne_node_view($node, $view_mode, $langcode){
+  if($view_mode == 'full'){
+    if($node -> type == 'kampagne' AND $node -> status == 0){
+        if($node ->field_kamp_status['und'][0]['value'] == 'deleted'){
+            if(!arg(2)) drupal_goto("node/" . $node -> nid . '/status');
+        }
+     }
+    //reset();
+  }
+} 
+
+
+?>

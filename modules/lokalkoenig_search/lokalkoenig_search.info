@@ -1,0 +1,4 @@
+name = "Lokalkönig Suche"
+description = "Unterstützungsmodul für die LK-Suche"
+core = "7.x"
+package = Lokalkoenig

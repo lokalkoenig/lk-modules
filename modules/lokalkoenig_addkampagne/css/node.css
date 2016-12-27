@@ -1,0 +1,70 @@
+select.shs-select {
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.428571429;
+  color: #555;
+  vertical-align: middle;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+  -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  margin-right: 20px;
+}
+
+
+span.autocomplete-deluxe-item {
+  padding: 10px 20px;
+  background-position: center;
+  padding-right: 25px;
+  background: White;
+  float: none;
+  display: block;
+  font-size: 1.1em;
+  line-height: 1.4em;
+}
+
+span.autocomplete-deluxe-item:hover {
+  background: #f5f5f5;
+}
+
+
+span.autocomplete-deluxe-highlight-char {
+  color: black;
+}
+
+.ui-autocomplete a.ui-state-hover {
+ background: #428bca;
+}
+
+.ui-autocomplete a.ui-state-hover span.autocomplete-deluxe-highlight-char {
+  color: White;
+}
+
+a.autocomplete-deluxe-item-delete {
+  top: 12px;
+  background-image: none;
+  font-size: inherit;
+  width: auto;
+} 
+
+div div.autocomplete-deluxe-multiple {
+  width: 100%;
+}
+
+div .ui-menu .ui-menu-item a  {
+  line-height: auto;
+}
+
+div>div.autocomplete-deluxe-container input.autocomplete-deluxe-form {
+  width: 200px;
+}
+
+
+div.autocomplete-deluxe-throbber  {
+   margin-top: 6px; 
+}
