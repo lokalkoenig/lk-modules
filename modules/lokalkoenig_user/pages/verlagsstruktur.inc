@@ -124,7 +124,7 @@ function lokalkoenig_user_verlag_struktur($verlag){
   // Neu Verlagsübergreifenden MA anlegen
   if($action == 'addvuema' AND $current -> hasRight('add account')){
     drupal_set_title("Verkaufsübergreifender Mitarbeiter hinzufügen");
-    require_once("sites/all/modules/lokalkoenig/functions/lokalkoenig_user/pages/addnewaccount.inc");
+    require_once(__DIR__ . "/addnewaccount.inc");
     return drupal_get_form("lk_user_add_vuegr_ma", $verlag -> uid);
   } 
   
@@ -148,21 +148,21 @@ function lokalkoenig_user_verlag_struktur($verlag){
       
       if(($action == 'edit' OR $action == 'editaccount') AND $account AND $current -> hasRight('edit account')){
         drupal_set_title("Account von " . $account -> name  . " editieren");
-        require_once("sites/all/modules/lokalkoenig/functions/lokalkoenig_user/pages/unteraccounts_edit.inc");          
+        require_once(__DIR__ ."/unteraccounts_edit.inc");          
         return drupal_get_form('lk_user_edit_ma', $verlag, $account); 
     }
         elseif($action == 'disable' OR $action == 'enable' AND $account AND $current -> hasRight('edit account')){
-       require_once("sites/all/modules/lokalkoenig/functions/lokalkoenig_user/pages/unteraccounts_edit.inc");          
+       require_once(__DIR__ ."/unteraccounts_edit.inc");          
        return drupal_get_form('lk_user_disable_ma', $verlag, $account); 
     }
         elseif($action == 'status' AND $account AND $current -> hasRight('edit account')){
         drupal_set_title("Account von " . $account -> name  . " deaktivieren");
               
-        require_once("sites/all/modules/lokalkoenig/functions/lokalkoenig_user/pages/unteraccounts_edit.inc");          
+        require_once(__DIR__ ."unteraccounts_edit.inc");          
         return drupal_get_form('lk_user_disable_ma', $verlag, $account);
     }
     elseif($action == 'addaccount' AND $current -> hasRight('edit account')){
-      require_once("sites/all/modules/lokalkoenig/functions/lokalkoenig_user/pages/addnewaccount.inc");
+      require_once(__DIR__ . "addnewaccount.inc");
       return lokalkoenig_user_verlag_addnew($verlag -> uid);
     }
   }

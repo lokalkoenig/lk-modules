@@ -72,6 +72,18 @@ function lokalkoenig_admin_init(){
         
         drupal_add_css(drupal_get_path('module', 'lokalkoenig_admin') .'/css/admin.css');
     }   
+    
+    if(arg(0) == 'user'){
+      if($user -> uid == 0){
+        drupal_set_title("Anmelden");
+         lk_set_icon('home');
+      }
+      else {
+        lk_set_icon('user');
+        drupal_set_title("Ihr Profil");
+        //lk_set_subtitle('Verwalten Sie hier Ihre Daten');
+      }
+   }
 }
 
 

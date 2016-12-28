@@ -3,6 +3,9 @@ use LK\Alert\AlertManager;
 use LK\Solr\SearchQueryParser;
 use LK\UI\Table;
 
+
+namespace LK\Alert;
+
 /**
  * Alert Controller
  * 

@@ -9,28 +9,7 @@
 function lokalkoenig_node_prepare_view($node, $view_mode = 'teaser'){
 global $user;
 
-    if(!isset($node -> online)){
-       $node -> online = false;
-    }
     
-    $node -> kid = _lk_get_kampa_sid($node);
-    $node -> vku_url = false;
-    
-    $node -> vku_can = true;
-    $node -> merkliste_can = true;
-    $node -> in_vku = false; 
-            
-    if($node -> online == false OR lk_is_agentur()){
-        $node -> vku_can = false;
-        $node -> merkliste_can = false;
-    }
-    elseif($node -> plzaccess == false){ 
-       $node -> vku_can = false; 
-    }
-    
-    $node -> sperre_hinweis = '';
-    $node -> basic_links = array();
-    $node -> verlags_sperre = false;
     
     if($view_mode != 'grid'):
         $node -> alerts = _lokalkoenig_node_access_info_count($node -> nid);
@@ -114,66 +93,10 @@ global $user;
       _lokalkoenig_node_extend_access_info($node);    
    }
    
-   if($node -> merkliste_can){
-        $ml = array();
-        $ml["href"] = 'node/' . $node -> nid;
-        $ml["title"] = 'Merkliste';
-        $ml["attributes"]["class"] = array('merklistejs merkliste');
-        $ml["attributes"]["mlid"] = '';
-        $ml["attributes"]["onclick"] = 'return false;';
-        
-        $ml["attributes"]["items"] = '';
-        $ml["attributes"]["nid"] = $node -> nid;
-
-        if($node -> merkliste) {
-            $ml["attributes"]["class"][] = 'on';
-            $ml["attributes"]["mlid"] = $node -> merkliste_id;
-            $ml["attributes"]["items"] = $node -> merkliste_title;
-        }
-   }
-   else {
-        $ml["href"] = 'node/' . $node -> nid;
-        $ml["title"] = 'Merkliste';
-        $ml["attributes"]["class"] = array('merkliste');
-        $ml["attributes"]["data-toggle"] = 'tooltip';
-        $ml["attributes"]["onclick"] = 'return false;';
-        $ml["attributes"]["title"] = 'Diese Funktion ist für Sie nicht verfügbar';  
-   }
    
    
-   if($node -> vku_can){
-     $vku_link = array();
-     
-     if(vku_is_update_user()){
-        $vku_link["href"] = 'vku/add_active/' . $node -> nid;
-        $vku_link["title"] = 'Verkaufsunterlage';
-        $vku_link["attributes"]["class"] = array('addvku2js vku-added');
-        $vku_link["attributes"]["data-nid"] = $node -> nid;
-     }
-     else {
-         $vku_link["href"] = 'vku/add/' . $node -> nid;
-        $vku_link["title"] = 'Verkaufsunterlage';
-        $vku_link["attributes"]["class"] = array('addvkujs');
-     }
-     
-     if($node -> vku_url){
-        $vku_link["href"] = $node -> vku_url;
-        $vku_link["attributes"]["class"] = array('addvkujs-active');
-     }
-   }
-   else {
-     $vku_link = array();
-     $vku_link["href"] = 'node/' . $node -> nid;
-     $vku_link["title"] = 'Verkaufsunterlage';
-     $vku_link["attributes"]["class"] = array('addvkujs-no');   
-     $vku_link["attributes"]["onclick"] = 'return false;';
-     $vku_link["attributes"]["data-toggle"] = 'tooltip';
-     $vku_link["attributes"]["title"] = 'Diese Funktion ist für Sie nicht verfügbar'; 
-     $node -> vku_active = 0;   
-   }
-    
-   $node -> merkliste_link = $ml;
-   $node -> vku_link = $vku_link;
+   
+  
   }   
     
  

@@ -159,7 +159,7 @@ class Search {
       //$query->addParam('fq', "field_date:[1970-12-31T23:59:59Z TO NOW]");
        
       $resp = $this -> solr->search(utf8_encode($this -> term)); 
-      dpm($resp); 
+      //dpm($resp); 
        
       return $resp -> response;
     }

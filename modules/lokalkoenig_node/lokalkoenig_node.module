@@ -78,6 +78,11 @@ function lokalkoenig_node_node_view($node, $view_mode, $langcode){
        pathtitle("node/x/preview");
      }
   }
+  
+  if($node -> type == "kampagne" && $view_mode == 'grid'){
+    $kampagne = new \LK\Kampagne\Kampagne($node);
+    $kampagne ->getAccessInformation($view_mode);  
+  }
 } 
 
 

@@ -17,7 +17,7 @@ use LK\Log\Verlag as VerlagLog;
  * @param type $message
  */
 function lk_log_debug($message){
-    $log = new Debug($message);
+    $log = new DebugLog($message);
     $log ->save();
 }
 
@@ -80,7 +80,7 @@ global $user;
     }
     
     $message_striped = strip_tags($message);
-    $log = new Debug($type . ": " . $message);
+    $log = new DebugLog($type . ": " . $message);
     $log->set("uid", $uid);
     $log ->save();
    

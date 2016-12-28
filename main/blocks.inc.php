@@ -97,30 +97,11 @@ global $_lk_icon;
   $_lk_icon = $icon;
 }
 
-function lk_set($pagetitle, $subtitle, $icon, $faq_id = NULL){
-   lk_set_faq($faq_id);
+function lk_set($pagetitle, $subtitle, $icon){
+  
    drupal_set_title($pagetitle);
    lk_set_subtitle($subtitle);
    lk_set_icon($icon);
-}
-
-function lokalkoenig_init(){
-global $user; 
-   if(arg(0) == 'user'){
-      lk_set_faq(6);
-      
-      
-      if($user -> uid == 0){
-        drupal_set_title("Anmelden");
-         lk_set_icon('home');
-      }
-      else {
-        lk_set_icon('user');
-        drupal_set_title("Ihr Profil");
-        //lk_set_subtitle('Verwalten Sie hier Ihre Daten');
-      }
-      
-   }
 }
 
 function pathtitle($path, $special = NULL){

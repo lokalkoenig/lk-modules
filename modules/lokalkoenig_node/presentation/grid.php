@@ -78,8 +78,8 @@
    ?>
     <div class="grid-under-image">
          <ul class="list-inline">
-            <li><?php print $overview_print; ?></li>
-            <li><?php print $overview_online; ?></li>
+            <li><?php print $node -> formate_print; ?></li>
+            <li><?php print $node -> formate_online; ?></li>
         </ul>
      </div> 
    </a>

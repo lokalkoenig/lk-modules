@@ -80,10 +80,9 @@
       $list[$id] = array();
       $list[$id]["title"] = '<span class="glyphicon glyphicon-flag"></span> Alerts';
       $list[$id]["class"] = 'special-tab';
-      $list[$id]["content"] =  _lk_alerts_page($account, false);
+      //$list[$id]["content"] = \LK\Alert\_lk_alerts_page($account, false);
   }
 
-  
   function dashboad_add_adminsupport(&$list){
   
       $id = 'msg';
