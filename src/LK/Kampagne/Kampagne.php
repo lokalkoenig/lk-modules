@@ -7,6 +7,7 @@
  */
 
 namespace LK\Kampagne;
+use LK\Kampagne\AccessInfo;
 
 /**
  * Description of Kampagne
@@ -22,6 +23,7 @@ class Kampagne {
     
     function __construct(\stdClass $node) {
          $this -> node = &$node;
+         $node -> online = $node -> status;
          
          if(!isset($this -> node -> loadedmedias)){
              //dpm($this -> node -> nid); 
@@ -34,11 +36,15 @@ class Kampagne {
         return $this -> node;
     }
     
+    
+    /**
+     * Initialize Kampagne by loading Medias
+     */
     private function initMedias(){
         
         $this -> node -> loadedmedias = true;
         $this -> node -> lkstatus = $this -> node -> field_kamp_status["und"][0]["value"];   
-        $this -> node -> plzaccess = \LK\Kampagne\AccessInfo::loadAccess($this -> node -> nid); 
+        $this -> node -> plzaccess = AccessInfo::loadAccess($this -> node -> nid); 
         
         $medien = [];
         
@@ -54,6 +60,7 @@ class Kampagne {
         
         foreach($medien as $media){
             $test = \_lk_get_medientyp_print_or_online($media->field_medium_typ['und'][0]['tid']);
+            
             if($test == 'print'){
                 $medien_print[] = $media; 
             }
@@ -79,11 +86,7 @@ class Kampagne {
        
       $node = &$this -> node;
       $account = \LK\current();
-      
-      if(!isset($node -> online)){
-        $node -> online = false;
-      }
-    
+     
       $node -> kid = $node->field_sid['und'][0]['value'];
       $node -> vku_url = false;
     
@@ -164,10 +167,11 @@ class Kampagne {
     
       $node -> vku_link = $vku_link;
       
+      // Show Access-Info
       if($view_mode != "grid"):
         
         if($node -> plzaccess == false && $account->isAgentur() === FALSE){
-            $result = na_check_user_has_access($user -> uid, $node -> nid);
+            $result = AccessInfo::getUserBasedAccess($user -> uid, $node -> nid);
             $node -> plzinfo = $result;
 
             if($node -> plzinfo["access"] == false){
@@ -188,12 +192,120 @@ class Kampagne {
             }
         }   
         
-      endif;
+     endif;
+      
+      
+     if($view_mode != 'grid'):
+        $node -> alerts = AccessInfo::hasAccess($node -> nid);
+       
+        if($node -> plzaccess == false){
+            
+            $node -> verlags_sperre = get_verlag_plz_sperre($node -> nid, true); 
+            if($node -> verlags_sperre AND $node -> verlags_sperre["uid"] == $account ->getUid()){
+                $node -> alerts = false;  
+            } 
+        }
+        
+        // Alert Link
+        if($node -> alerts AND $view_mode != 'full'){
+            $node -> basic_links["alerts"] = array();
+            $node -> basic_links["alerts"]["title"] = '<span class="glyphicon glyphicon-exclamation-sign" data-toggle="tooltip" title="Verwendung anzeigen"></span>';
+            
+            if($account ->isModerator()){
+              $result = AccessInfo::getAccessCount($node -> nid, user_load($account->uid)); 
+              $node -> basic_links["alerts"]["title"] .= '<sup><small>' . $result . '</small></sup>';
+            }
+            
+            $node -> basic_links['alerts']["href"] = url("nodeaccess/" . $node -> nid, array("absolute" => true));
+            $node -> basic_links["alerts"]["attributes"] = array('class' => array("new-style-icon alert-icon"));
+        }
+        
+        if($node -> online){
+           $node -> basic_links["recomend"] = array();
+           $node -> basic_links["recomend"]["title"] = '<span class="glyphicon glyphicon-envelope" data-toggle="tooltip" title="Versenden Sie diese Kampagne"></span>';
+           $node -> basic_links['recomend']["href"] = "node/" . $node -> nid;
+           $node -> basic_links["recomend"]["attributes"]["class"] = array("recomendnode new-style-icon");
+           $node -> basic_links["recomend"]["attributes"]["nid"] = $node -> nid;
+        }
+        
+        // different send method for moderators
+        if($account ->isModerator() && $node -> online){
+            $node -> basic_links['recomend']["href"] = url("messages/new", array("absolute" => true, "query" => array("nid" => $node -> nid)));
+            $node -> basic_links["recomend"]["attributes"] = array('class' => array("new-style-icon"));
+        }
+        
+        if($view_mode == 'teaser' && $account ->isModerator() && $this -> getLizenzenCount()){
+             $node -> basic_links["lizenz"] = array();
+             $node -> basic_links["lizenz"]["title"] = '<span class="glyphicon glyphicon-euro" data-toggle="tooltip" title="Kampagne hat Lizenzen"></span>';
+             $node -> basic_links['lizenz']["href"] = "node/" . $node -> nid . "/lizenzen";
+             $node -> basic_links["lizenz"]["attributes"]["class"] = array("new-style-icon");
+        }
+        
+     endif;
       
       // Attache also Format information
       $this -> getFormatInformation($view_mode);
+      
+      if($view_mode === 'full'){
+        $this ->getFullViewAccessInformation();
+      }
     }
     
+    
+    private function getFullViewAccessInformation(){
+    global $user;
+        
+         $node = &$this -> node;  
+           // Get use count
+         if(lk_is_moderator()){
+            $result = AccessInfo::getAccessCount($node -> nid, $user); 
+            
+            if($result){
+                $node -> sperre_hinweis = '<h4 style="margin-top: 0">Kampagnenverwendung</h4>' . theme("lk_vku_usage", array('class' => 'clearfix', "account" => $user, "entries" => AccessInfo::getUserDetails($node -> nid, $user)));
+            }
+
+            return ;
+         }
+
+         $node -> lizenz = false;
+
+         // If current lizenz
+         if($node -> plzaccess == false){
+            $current_lizenz = vku_user_has_lizenz_node($node -> nid, $user);
+            if($current_lizenz){     
+               //$node -> sperre_hinweis = 'Sie haben diese Kampagne lizenziert.'; 
+               $node -> lizenz = $current_lizenz; 
+               return ;
+            }
+         }
+
+         if($node -> verlags_sperre AND isset($node -> verlags_sperre["info"])){
+            $node -> sperre_hinweis = theme("lk_node_vku_info", array("info" => $node -> verlags_sperre));
+            return ; 
+         }
+
+         // When there are Licences in the Area
+         if($node -> plzaccess == false AND !$node -> verlags_sperre){
+             $test = (get_ausgaben_access_nid($node -> nid, $user, true));
+
+             if($test AND $test["count"]){
+                $test["class"] = 'well clearfix';
+                $node -> sperre_hinweis .= theme("lk_vku_lizenz_usage", $test, true);
+                return ;
+             }   
+         }
+
+         // Show Verlagssperren or Notifications
+         if($node -> plzaccess == true OR $node -> verlags_sperre) {
+            // Checken ob andere User VKU's mit der Kampagne erstellt haben
+            $result = AccessInfo::getAccessCount($node -> nid, $user);
+            
+            if($result){
+                $node -> sperre_hinweis = '<h4 style="margin-top: 0">Kampagnenverwendung</h4>' . theme("lk_vku_usage", array('class' => 'clearfix', "account" => $user, "entries" => vku_get_use_details($node -> nid, $user)));
+                return ;
+            }
+        }   
+    }
     
     
     function getFormatInformation($view_mode){
@@ -250,4 +362,15 @@ class Kampagne {
            }
         }
     }   
+    
+    /**
+     * Get the Lizenzen
+     * 
+     * @return Integer
+     */
+    function getLizenzenCount(){
+      $dbq = db_query("SELECT count(*) as count FROM lk_vku_lizenzen WHERE nid='". $this -> node -> nid ."'");
+      $result = $dbq -> fetchObject();
+      return $result -> count;
+    }
 }

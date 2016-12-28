@@ -1,13 +1,5 @@
-<?php
-  
-if(!isset($node -> online)){
-    $node -> online = false;
-}
-
-lokalkoenig_node_prepare_view($node, 'full');
-
-?>
 <div class="clearfix width">
+
 <div class="pull-left" style="width: 282px; margin-right: 40px;">
   <div class="thumbnail-noborder">
    <?php print render($content["field_kamp_teaserbild"]); ?>

@@ -59,16 +59,6 @@ function vku_user_has_lizenz_node($nid, $account){
 }
 
 
-
- // checken ob eine Lizenz vorliegt
-function node_has_lizenz_allready($nid){
-  $dbq = db_query("SELECT count(*) as count FROM lk_vku_lizenzen WHERE nid='". $nid ."'");
-  $result = $dbq -> fetchObject();
-  return $result -> count;
-
-}
-
-
 /** Ausgabe changed PLZ */
 function node_access_ausgabe_changed_plz($aid){
     $ausgabe = \LK\get_ausgabe($aid);
@@ -92,9 +82,6 @@ function vku_get_use_details($nid, $account, $exclude = false){
 }
 
 
-function lokalkoenig_node_access_has_access($nid){
-   return \LK\Kampagne\AccessInfo::loadAccess($nid); 
-}
 
 
 function vku_get_use_count_days($account){
@@ -195,22 +182,6 @@ function get_ausgaben_access_nid($nid,  $account){
   }  
    
 return array('count' => (count($inverlag) + count($outverlag)), 'in' => $inverlag, "out" => $outverlag);
-}
-
-
-function lkgetusername(){
-global $user;
-
-  if($user -> uid == 0) return 'Anonymus';
- 
-  $profile = profile2_load_by_user($user);
-  
-  if(isset($profile['main']->field_profile_vorname['und'][0]['safe_value'])){
-     return $profile['main']->field_profile_vorname['und'][0]['safe_value'] . " " . $profile['main']->field_profile_name['und'][0]['safe_value'];   
-  }
-  
-  
-return 'No Name';
 }
 
 

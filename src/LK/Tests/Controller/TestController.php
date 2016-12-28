@@ -24,7 +24,7 @@ class TestController {
         */
         
         
-        $file = file_get_contents(__DIR__ . '/../../../tests.json');
+        $file = file_get_contents(__DIR__ . '/../../../../tests.json');
         $array = json_decode($file, TRUE);
     
         $form = drupal_get_form('\\LK\\Tests\\Controller\\lokalkoenig_admin_show_tests_case_form', array("0" => '- Select a case -') + $array['cases'][0]);
