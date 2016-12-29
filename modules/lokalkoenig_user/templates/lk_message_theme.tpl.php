@@ -119,7 +119,7 @@
                             <!--Right box-->
                             <table width="55%" align="left" border="0" cellpadding="0" cellspacing="0"  class="deviceWidth">
                                 <tr>
-                                    <td  style="font-size: 16px; color: #303030; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px; 20px 0px 1 ">
+                                    <td  style="font-size: 16px; color: #303030; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px;">
                                          Now Traveling Is Easy                             
                                    </td>
                                 </tr>

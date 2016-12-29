@@ -68,10 +68,6 @@ function node_access_ausgabe_changed_plz($aid){
 
 
 
-function _lokalkoenig_node_access_info_count($node){
-    \LK\Kampagne\AccessInfo::hasAccess($node);
-}
-
 
 function vku_get_use_count($nid, $account){
     return \LK\Kampagne\AccessInfo::getAccessCount($nid, $account);    
@@ -234,3 +230,340 @@ function _lk_get_kampa_sid($node){
    
   return $node->field_sid['und'][0]['value'];
 }
+
+
+/** Depricated */
+function _lk_username($account){
+  
+    $obj = \Lk\get_user($account);
+    if($obj){
+        return (string)$account;
+    }
+    
+return '';
+}
+
+function format_ausgaben_kurz($account){ }
+
+function _lk_can_access_protokoll_verlag($account){ 
+  return false;
+}
+
+
+function format_team_title($team){ }
+
+
+/** Depricated */
+
+function print_plz2($account){ }
+function print_plz($account){ return ''; }
+
+function lokalkoenig_merkliste_test_access($node){
+ 
+}
+
+
+function _lk_check_private_terms($tids){
+global $user;
+  
+  foreach($tids as $tid){
+    $dbq = db_query("SELECT count(*) as count FROM  lk_merklisten_terms WHERE uid='". $user -> uid ."' AND tid='". $tid ."'");
+    $res = $dbq -> fetchObject();
+    
+    if($res -> count == 0){
+        $taxo = taxonomy_term_load($tid);  
+        $nid = db_insert('lk_merklisten_terms') // Table name no longer needs {}
+        ->fields(array(
+          'uid' => $user -> uid,
+          'tid' => $tid,
+          'term_name' => $taxo -> name
+        ))
+        ->execute();
+      
+    } 
+  }
+}
+
+
+
+function _lk_get_user_pos_format($accuid){
+  return _lk_get_user_pos_format_html($accuid);
+}
+
+function _lk_get_user_pos_format_html($accuid){  
+    
+    
+}
+
+
+function _lk_get_user_pos($accuid){
+   return array();
+}
+
+
+/******************************************* /
+
+
+/** Deprecated */
+function lk_ausgabe_from_user($account){
+
+  $account = _lk_user($account);
+
+  if(isset($account -> profile['mitarbeiter']->field_ausgabe['und'][0]['target_id'])){
+      return $account -> profile['mitarbeiter']->field_ausgabe['und'][0]['target_id']; 
+  }
+
+return false;
+}
+
+
+function getTeamFromUser($account){
+  // User kann nur ein Team haben
+  $account = _lk_user($account);
+  
+  if(isset($account->profile['mitarbeiter']->field_team['und'][0]['target_id'])){
+    return $account->profile['mitarbeiter']->field_team['und'][0]['target_id'];
+  }
+  else {
+    return 0;
+  }
+}
+
+
+// DONEEEEE
+function lk_is_in_testverlag($account){
+   
+    $accessed = \LK\get_user($account);
+    if(!$accessed){
+        return false;
+    }
+    
+    return $accessed ->isTestAccount();
+ }
+
+function lk_get_user_from_team($team_id){
+   
+   $dbq = db_query("SELECT p.uid FROM 
+                      profile p, 
+                      field_data_field_team t,
+                      users u 
+    WHERE 
+   p.type='mitarbeiter' AND
+   p.pid=t.entity_id AND p.uid IS NOT NULL AND
+   t.field_team_target_id='". $team_id ."' AND u.uid=p.uid AND u.status='1' 
+   ORDER BY u.name ASC");
+    foreach($dbq as $all){
+      $return[] = $all -> uid;
+    }
+  
+return $return;
+}
+
+function lk_get_verlag_from_team($team){
+   $team = lk_get_team($team);
+   return $team->field_verlag['und'][0]['uid'];  
+}
+
+
+function getVerkaufsleiterFromTeam($team_id){
+    
+    $vkl = array();
+    $team = \LK\get_team($team_id);
+    
+    if($team){
+        $vkl[] = $team ->getLeiter();
+    }
+   
+return $vkl;   
+}
+
+function format_team_linked($team){
+    
+   if(!$team){
+       return ;
+   } 
+    
+   $entity = entity_load('team', array($team));
+   $team_entity =  $entity[$team];
+   
+   if($team_entity){
+      return '<span>' . l($team_entity -> title, "team/" . $team_entity -> id) . '</span>';
+   }
+}
+
+
+function lk_get_team($team) {
+
+   $entity = entity_load('team', array($team));
+   $team_entity =  $entity[$team];
+   
+return $team_entity;   
+}
+
+function format_team($team){
+  
+   $entity = entity_load('team', array($team));
+   $team_entity =  $entity[$team];
+   
+   if($team_entity){
+      return '<span>' . $team_entity -> title . '</span>';
+   }
+}
+
+
+function gettheVerkaufsleiterFromTeam($team){
+    $user = getVerkaufsleiterFromTeam($team);
+    
+    if($user){
+      return $user[0];
+    }
+}
+
+
+function team_is_telephone_team($team_id){
+   $entity = entity_load('team', array($team_id));
+   $team_entity =  $entity[$team_id];
+
+   if($team_entity->field_telefonteam['und'][0]['value']){
+      return true;
+   }
+   else return false;
+}
+
+function getVerlagFromTeam($team){
+   $entity = entity_load('team', array($team));
+   $team_entity =  $entity[$team];
+   
+    if($verlag = $team_entity->field_verlag['und'][0]['uid']){
+      return $verlag;
+    }
+}
+
+
+
+/** Get the Ausgaben-Title-Kurz 
+ *  @ausgabe int
+ **/
+
+function lk_get_ausgaben_title_kurz($ausgabe){
+
+  if($b = lk_load_ausgabe($ausgabe)){
+      return $b ->field_kurzbezeichnung['und'][0]['value'];
+  }
+}
+
+/** Format Ausgaben-Title-Kurz 
+ *  @ausgabe int
+ **/
+
+function format_ausgabe_kurz($id){  
+    if($b = lk_load_ausgabe($id)){
+      return '<small class="label label-primary" title="'. $b -> field_ortsbezeichnung['und'][0]['value'] .'">' .$b ->field_kurzbezeichnung['und'][0]['value'] . '</small> ';
+    }
+}
+
+
+function lk_load_ausgabe($ausgabe){
+   $entity = entity_load('ausgabe', array($ausgabe));
+   return $entity[$ausgabe];
+}
+
+/** Depricated */
+function lk_get_verlag_from_user($account){
+    
+    $user_account = \LK\get_user($account);
+    if(!$user_account){
+        return false;
+    }
+    
+    return $user_account ->getVerlag();
+}
+
+
+/** User-Array */
+$lk_user = array();
+
+
+function _lk_user($account, $fresh = false){
+global $lk_user; 
+ 
+  if(!is_object($account)){
+    $account = user_load($account);
+    if(!$account) return user_load(0);
+  }  
+
+  if(isset($account -> lk)) return $account;
+  if(isset($lk_user[$account -> uid]) AND !$fresh) return $lk_user[$account -> uid];
+
+  if($account -> uid == 0) return $account;
+  
+  $account -> profile = profile2_load_by_user($account);
+  $account -> telefon = false;
+  $account -> lk = true;
+  $account -> verlag = true;
+  
+  // Lade Bereich
+  if(lk_is_mitarbeiter($account)){
+    
+    if(isset($account->profile['mitarbeiter']->field_mitarbeiter_verlag['und'][0]['uid'])){
+       $account -> verlag = $account->profile['mitarbeiter']->field_mitarbeiter_verlag['und'][0]['uid'];
+    }
+    else {
+      $account -> verlag = 0;
+    }
+      
+    
+     //$ausgabe = lk_ausgabe_from_user($account);
+     //$account -> ausgabe = lk_load_ausgabe($ausgabe); 
+     
+     // Telefonmitarbeiter
+     if(isset($account -> ausgabe->field_telefonmitarbeiter['und'][0]['value'])){
+        //$account -> telefon = $account -> ausgabe->field_telefonmitarbeiter['und'][0]['value'];
+     }
+  }  
+  
+  $lk_user[$account -> uid] = $account;
+   
+return $account;  
+}
+
+
+
+/** Get the Ausgaben-Title 
+ *  @ausgabe int
+ **/
+function lk_get_ausgaben_title($ausgabe){
+
+  if($b = lk_load_ausgabe($ausgabe)){
+      return $b ->field_ortsbezeichnung['und'][0]['value'];
+  }
+}
+
+function get_verlag_from_ausgabe($ausgabe){
+  if($b = lk_load_ausgabe($ausgabe)){
+      return $b -> field_verlag['und'][0]['uid'];
+  }
+}
+
+
+function _format_user($user_id){
+    return \LK\u($user_id);
+}
+
+
+function lizenz_log_augaben($lizenz_id){
+  $dbq = db_query("SELECT lizenz_uid FROM lk_vku_lizenzen WHERE id='". $lizenz_id ."'");
+  $lizenz = $dbq -> fetchObject();
+  
+  $account = \LK\get_user($lizenz -> lizenz_uid);
+  if(!$account){
+      return ;
+  }
+  
+  $ausgaben = $account ->getCurrentAusgaben();
+  
+  foreach($ausgaben as $ausgabe){
+    db_query("INSERT INTO lk_vku_lizenzen_ausgabe SET lizenz_id='". $lizenz_id ."', ausgabe_id='". $ausgabe ."'"); 
+  }
+}
+
