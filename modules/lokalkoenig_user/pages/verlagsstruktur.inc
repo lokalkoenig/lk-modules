@@ -158,11 +158,11 @@ function lokalkoenig_user_verlag_struktur($verlag){
         elseif($action == 'status' AND $account AND $current -> hasRight('edit account')){
         drupal_set_title("Account von " . $account -> name  . " deaktivieren");
               
-        require_once(__DIR__ ."unteraccounts_edit.inc");          
+        require_once(__DIR__ ."/unteraccounts_edit.inc");          
         return drupal_get_form('lk_user_disable_ma', $verlag, $account);
     }
     elseif($action == 'addaccount' AND $current -> hasRight('edit account')){
-      require_once(__DIR__ . "addnewaccount.inc");
+      require_once(__DIR__ . "/addnewaccount.inc");
       return lokalkoenig_user_verlag_addnew($verlag -> uid);
     }
   }

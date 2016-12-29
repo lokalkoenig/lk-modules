@@ -50,7 +50,7 @@ function lokalkoenig_user_verlag_form_alter(&$form, &$form_state, $form_id) {
     if($form["#user_category"] == 'verlag' AND $form["#user"] -> uid) {
            $form["#process"][] = 'lokalkoenig_user_verlag_form_alter_may_hide_plz';
            drupal_add_js("var verlag_vku_vorschau_url='". url("user/" . $form["#user"] -> uid . "/testpdf") ."'", 'inline'); 
-           drupal_add_js("sites/all/modules/lokalkoenig/functions/lokalkoenig_user/js/vku_vorschau.js");
+           drupal_add_js(drupal_get_path("module", 'lokalkoenig_user') ."/js/vku_vorschau.js");
     }
   }
 

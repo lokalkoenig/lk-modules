@@ -2,7 +2,7 @@
 
 jQuery(document).ready(function(){
    
-    jQuery('<hr /><a onclick="start_test_vorschau_pdf_titel();" href="javascript: return false;"><span class="glyphicon glyphicon-search"></span> Vorschau VKU Einstellungen</a>').insertAfter('#edit-profile-verlag-field-vku-vordergrundfarbe-titel');
+    jQuery('<hr /><a onclick="start_test_vorschau_pdf_titel();" href="javascript:void(0); return false;"><span class="glyphicon glyphicon-search"></span> Vorschau VKU Einstellungen</a>').insertAfter('#edit-profile-verlag-field-vku-vordergrundfarbe-titel');
     
 });
 
