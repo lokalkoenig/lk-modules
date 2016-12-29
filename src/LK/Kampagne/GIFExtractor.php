@@ -7,58 +7,70 @@
  */
 
 namespace LK\Kampagne;
+use GifFrameExtractor\GifFrameExtractor;
 
-use GifFrameExtractor;
-
+/**
+ * Extracts the frames from a GIF
+ */
 class GIFExtractor {
   
   var $file = null;
-  
   var $dir = 'sites/default/private/gifs';
   
-  function __construct($file) {
-    $this -> file = $file;
+  /**
+   * Gets the GIF Directory in the system
+   * 
+   * @return String Directory
+   */
+  public function getDirectory(){
+    return $this -> dir;
   }
   
-  function toArray(){
+  /**
+   * Retrieve an Array
+   * 
+   * @param type $file
+   * @param boolean $force
+   * @return boolean|Array
+   */
+  public function toArray($file, $force = false){
+     $this -> file = $file;
      $url = file_create_url($this -> file["uri"]);
      
      if (!GifFrameExtractor::isAnimatedGif($url)) {
+       \LK\Component::logError('['. $file['fid'] .'] File is not a valid Gif ' . $url);
         return false;
      }
      
-     $dir_name = $this -> dir . "/" . $file["fid"];
+     $dir_name = $this -> dir . "/" . $this -> file["fid"];
      
-     if(!is_dir($dir_name)){
-        $this -> extractGif();
+     if(!is_dir($dir_name) || $force === true){
+       $this -> extractGif();
      }
      
      return $this ->readFromDirectory();
   }
   
-  
+  /**
+   * Extract the frames from a GIF
+   */
   private function extractGif(){
-    
-    
-    
     
     $gfe = new GifFrameExtractor();
     $url = file_create_url($this -> file["uri"]);
     $fid = $this -> file["fid"];
    
     $dir_name = $this -> dir . "/" . $fid;
-    drupal_mkdir($dir_name);
-
+    
+    if(!is_dir($dir_name)){
+      drupal_mkdir($dir_name);
+    }
+    
     // Hook File-system to make the URL relative
-    $url = str_replace("http://lk.dev/system/files/varianten", "sites/default/private/varianten", $url);
-    $url = str_replace("http://www.lokalkoenig.de/system/files/varianten", "sites/default/private/varianten", $url);
-    $url = str_replace("http://lk.dev/sites/default/files/varianten", "sites/default/files/varianten", $url);
-    $url = str_replace("http://www.lokalkoenig.de/sites/default/files/varianten", "sites/default/files/varianten", $url);
-
+    $url = str_replace($GLOBALS['base_url'] . "/sites/default/files/varianten", "sites/default/files/varianten", $url);
+    
     $size = getimagesize($url);
     $gfe -> extract($url, true);   
-  
-    $array = array(); 
     $x = 0;
   
     $pos = $gfe->getFramePositions();
@@ -66,8 +78,8 @@ class GIFExtractor {
   
     foreach ($gfe->getFrameImages() as $frame) :
          $name = $x . '.gif';
-
-         imagegif($frame, $dir . "/" . $fid . "/" . $name);
+        
+         imagegif($frame, $dir_name . "/" . $name);
          $new_size =  getimagesize($dir_name . "/" . $name);
 
          if($x != 0){
@@ -83,12 +95,25 @@ class GIFExtractor {
      \LK\Component::logNotice('Generated ' . $x . " frames from " . $url);
   }
   
+  /**
+   * Reads the actual File-Directory
+   * 
+   * @return Array
+   */
   private function readFromDirectory(){
     
     $dir_name = $this -> dir . "/" . $this -> file['fid'];
-    
+    if(!is_dir($dir_name)){
+      return array();
+    }
+   
     $array = array();
+    
     $data = opendir($dir_name);
+    if(!$data){
+      return array();
+    }
+    
     while($all = readdir($data)){
       if(is_dir($dir_name . "/" . $all)) {
           continue;
@@ -97,12 +122,5 @@ class GIFExtractor {
     }
   
   return $array;    
-  }
-  
-  
-  static function testCase(){
-    
-    
-    
   }
 }

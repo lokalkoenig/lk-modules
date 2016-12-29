@@ -185,3 +185,52 @@ return array('count' => (count($inverlag) + count($outverlag)), 'in' => $inverla
 }
 
 
+
+////////////////// DEPRICATED
+
+
+function lk_process_gif_ani($file){
+  $gif = new \LK\Kampagne\GIFExtractor();
+  return $gif -> toArray($file);
+}
+
+
+
+/**
+ * status: new|progress|submit|deny
+ */   
+function _lk_set_kampagnen_status($nid, $status){
+  
+   $node = node_load($nid);
+
+   if($status == 'published'){
+     $new_status = 1;
+     module_invoke_all('change_kampagnen_status_published', $node);
+   } 
+   else {
+     $new_status = 0;
+     module_invoke_all('change_kampagnen_status_unpublished', $node);
+   }
+  
+   $node -> status = $new_status;
+   $node -> field_kamp_status["und"][0]["value"] = $status;   
+   node_save($node);
+}
+
+
+function _lk_get_kampa_sid_generate($node){
+    if(!isset($node->field_kamp_preisnivau['und'][0]['tid'])){
+        return '';
+    }
+    $term = taxonomy_term_load($node->field_kamp_preisnivau['und'][0]['tid']);
+    return $term->field_paket_kurz['und'][0]['value'] . '-' . $node -> nid;
+}
+
+
+function _lk_get_kampa_sid($node){
+  if(!isset($node->field_sid['und'][0]['value'])){
+     return _lk_get_kampa_sid_generate($node);
+  }
+   
+  return $node->field_sid['und'][0]['value'];
+}

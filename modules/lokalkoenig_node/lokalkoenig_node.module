@@ -4,8 +4,6 @@
  *  Node - View
  **/
  include("inc/cron.php");
- include("inc/fields.php");
-
 
  /**
   * Hook_theme
@@ -193,52 +191,39 @@ function lokalkoenig_node_node_load($nodes, $types) {
   }
 }
 
-
-////////////////// DEPRICATED
-
-
-function lk_process_gif_ani($file, $test_fn = NULL){
-  $gif = new \LK\Kampagne\GIFExtractor();
-  return $gif -> toArray();
+/**
+ * Computes the Search field
+ * 
+ * @param array $entity_field
+ * @param type $entity_type
+ * @param type $entity
+ * @param type $field
+ * @param type $instance
+ * @param type $langcode
+ * @param type $items
+ */
+function computed_field_field_kamp_suche_compute(&$entity_field, $entity_type, 
+    $entity, $field, $instance, $langcode, $items){
+  
+    $kampagne = new \LK\Kampagne\Kampagne($entity);
+    $entity_field[0]["value"] = $kampagne->getSearchString();
 }
-
-
 
 /**
- * status: new|progress|submit|deny
- */   
-function _lk_set_kampagnen_status($nid, $status){
+ * Gets the Status of a Kampagne
+ * 
+ * @param string $entity_field
+ * @param type $entity_type
+ * @param type $entity
+ * @param type $field
+ * @param type $instance
+ * @param type $langcode
+ * @param type $items
+ */
+function computed_field_field_kamp_status_compute(&$entity_field, $entity_type, 
+    $entity, $field, $instance, $langcode, $items){
   
-   $node = node_load($nid);
-
-   if($status == 'published'){
-     $new_status = 1;
-     module_invoke_all('change_kampagnen_status_published', $node);
-   } 
-   else {
-     $new_status = 0;
-     module_invoke_all('change_kampagnen_status_unpublished', $node);
-   }
-  
-   $node -> status = $new_status;
-   $node -> field_kamp_status["und"][0]["value"] = $status;   
-   node_save($node);
-}
-
-
-function _lk_get_kampa_sid_generate($node){
-    if(!isset($node->field_kamp_preisnivau['und'][0]['tid'])){
-        return '';
+    if(isset($entity -> is_new) AND $entity -> is_new){
+      $entity_field[0]["value"] = 'new';
     }
-    $term = taxonomy_term_load($node->field_kamp_preisnivau['und'][0]['tid']);
-    return $term->field_paket_kurz['und'][0]['value'] . '-' . $node -> nid;
-}
-
-
-function _lk_get_kampa_sid($node){
-  if(!isset($node->field_sid['und'][0]['value'])){
-     return _lk_get_kampa_sid_generate($node);
-  }
-   
-  return $node->field_sid['und'][0]['value'];
 }

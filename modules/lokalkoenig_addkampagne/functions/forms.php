@@ -711,7 +711,6 @@ function _lk_get_medientyp_print_or_online($tid){
  $voc = taxonomy_vocabulary_machine_name_load('medientyp');
  $tree = taxonomy_get_tree($voc -> vid, 0,NULL, true);
  
- 
  foreach($tree as $tax2){
     if($tid ==  $tax2 -> tid){
         if(!$tax2 -> parents[0]) return 'WRONG';

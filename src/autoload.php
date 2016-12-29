@@ -11,9 +11,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 function lokalkoenig_Autoload($className) {
     
     $explode = explode('\\', $className);
-    
+   
     if($explode[0] != "LK"):
-        return ;
+      return ;
     endif;
     
     if(in_array($explode[1], array('Kampagne', 'Alert', 'Solr', 'Tests', 'UI', 'PDF', 'PPT', 'Files', 'Admin', 'Log','Component'))){
