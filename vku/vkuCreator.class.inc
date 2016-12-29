@@ -217,6 +217,8 @@ class VKUCreator {
   function logEvent($type, $message){ 
      $log = new \LK\Log\Debug("[". $type ."] " . $message);
      $log ->setVku($this)->save();
+  
+  return $message;   
   }
   
   function logVerlagEvent($message, $context = []){

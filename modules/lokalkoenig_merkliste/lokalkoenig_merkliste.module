@@ -62,12 +62,6 @@ function lokalkoenig_merkliste_block_info(){
 
  $blocks = array();
 
- $blocks['lk_merkliste_block'] = array(
-    // info: The name of the block.
-    'info' => 'Block: LK-Merkliste Info Block',
-    // Block caching options (per role, per user, etc.)
-  ); 
-
   $blocks['lk_merkliste_nav'] = array(
     // info: The name of the block.
     'info' => 'Block: LK-Merkliste Navigation',
@@ -137,10 +131,7 @@ global $user;
           )));
       
         break;
-      
-      case 'lk_merkliste_block':
-        return array('content' => variable_get('lk_merkliste_info', 'Info'));
-        break;  
+     
         
   }
 
@@ -213,7 +204,7 @@ function lokalkoenig_merkliste_init(){
 }
 
 
-function lokalkoenig_views_query_alter(&$view, &$query)   {
+function lokalkoenig_merkliste_views_query_alter(&$view, &$query)   {
 global $user; 
   
   if($view -> name == 'merkliste3'){

@@ -428,8 +428,6 @@ return $pdf;
 function generate_pdf_object_verlag($verlag = 0){
 global $user; 
 
-    $verlag_id = vkuconngetvid();
-    
     // If Local
     if($verlag){
         $verlag_id = $verlag;

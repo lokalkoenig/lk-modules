@@ -103,7 +103,7 @@ class Lizenz {
       
       $this -> data -> lizenz_until = $until_timestamp;
       db_query("UPDATE lk_vku_lizenzen SET lizenz_download_serverfilename='', lizenz_until='". $until_timestamp ."' WHERE id='". $id ."'");
-      return lk_note('lizenz-admin', "Erweitere Lizenz " . $id . " bis zum " . format_date($until_timestamp));
+      return \lk_note('lizenz-admin', "Erweitere Lizenz " . $id . " bis zum " . format_date($until_timestamp));
    }
    
    function getEditUrl(){
@@ -131,7 +131,8 @@ class Lizenz {
       
       // Lösche PLZ -Sperre
       if($plz_sperre_id){
-          lokalkoenig_nodeaccess_delete_rule($plz_sperre_id);  
+          $manager = new \LK\Kampagne\SperrenManager();
+          $manager ->removeSperre($plz_sperre_id);
        }
        
       // checken if VKU has a Lizenz
@@ -142,7 +143,7 @@ class Lizenz {
          $vku -> logEvent('remove', 'Status geändert auf Deleted, da Lizenz gelöscht wurde.'); 
       }
       
-      return lk_note('lizenz-admin', "Lösche Lizenz " . $id);
+      return \lk_note('lizenz-admin', "Lösche Lizenz " . $id);
    }
     
    function __toString() {
@@ -232,11 +233,12 @@ class PlzSperre {
         $this -> entity -> save();
         $nid = $this ->getNid();
         
-        return na_save_node_rule($nid);
+        $manager = new \LK\Kampagne\SperrenManager();
+        $manager ->updateNodeAccess($nid);        
     }
     
     function remove(){
-         entity_delete("plz", $this -> id); 
+         \entity_delete("plz", $this -> id); 
     }  
 }
 

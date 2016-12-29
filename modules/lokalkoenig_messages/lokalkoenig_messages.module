@@ -210,7 +210,7 @@ function lokalkoenig_messages_menu(){
 
 function lokalkoenig_messages_init(){
   if(arg(0) == 'messages' AND !lk_is_moderator()) {
-    drupal_add_js("sites/all/modules/lokalkoenig/functions/js/lokalkoenig_messages/msg.js");
+    drupal_add_js(drupal_get_path('module', 'lokalkoenig_messages') . "/js/msg.js");
   }
 }
 
@@ -300,9 +300,6 @@ function lokalkoenig_messages_form_alter(&$form, &$form_state, $form_id){
           
           $form["field_msg_kampagnen"]["#access"] = false;
       }
-      
-      
-      
       
       // Neuigkeiten anhängen ...
       if(isset($_GET["neuigkeit"])){

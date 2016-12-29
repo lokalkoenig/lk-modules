@@ -83,7 +83,7 @@ class Search {
       }        
               
       if(isset($query['sort_by'])):
-          $this -> setSort($this -> query['sort_by']);
+          $this -> setSort($query['sort_by']);
       endif;
     }
     

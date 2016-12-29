@@ -16,8 +16,8 @@ namespace LK\Kampagne;
 class SperrenManager {
     //put your code here
     
-    function __construct() {
-        
+    public function updateNodeAccess($nid){
+        $this ->rebuildAusgabenAccess($nid);
     }
     
     

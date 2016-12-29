@@ -66,13 +66,14 @@ return $themes;
 }
 
 function lokalkoenig_admin_init(){
-    
+global $user;    
     if(arg(0) == "lkadmin" OR arg(0) == "logbuch" OR arg(0) == "verlage" OR arg(0) == "lkstats" OR arg(0) == "kampagnen" OR arg(0) == "lkabrechnung"){
         lk_set_icon('cog');
         
         drupal_add_css(drupal_get_path('module', 'lokalkoenig_admin') .'/css/admin.css');
     }   
     
+    // Takeover
     if(arg(0) == 'user'){
       if($user -> uid == 0){
         drupal_set_title("Anmelden");
