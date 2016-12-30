@@ -107,7 +107,7 @@ global $user;
       break;
     
     case 'protokoll':
-      return $tabs . views_embed_view("lk_log", 'page_2', $team_id);
+      return $tabs . views_embed_view("log", 'team', $team_id);
       break;
       
     case 'stats';

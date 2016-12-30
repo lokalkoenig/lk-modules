@@ -30,7 +30,7 @@ class Reader extends \views_handler_field {
             $object = new View\Debug($complete_entry); 
         }
         
-    return (string)$object;    
+    return $object -> render();    
     }
     
     function loadLog($id){

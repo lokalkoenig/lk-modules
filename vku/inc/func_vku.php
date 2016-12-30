@@ -257,8 +257,8 @@ global $user;
     $vku -> update();
     
     $vku -> setShortPlzSperre();   
-    //drupal_set_message("Die Verkaufsunterlagen werden gerade generiert.");
-    verlag_log(1, 'Verkaufsunterlagen', 'Verkaufsunterlage fertig gemacht ', array('vku_id' => $id));
+    $vku ->logVerlagEvent('Verkaufsunterlage fertig gemacht');
+    
     drupal_goto('user/'. $author .'/vku/'. $id .'/details');
   }
 

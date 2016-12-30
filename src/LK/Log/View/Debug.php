@@ -28,7 +28,7 @@ class Debug extends LogReader {
         $this -> data = $data;
    }
    
-  function __toString() {
+  function render() {
         $data = $this -> data;
         
         $bg = "";

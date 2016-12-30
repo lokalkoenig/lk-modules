@@ -145,8 +145,6 @@
             $vku ->logEvent('nodeadded', 'Kampagne ' . $node -> title . " (". $node -> nid .") wurde hinzugefügt"); 
             $vku -> addKampagne($node -> nid);
             $vku_id = $vku -> getId();
-            verlag_log(1, 'Verkaufsunterlagen', 'Kampagne hinzugefügt ', array('vku_id' => $vku_id, "nid" => $node -> nid));
-   
          }
     }
 

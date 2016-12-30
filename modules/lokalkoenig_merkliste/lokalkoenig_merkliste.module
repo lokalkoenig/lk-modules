@@ -304,7 +304,7 @@ global $user;
         $term->vid = 13; 
         taxonomy_term_save($term);
         
-        verlag_log(1, 'Merkiste', 'Neue Merkliste ' . $new_one . ' angelegt', array());
+        $log = new \LK\Log\Verlag('Neue Merkliste ' . $new_one . ' angelegt');
         
         $new_tid = $term -> tid;
         $items[] = $new_tid; 

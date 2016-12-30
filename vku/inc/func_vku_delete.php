@@ -20,7 +20,7 @@ function _vku_current_delete($id){
       $author = $vku -> getAuthor();
       
       if($status == 'deleted'){
-          $msg = $vku ->logEvent("remove-vku", "Ihre Verkaufsunterlage wurde gelöscht.");
+          $msg = $vku ->logVerlagEvent("Die Verkaufsunterlage wurde gelöscht.");
           $vku ->remove();
           drupal_set_message($msg);   
       }
@@ -33,8 +33,8 @@ function _vku_current_delete($id){
           }
           
           $vku -> setStatus('deleted');
-          verlag_log(1, 'Verkaufsunterlagen', 'Verkaufsunterlage verworfen', array('vku_id' => $id));
-          $vku ->logEvent("remove-vku", "Verkaufsunterlage wurde gelöscht.");
+          $vku ->logVerlagEvent("Verkaufsunterlage verworfen");
+          
           drupal_set_message("Ihre Verkaufsunterlage wurde in den Papierkorb verschoben.");   
       }
       

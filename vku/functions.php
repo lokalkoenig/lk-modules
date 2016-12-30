@@ -160,9 +160,13 @@ function createLizenz($nid, $vku){
    else {
    	$msg = 'Lizenz erworben';
    }
-
-   verlag_log(1, 'Lizenzen', $msg, array('nid' => $node -> nid, 'vku_id' => $vku_id));
-
+   
+   $log = new \LK\Log\Verlag($msg);
+   $log -> setNid($vku_id);
+   $log ->setLizenz($plz_id);
+   $log ->setVku($vku_id);
+   $log ->save();
+   
    return getLizenz($lizenz_id);
 }
 

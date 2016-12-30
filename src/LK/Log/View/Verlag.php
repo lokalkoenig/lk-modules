@@ -20,14 +20,15 @@ class Verlag extends LogReader {
         $this -> data = $data;
     }
     
-    function __toString() {
+    function render() {
         $data = $this -> data;
         
         
         return '<div class="well well-white clearfix"><div class="row"><div class="col-xs-8">'
                 . '<small>' .format_date($data -> request_time) . '</small> | '
-                . \LK\u($data -> uid) . '<br />' . $data -> message
-                . '</div><div class="text-right col-xs-4"><small class="label label-default">#'. $data -> id .'</small><br />'
+                . \LK\u($data -> uid) . '<br />' . $data -> message . $this -> getContext()
+                . '</div><div class="text-right col-xs-4">'
+                . '<small class="label label-default">#'. $data -> id .'</small><br />'
                 . $this ->getNode() 
                 . '</div></div></div>';
     }

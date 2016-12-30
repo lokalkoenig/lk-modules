@@ -22,6 +22,14 @@ class Lizenz {
        return $this -> id;
    }
    
+   function getShortSummary(){
+     return "Erworben am: " . format_date($this-> data -> lizenz_date) . " / " . $this -> data -> lizenz_downloads . " &times heruntergeladen";
+   }
+   
+   
+   
+   
+   
    function __construct($id) {
        
        $dbq2 = db_query("SELECT * FROM lk_vku_lizenzen WHERE id='". $id ."'");
@@ -242,4 +250,58 @@ class PlzSperre {
     }  
 }
 
-?>
+/**
+
+  if($entry -> vku_id){
+    $vku = new VKUCreator($entry -> vku_id);
+    if($vku -> is()){
+         $return .= '<br /><span class="glyphicon glyphicon-shopping-cart"></span> 
+         <u>Verkaufsunterlage:</u> <em>' . $vku -> get("vku_title") . '</em> 
+         vom ' . format_date($vku -> get("vku_created"));
+    }  
+    
+    if($entry -> log_type == 'Lizenzen'){
+        // Show also die Bereiche
+        
+        $dbq2 = db_query("SELECT * FROM lk_vku_lizenzen WHERE vku_id='". $entry -> vku_id ."'");
+        $lizenz = $dbq2 -> fetchObject();
+        
+        if($lizenz){
+          
+           if(lk_is_moderator() AND (arg(0) == 'logbuch' OR (arg(0) == 'node' AND arg(2) == 'lizenzen'))){
+                $admin = lk_verlag_log_entry_administrative($result, $lizenz);
+            }
+          
+          
+          $ausgaben = array();
+          $dbq2 = db_query("SELECT a.ausgabe_id FROM lk_vku_lizenzen l, lk_vku_lizenzen_ausgabe a WHERE a.lizenz_id=l.id AND l.vku_id='". $entry -> vku_id ."'");
+          foreach($dbq2 as $all){
+              $ausgaben[] = format_ausgabe_kurz($all -> ausgabe_id);
+          }
+          
+          $return .= '<br /><span class="glyphicon glyphicon-globe"></span> <u>Erworben für:</u> ' . implode(" ", $ausgaben);
+          
+          $downloads = array();
+          $dbq2 = db_query("SELECT uid, download_date FROM lk_vku_lizenzen_downloads WHERE lizenz_id='". $lizenz -> id ."' ORDER BY download_date ASC");
+          foreach($dbq2 as $all){
+               $account = _lk_user($all -> uid);
+               if($account -> uid == 0 OR lk_is_mitarbeiter($account) OR lk_is_verlag($account)){
+                  $downloads[] = \LK\u($account -> uid) . " am " . format_date($all -> download_date);
+               }
+          }
+          
+          if(!$downloads){
+           $return .= '<br /><span class="glyphicon glyphicon-download"></span> <u>Downloads:</u> <em>Keine</em>';
+         }
+          else
+          $return .= '<br /><span class="glyphicon glyphicon-download"></span> <u>Downloads:</u> <ol style="margin-bottom: 20px;"><li>' . implode("</li><li>", $downloads) . '</li></ol>';
+        }
+        else {
+           if(lk_is_moderator() AND (arg(0) == 'logbuch' OR (arg(0) == 'node' AND arg(2) == 'lizenzen'))){
+                $admin = '<div class="pull-right"><em>Lizenz nicht mehr vorhanden</em></div>';
+            }
+        }
+    }
+
+ * 
+ *  */

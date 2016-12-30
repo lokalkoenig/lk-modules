@@ -17,7 +17,8 @@ function telefonmitarbeiter_set_plz_submit($form, $form_state){
   unset($query["q"]);
   
   $account ->setAusgaben($newvalues);
-  verlag_log(1, 'Sonstiges', 'Telefonmitarbeiter wählt neue Ausgaben ('. implode(", ", $titles) .') aus.', array());
+  lk_log_verlag('Telefonmitarbeiter wählt neue Ausgaben ('. implode(", ", $titles) .') aus.');
+
   drupal_set_message('Ihre Ausgaben wurden erfolgreich eingestellt.'); 
   drupal_goto('suche', array("query" => $query));
 }

@@ -16,10 +16,6 @@ function _vku2_add_node($node){
         $cta = '<a href="'. url($vku -> url()) .'" class="btn btn-primary btn-hollow">Verkaufsunterlage fertigstellen</a>';
    
         $message = 'Die Kampagne <b>'  . $node -> title . '</b> wurde zu Ihrer neuen Verkaufsunterlage hinzugefügt.<br /><br />'. $cta;
-        
-        verlag_log(1, 'Verkaufsunterlagen', 'Kampagne hinzugefügt ', array('vku_id' => $vku ->getId(), "nid" => $node -> nid));
-        $vku ->logEvent('vku2_add_kampagne', $message);
-     
         $menu = vku_get_top_menu();
         
         // check
@@ -76,10 +72,6 @@ function _vku2_add_node($node){
     else {
        $message = 'Die Kampagne <b>'  . $node -> title . '</b> wurde Ihrer aktiven Verkaufsunterlage <strong>'. $title .'</strong> hinzugefügt. <br /><br />'. $cta;
     }
-    
-    $vku ->logEvent('vku2_add_kampagne', 'Kampagne ' . $node -> title . " hinzugefügt.");
-    verlag_log(1, 'Verkaufsunterlagen', 'Kampagne hinzugefügt ', array('vku_id' => $vku ->getId(), "nid" => $node -> nid));
-    
     
     $kampas[] = $node -> nid;
     $kampagnen_implode = implode(",", $kampas);

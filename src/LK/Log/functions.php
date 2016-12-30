@@ -50,7 +50,7 @@ function lk_log_kampagne($nid, $message, $context = []){
     $log ->save();
 }
 
-function lk_log_verlag(\LK\User $account, $message){
+function lk_log_verlag($message){
    
     $log = new VerlagLog($message);
     $log ->setUser($account);

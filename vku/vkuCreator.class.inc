@@ -410,8 +410,6 @@ class VKUCreator {
         $delta++;
     }
   }
-
-  
   
   function VKUCreator($id = null, $data = array()){
   global $user;
@@ -440,7 +438,12 @@ class VKUCreator {
        	// Wenn ID, dann weiterverarbeiten
        if($test_id){
          
-          $this -> data = new VkuData($test_id); 	
+          $this -> data = new VkuData($test_id); 
+          
+          if(!$this -> data ->id) {
+            return ;
+          }
+          
        
           if($this -> data -> id){
             $this -> id = $this -> data ->id;
@@ -452,8 +455,8 @@ class VKUCreator {
           }
       }
       else {
-      	  $account = _lk_user($user);
-          $verlag_uid = (int)lk_get_verlag_from_user($account);		
+          $current = \LK\current();
+      	  $verlag_uid = $current -> getVerlag();		
           
           $data["vku_changed"] = time();
           
@@ -471,8 +474,6 @@ class VKUCreator {
         
       	  $this -> data = new VkuData(0, $data); 	
       	  $this -> id = $this -> data -> id;	
-          
-        
           
           if(vku_is_update_user()){
               
@@ -647,9 +648,13 @@ function setPageStatus($pid, $status = true){
   
   function addKampagne($nid){
       if($this -> data){
-          $category = $this -> setDefaultCategory('kampagne', 5);
-          $this -> update();
-      
+         $category = $this -> setDefaultCategory('kampagne', 5);
+         $this -> update();
+         
+         $log = new \LK\Log\Verlag("Kampagne wurde hinzuguefügt");
+         $log ->setNid($nid);
+         $log ->save();
+         
          $id = $this -> data -> add('node', 'kampagne', 5, 1, $nid, NULL, $category);
          return $category . "-" . $id;
       }  
@@ -897,8 +902,7 @@ class VkuData {
                 foreach($dbq as $all){
                     $this -> object_data[$all -> id] = (array)$all;
                 }
-          }  
-          
+          } 
       }
       else {
         $vku_id = db_insert('lk_vku')->fields($defaults)->execute(); 

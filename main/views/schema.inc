@@ -30,6 +30,18 @@ function lokalkoenig_admin_views_data() {
       'handler' => 'views_handler_sort',
      )  
   );
+  
+  $data['lk_log']['verlag_uid'] = array(
+    'title' => ('Verlag-ID'), 
+    'help' => ('Some example content that references a User-ID.'),
+    'relationship' => array(
+      'base' => 'users',
+      'field' => 'verlag_uid',
+      'base field' => 'uid',
+      'handler' => 'views_handler_relationship', 
+      'label' => ('User ID'),
+    ),
+   );
     
    $data['lk_log']['uid'] = array(
     'title' => ('User-ID'), 
@@ -43,16 +55,7 @@ function lokalkoenig_admin_views_data() {
   );
  
    
-  $data['lk_log']['verlag_uid'] = array(
-    'title' => ('Verlag-ID'), 
-    'help' => ('Some example content that references a User-ID.'),
-    'relationship' => array(
-      'base' => 'users',
-      'field' => 'uid',
-      'handler' => 'views_handler_relationship', 
-      'label' => ('User ID'),
-    ),
-  );
+ 
   
    
  
@@ -136,6 +139,13 @@ function lokalkoenig_admin_views_data() {
       'handler' => 'views_handler_field', 
       'click sortable' => true,
     ), 
+    'relationship' => array(
+      'base' => 'eck_team',
+      'field' => 'team_id',
+      'base field' => 'id',
+      'handler' => 'views_handler_relationship', 
+      'label' => ('Team ID'),
+    ),
   );
     
   
