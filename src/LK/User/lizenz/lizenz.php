@@ -26,7 +26,9 @@ class Lizenz {
      return "Erworben am: " . format_date($this-> data -> lizenz_date) . " / " . $this -> data -> lizenz_downloads . " &times heruntergeladen";
    }
    
-   
+   function getSummary(){
+     return $this ->__toString();
+   }
    
    
    
@@ -158,16 +160,16 @@ class Lizenz {
       
        $vku = new \VKUCreator($this -> vku_id); 
        $node = node_load($this -> data -> nid); 
-      
        $array = array();
        
+       $array[] = 'Benutzer ' . \LK\u($this -> data -> lizenz_uid);
+       $array[] = 'Lizenziert am: ' . format_date($this -> data -> lizenz_date);
        $array[] = 'Downloads gültig bis: ' . format_date($this -> data -> lizenz_until);
-       $array[] = 'Kampagne: ' . l($node->title, 'node/'. $node->nid);
-       $array[] = 'VKU: ' .  l($vku ->getTitle(), $vku -> url(), array("html" => true));
+       $array[] = 'VKU: ' .  l($vku ->getValue('vku_title'), $vku -> url(), array("html" => true));
        
-       if($this -> data -> lizenz_verlag_uid){
+       if($this -> data -> lizenz_verlag_uid && lk_is_moderator()){
             $verlag = \LK\get_user($this -> data -> lizenz_verlag_uid);
-            $array[] = 'Verlag: ' .  (string)$verlag;
+            $array[] = 'Verlag: ' . (string)$verlag;
        }
        
        $ausgaben = $this ->getAusgaben();
@@ -181,13 +183,26 @@ class Lizenz {
           $ausgaben_formatted[] = 'Ausgaben: ' . implode(" ", $ausgaben_formatted);
       }
       
+     
+   
+      $data = '<span class="label label-default pull-right">Lizenz #' . $this->getId() . '</span><p><strong>Kampagne: ' . l($node->title, 'node/'. $node->nid) . "</strong> <label class=\"label label-primary\">". $node -> field_sid['und'][0]['value'] ."</label></p>"; 
+      $data .= '<div class="row clearfix"><div class="col-xs-6"><ul><li>'. implode('</li><li>', $array) .'</ul></div>'
+              . '<div class="col-xs-6">'; 
+      
       $downloads = $this ->getDownloads();
       
       if($downloads){
-         $array[] = '<strong>Downloads: (' . count($downloads) . ')</strong> <ul><li>' . implode("</li><li>", $downloads) . '</li></ul>';  
+         $data .= '<strong>Downloads: (' . count($downloads) . ')</strong> <div>' . implode("</div><div>", $downloads) . '</div>';  
        } 
        
-      return '<ul><li>'. implode('</li><li>', $array) .'</li></ul>'; 
+       $data .= '</div></div>';
+      
+      if(lk_is_moderator()){
+        $data .= '<hr />' . l('<span class="glyphicon glyphicon-pencil"></span> Lizenz editieren', $this ->getEditUrl(), array('html' => true, "query" => drupal_get_destination(), 'attributes' => array('class' => 'btn btn-sm btn-primary')));
+      }
+      
+      
+   return $data;   
    }
 }
 
@@ -249,59 +264,3 @@ class PlzSperre {
          \entity_delete("plz", $this -> id); 
     }  
 }
-
-/**
-
-  if($entry -> vku_id){
-    $vku = new VKUCreator($entry -> vku_id);
-    if($vku -> is()){
-         $return .= '<br /><span class="glyphicon glyphicon-shopping-cart"></span> 
-         <u>Verkaufsunterlage:</u> <em>' . $vku -> get("vku_title") . '</em> 
-         vom ' . format_date($vku -> get("vku_created"));
-    }  
-    
-    if($entry -> log_type == 'Lizenzen'){
-        // Show also die Bereiche
-        
-        $dbq2 = db_query("SELECT * FROM lk_vku_lizenzen WHERE vku_id='". $entry -> vku_id ."'");
-        $lizenz = $dbq2 -> fetchObject();
-        
-        if($lizenz){
-          
-           if(lk_is_moderator() AND (arg(0) == 'logbuch' OR (arg(0) == 'node' AND arg(2) == 'lizenzen'))){
-                $admin = lk_verlag_log_entry_administrative($result, $lizenz);
-            }
-          
-          
-          $ausgaben = array();
-          $dbq2 = db_query("SELECT a.ausgabe_id FROM lk_vku_lizenzen l, lk_vku_lizenzen_ausgabe a WHERE a.lizenz_id=l.id AND l.vku_id='". $entry -> vku_id ."'");
-          foreach($dbq2 as $all){
-              $ausgaben[] = format_ausgabe_kurz($all -> ausgabe_id);
-          }
-          
-          $return .= '<br /><span class="glyphicon glyphicon-globe"></span> <u>Erworben für:</u> ' . implode(" ", $ausgaben);
-          
-          $downloads = array();
-          $dbq2 = db_query("SELECT uid, download_date FROM lk_vku_lizenzen_downloads WHERE lizenz_id='". $lizenz -> id ."' ORDER BY download_date ASC");
-          foreach($dbq2 as $all){
-               $account = _lk_user($all -> uid);
-               if($account -> uid == 0 OR lk_is_mitarbeiter($account) OR lk_is_verlag($account)){
-                  $downloads[] = \LK\u($account -> uid) . " am " . format_date($all -> download_date);
-               }
-          }
-          
-          if(!$downloads){
-           $return .= '<br /><span class="glyphicon glyphicon-download"></span> <u>Downloads:</u> <em>Keine</em>';
-         }
-          else
-          $return .= '<br /><span class="glyphicon glyphicon-download"></span> <u>Downloads:</u> <ol style="margin-bottom: 20px;"><li>' . implode("</li><li>", $downloads) . '</li></ol>';
-        }
-        else {
-           if(lk_is_moderator() AND (arg(0) == 'logbuch' OR (arg(0) == 'node' AND arg(2) == 'lizenzen'))){
-                $admin = '<div class="pull-right"><em>Lizenz nicht mehr vorhanden</em></div>';
-            }
-        }
-    }
-
- * 
- *  */

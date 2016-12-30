@@ -8,51 +8,6 @@ function lokalkoenig_user_verlag_create(){
  return render(drupal_get_form('lk_create_verlag')); 
 }
 
-
-function lokalkoenig_user_list_lizenzen_nid($node){
-    
-    $query = db_select('lk_vku_lizenzen', 'n')->extend('PagerDefault');
-    $query->condition('nid', $node->nid,'=');
-    
-    return _lokalkoenig_list_lizenzen($query);    
-}
-
-function lokalkoenig_user_list_lizenzen(){
-   $query = db_select('lk_vku_lizenzen', 'n')->extend('PagerDefault');
-   return _lokalkoenig_list_lizenzen($query);    
-}
-
-function _lokalkoenig_list_lizenzen($query){
-    drupal_set_title("Lizenzen");
-    
-    $header = array('Datum', 'User', 'Details'  , 'Bearbeiten');
-    $rows = array();
-    
-    $test = $query -> fields('n', array('id'))
-    ->orderBy('id', 'DESC')
-    ->limit(10)
-    ->execute();
-   
-    while ($all = $test -> fetchObject()) {
-        $lizenz = new \LK\Lizenz($all -> id);
-        $uid = $lizenz ->getAuthor();
-        $date = $lizenz ->getDate();
-        
-        $rows[] = array(format_date($date, 'short'),
-                        \Lk\u($uid),
-                        (string)$lizenz,
-                        '<a class="btn btn-primary btn-hollow btn-sm" href="'. url($lizenz ->getEditUrl(), array("query" => drupal_get_destination())) .'"><span class="glyphicon glyphicon-pencil"></span> Bearbeiten</a>'
-         );
-   }
-   
-   // Keine Lizenzen
-   if(!count($rows)){
-       return '<div class="well well-white text-center">Bisher keine Lizenzen</div>';
-   }
-
-   return '<div class="well well-white">' .theme('table', array('header' => $header, 'rows' => $rows)) . '<hr />' .  theme('pager') . '</div>';
-}
-
 function lk_user_add_verlag_validate(&$form, &$form_state){
      
      $values = $form_state["values"];

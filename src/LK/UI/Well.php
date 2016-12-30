@@ -16,6 +16,6 @@ namespace LK\UI;
 trait Well {
     //put your code here
     function construct($data, $class = "well well-white") {
-        return '<div class="well well-white">'. $this -> value .'</div>';
+        return '<div class="'. $class .'">'. $data .'</div>';
     }   
 }

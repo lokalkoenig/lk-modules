@@ -93,22 +93,7 @@ function lokalkoenig_user_menu(){
       'page arguments' => array(1),
       'title' => 'Verlag anlegen',
       'type' => MENU_LOCAL_TASK);
-   
-   $items['logbuch/verlag-lizenzen'] = array(
-      'access callback' => 'lk_is_moderator',
-      'file' => 'user_admin.inc',
-      'page callback' => 'lokalkoenig_user_list_lizenzen',
-      'title' => 'Lizenzen',
-      'type' => MENU_LOCAL_TASK);
-    
-   $items['node/%node/lizenzen'] = array(
-      'access callback' => 'lk_is_moderator',
-      'file' => 'user_admin.inc',
-      'page callback' => 'lokalkoenig_user_list_lizenzen_nid',
-      'page arguments' => array(1),
-      'title' => 'Lizenzen',
-      'type' => MENU_LOCAL_TASK);
- 
+
    
       return $items;    
       

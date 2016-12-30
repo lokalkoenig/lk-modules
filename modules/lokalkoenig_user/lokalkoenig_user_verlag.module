@@ -3,7 +3,6 @@
 require("functions.php");
 require("verlag/menu_theme.php");
 require_once("pages/unteraccounts_edit.inc");
-require("inc/lokalkoenig_user_verlag_views_data.php");
 
 function lokalkoenig_user_verlag_check_user_access_is_verlag($account){
   
@@ -108,16 +107,3 @@ function lokalkoenig_user_views_query_alter(&$view, &$query)   {
 function lokalkoenig_user_verlag_editaccount($verlag, $uid){
   return drupal_render(drupal_get_form('lk_user_edit_ma'));
 }
-
-function lk_verlag_log_entry_administrative($entry, $lizenz){
-  if(!$entry -> log_verlag_uid) return '';
-  
-  $return = '<div style="width: 300px;" class="well pull-right"><span class="label label-default">Administrieren</span><br />';
-  $verlag = _lk_user($entry -> log_verlag_uid);
-  $return .= 'Verlag: ' .  _format_user($verlag);
-  $return .= '<hr />' . l('<span class="glyphicon glyphicon-pencil"></span> Lizenz editieren', 'logbuch/editlizenz/' . $lizenz -> id, array('html' => true, "query" => drupal_get_destination(), 'attributes' => array('class' => 'btn btn-sm btn-success')));
-  $return .= '</div>';
-
-  return $return; 
-}
-

@@ -33,7 +33,7 @@ return $account ->getVerlag();
 
 function u($user_id){
    if(!$user = get_user($user_id)) {
-        return '<span class="label label-default">Unangemeldeter Benutzer</span>';
+        return '<span class="label label-default">Extern</span>';
    }
    else {
        return (string)$user;
