@@ -15,7 +15,9 @@ namespace LK\Kampagne;
  */
 class SperrenManager {
     //put your code here
+    use \LK\Log\LogTrait;
     
+  
     public function updateNodeAccess($nid){
         $this ->rebuildAusgabenAccess($nid);
     }
@@ -40,7 +42,7 @@ class SperrenManager {
         }
   
         if($x > 0){
-            \LK\Component::logCron("Checke abgelaufene Regeln (". $x ." Regel)");
+            $this->logCron("Checke abgelaufene Regeln (". $x ." Regel)");
         } 
     }
     
@@ -70,8 +72,13 @@ class SperrenManager {
         } 
     }
     
-    
-    private function rebuildAusgabenAccess($nid){
+    /**
+     * Rebuilds a Sperre for a NID
+     * 
+     * @param Integer $nid
+     * @return String Message
+     */
+    public function rebuildAusgabenAccess($nid){
         
         // first we remove the current Ausgaben
         db_query("DELETE FROM na_node_access_ausgaben WHERE nid='". $nid ."'");
@@ -119,7 +126,7 @@ class SperrenManager {
               db_query("INSERT INTO na_node_access_ausgaben SET nid='". $nid ."', verlag_uid='". $verlag ."', ausgaben_id='". $ausgabe_id ."', plz_gebiet_aggregated = '". $aggr ."'");
         }
         
-    return lk_note('node-rebuild', 'Node: ['. $nid .'] / Setze PLZ-Sperren für Ausgaben: ' . implode(", ", $ausgaben_titles));
+        $this ->logKampagne('Setze PLZ-Sperren für Ausgaben: ' . implode(", ", $ausgaben_titles), $nid);
     }
     
     /**

@@ -97,11 +97,61 @@ class AccessInfo {
     return $count;
     }
     
+    
+    /** 
+     * TAKEOVER
+     * 
+     * @global $user
+     * @param type $nid
+     * @param type $full
+     * @return boolean
+     */
+    static public function get_verlag_plz_sperre($nid, $full = false){
+    global $user;
+
+        $account = \LK\get_user($user);
+        $verlag = $account -> getVerlag();
+
+        if(!$verlag) { 
+            return false;
+        }
+
+        $dbq = db_query("SELECT * FROM lk_vku_plz_sperre WHERE nid='". $nid  ."' AND verlag_uid='". $verlag ."'");
+        $all = $dbq -> fetchObject();
+
+        if(!$all){
+            return false;
+        }
+        else {
+            $sperre = (array)$all;
+            $sperre["is_user"] = false;
+
+            if($user -> uid == $all -> uid){
+                $sperre["is_user"] = true;
+
+                if($full){
+                    $vku = new VKUCreator($sperre["vku_id"]);
+                    $sperre["url"] = $vku ->url();
+
+                    if(!$data = $vku -> hasPlzSperre()){
+                        return false;
+                    }
+
+                    $sperre["info"] = $data;
+                }
+            }
+        }  
+
+    return $sperre;    
+    }
+
+    
+
     static public function getAccessInfo($nid){
     global $user;
         
         $node = node_load($nid);
-        $verlags_sperre = \get_verlag_plz_sperre($nid, true);
+        $verlags_sperre = self::get_verlag_plz_sperre($nid, true);
         $output = array();
    
         if($node -> plzaccess == false AND !$verlags_sperre){
@@ -164,9 +214,9 @@ class AccessInfo {
         v.vku_status IN ('active', 'created', 'downloaded', 'ready') 
           AND ". implode(" AND ", $where) ." AND  v.vku_changed >= '". $time ."'
           ORDER BY v.vku_changed DESC");
-  
+        
         foreach($dbq as $all){
-          $all -> ausgaben = \vku_get_plz_bereiche($all -> vku_id);  
+          $all -> ausgaben = self::vku_get_plz_bereiche($all -> vku_id);  
           $items[] = $all;
         }
 
@@ -209,5 +259,18 @@ class AccessInfo {
                      "reason" => "Die Kampagne ist ab dem ". date("d.m.Y", $result -> date_until) ." wieder verfügbar.");
      }
    }
+   
+   
+   public static function vku_get_plz_bereiche($vku_id){
+    $bereiche = array();
+    
+    $dbq = db_query("SELECT DISTINCT plz_ausgabe_id FROM lk_vku_plz_sperre_ausgaben WHERE vku_id='". $vku_id ."'");
+    foreach($dbq as $all){
+       $ausgabe = \LK\get_ausgabe($all -> plz_ausgabe_id);
+       $bereiche[] = $ausgabe ->getTitleFormatted();
+    }
+    
+    return $bereiche;    
+  }
 }
 

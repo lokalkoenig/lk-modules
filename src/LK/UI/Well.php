@@ -15,7 +15,7 @@ namespace LK\UI;
  */
 trait Well {
     //put your code here
-    function construct($data, $class = "well well-white") {
+    function UI_Well($data = "", $class = "well well-white") {
         return '<div class="'. $class .'">'. $data .'</div>';
     }   
 }

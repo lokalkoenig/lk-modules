@@ -76,6 +76,7 @@ function _lokalkoenig_nodeaccess_info($node){
   
 
 function lokalkoenig_node_node_view($node, $view_mode, $langcode){
+  
   if($view_mode == 'full'){
     if($node -> type == 'kampagne' 
       && $node -> status == 0){

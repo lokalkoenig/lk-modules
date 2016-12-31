@@ -8,6 +8,7 @@ require_once __DIR__ .'/views/schema.inc';
 require_once __DIR__ .'/cron/cronjobs.inc';
 require_once __DIR__ .'/depricated.inc.php';
 require_once __DIR__ .'/blocks.inc.php';
+require_once __DIR__ .'/roles.inc.php';
 
 function lokalkoenig_admin_menu(){
  

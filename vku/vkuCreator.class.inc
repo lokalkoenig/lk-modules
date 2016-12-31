@@ -461,7 +461,7 @@ class VKUCreator {
           $data["vku_changed"] = time();
           
           if(!isset($data["vku_created"])) $data["vku_created"] = time();
-          if(!isset($data["uid"])) $data["uid"] = $account -> uid;
+          if(!isset($data["uid"])) $data["uid"] = $current -> uid;
           if(!isset($data["verlag_uid"])) $data["verlag_uid"] = $verlag_uid;
           if(!isset($data["vku_status"])) $data["vku_status"] = 'active';
           if(!isset($data["vku_title"])) {  

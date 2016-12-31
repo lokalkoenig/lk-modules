@@ -50,10 +50,10 @@ abstract class LogReader {
       }
   
       
-      if(!lk_is_moderator()):
+      if(lk_is_moderator()):
           $data = unserialize($this -> data -> context);
           if($data){
-            $context[] = "<p><code class='small'>" .  json_encode($data) . "</code></p>";
+            $context[] = "<hr /><p><span class='glyphicon glyphicon-plus'></span> <small>" .  print_r($data, true) . "</small></p>";
           }
        endif;
        

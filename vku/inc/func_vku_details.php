@@ -52,10 +52,6 @@ global $user;
         drupal_goto($vku -> vku_url());
         drupal_exit();
    }       
-  
-   
-   
- 
    
   if($vku_company){
       lk_set_subtitle($vku_company);
@@ -124,7 +120,6 @@ global $user;
             // Set User to PLZ-Gebiet
             // Remove from VKU 
             $vku ->removePLZSperren();
-            
             $account = \LK\get_user((int)$user -> uid);
             // Set new Ausgaben
             $account -> setAusgaben($show_plz_info["ausgaben_ids"]);
@@ -150,9 +145,11 @@ global $user;
           $nodes[] = $key;  
         }
     }
-      
+   
+   $manager = new \LK\Kampagne\LizenzManager(); 
+    
    foreach($nodes as $node){
-       createLizenz($node, $vku);
+      $manager ->create($node, $vku);
    }
    
    drupal_get_messages(); 

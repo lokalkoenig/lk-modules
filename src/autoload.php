@@ -1,5 +1,6 @@
 <?php
 
+require_once __DIR__ . '/LK/Log/LogTrait.php';
 require_once __DIR__ . '/LK/Stats/Stats.php';
 require_once __DIR__ . "/LK/User/UserManager.class.php";
 require_once __DIR__ . "/LK/Log/functions.php";

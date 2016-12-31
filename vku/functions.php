@@ -15,63 +15,6 @@ global $user;
 return $count -> count;
 }
 
-function vku_get_plz_bereiche($vku_id){
-    $bereiche = array();
-    
-    $dbq = db_query("SELECT DISTINCT plz_ausgabe_id FROM lk_vku_plz_sperre_ausgaben WHERE vku_id='". $vku_id ."'");
-    foreach($dbq as $all){
-       $ausgabe = \LK\get_ausgabe($all -> plz_ausgabe_id);
-       $bereiche[] = $ausgabe ->getTitleFormatted();
-    }
-    
-return $bereiche;    
-}
-
-
-function get_verlag_plz_sperre($nid, $full = false){
-global $user;
-
-    $account = \LK\get_user($user);
-    $verlag = $account -> getVerlag();
-    
-    if(!$verlag) { 
-        return false;
-    }
-    
-    $dbq = db_query("SELECT * FROM lk_vku_plz_sperre WHERE nid='". $nid  ."' AND verlag_uid='". $verlag ."'");
-    $all = $dbq -> fetchObject();
-    
-    if(!$all){
-        return false;
-    }
-    else {
-        $sperre = (array)$all;
-        $sperre["is_user"] = false;
-        // Load the Ausgaben to Show them
-        
-        
-        if($user -> uid == $all -> uid){
-            $sperre["is_user"] = true;
-            
-            if($full){
-                
-                $vku = new VKUCreator($sperre["vku_id"]);
-                $sperre["url"] = $vku ->url();
-      
-                if(!$data = $vku -> hasPlzSperre()){
-                    return false;
-                }
-                    
-                
-                $sperre["info"] = $data;
-            }
-        }
-    }  
-    
-return $sperre;    
-}
-
-
 /** Get the Number of Kampangen in the Active VKU */
 function vku_get_active_id_count(){
      $id = vku_get_active_id();
@@ -119,62 +62,7 @@ global $user;
 return $vkus; 
 }
 
-function createLizenz($nid, $vku){
-   // KAUFEN
 
-   $vku_id = $vku -> getId();
-   $vku_author = $vku -> getAuthor();
-   $obj = \LK\get_user($vku_author);
-   $vid = $obj ->getVerlag();
-   $team_id = $obj -> getTeam();
-   
-   $node = node_load($nid);
-   $array = array();
-   $array["vku_id"] = $vku_id;
-   $array["nid"] = $nid;
-   $array["lizenz_date"] = time();
-   $array["lizenz_uid"] = $vku_author;
-   $array["node_uid"] = $node -> uid;
-          
-   $array["lizenz_verlag_uid"] = (int)$vid;
-   $array["lizenz_paket"] =  $node->field_kamp_preisnivau['und'][0]['tid'];
-   $array["lizenz_team"] =  (int)$team_id;
-   $array["lizenz_until"] = time() + (60 * 60 * 24 * 30);
-   $lizenz_id = db_insert('lk_vku_lizenzen')->fields($array)->execute();
-          
-   lizenz_log_augaben($lizenz_id);
-         
-   $days =  (lk_get_lizenz_time(user_load($vku_author)));  
-   $dateplz = date('Y-m-d',strtotime(date("Y-m-d", time()) . " + ". $days ." day"));
-   $plz_id = na_create_node_rule($nid, $vku_author, $dateplz);
-   
-   \LK\Stats::countPurchasedVKU($vku);
-   
-   if($plz_id){
-      db_query("UPDATE lk_vku_lizenzen SET plz_sperre_id='". $plz_id ."' WHERE id='". $lizenz_id ."'");  
-   }
-  
-   if($generic = $vku -> get("vku_generic")){
-   	$msg = 'Lizenz direkt erworben';   		
-   }
-   else {
-   	$msg = 'Lizenz erworben';
-   }
-   
-   $log = new \LK\Log\Verlag($msg);
-   $log -> setNid($vku_id);
-   $log ->setLizenz($plz_id);
-   $log ->setVku($vku_id);
-   $log ->save();
-   
-   return getLizenz($lizenz_id);
-}
-
-
-function getLizenz($lizenz_id){
-  $dbq = db_query("SELECT * FROM lk_vku_lizenzen WHERE id='". $lizenz_id ."'");
-  return $lizenz = $dbq -> fetchObject();
-}
 
 
 

@@ -45,6 +45,7 @@ class Kampagne {
         $this -> node -> loadedmedias = true;
         $this -> node -> lkstatus = $this -> node -> field_kamp_status["und"][0]["value"];   
         $this -> node -> plzaccess = AccessInfo::loadAccess($this -> node -> nid); 
+        $this -> node -> sid = @$this -> node -> field_sid["und"][0]["value"];   
         
         $medien = [];
         
@@ -253,7 +254,7 @@ class Kampagne {
        
         if($node -> plzaccess == false){
             
-            $node -> verlags_sperre = get_verlag_plz_sperre($node -> nid, true); 
+            $node -> verlags_sperre = AccessInfo::get_verlag_plz_sperre($node -> nid, true); 
             if($node -> verlags_sperre AND $node -> verlags_sperre["uid"] == $account ->getUid()){
                 $node -> alerts = false;  
             } 

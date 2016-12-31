@@ -13,7 +13,9 @@ namespace LK\Kampagne;
  *
  * @author Maikito
  */
-class Sperre extends \LK\Component {
+class Sperre {
+    
+    use \LK\Log\LogTrait;
     
     var $manager = null;
     var $entity = null;
@@ -103,7 +105,7 @@ class Sperre extends \LK\Component {
        $entity_id = $this ->getId();
        $nid = $this ->getNid();
        
-       lk_log_kampagne($nid, 'PLZ Sperre ('. $entity_id .') gelöscht');
+       $this->logKampagne('PLZ Sperre ('. $entity_id .') gelöscht', $nid);     
        
        entity_delete('plz', $entity_id);
        db_query("DELETE FROM lk_vku_plz_sperre WHERE plz_sperre_id='". $entity_id ."'"); 
@@ -121,6 +123,6 @@ class Sperre extends \LK\Component {
        $nid = $this ->getNid();
        
        entity_save('plz', $this ->entity);
-       $this -> manager ->rebuildAusgabenAccess($nid);
+       $this -> manager -> rebuildAusgabenAccess($nid);
    }
 }

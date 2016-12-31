@@ -28,6 +28,32 @@ function na_create_node_rule($nid, $uid, $until_date){
 }
 
 
+/** Erstellt einen DL-Link zu einer Lizenz */
+function _lk_generate_download_link($lizenz_id){
+   
+  $manager = new \LK\Kampagne\LizenzManager();
+  $lizenz = $manager ->loadLizenz($lizenz_id);
+  
+  if(!$lizenz){
+    return false;
+  }
+  
+  return $lizenz ->getDownloadLink();
+}
+
+function _vku_download_file_check_valid($vku, $lizenz){
+    
+  $manager = new \LK\Kampagne\LizenzManager();
+  $lizenz_obj = $manager ->loadLizenz($lizenz -> id);
+  
+  if(!$lizenz_obj){
+    return array('access' => false, 'reason' => "Keine Lizenz gefunden.");
+  }
+  
+  return $lizenz_obj->canDownload();
+}
+
+
 /**
  * 
  * @deprecated since version number
@@ -231,6 +257,25 @@ function _lk_get_kampa_sid($node){
   return $node->field_sid['und'][0]['value'];
 }
 
+/** Lizenz-Zeit */
+function lk_get_lizenz_time($account){
+    
+    $obj = \LK\get_user($account);
+    $verlag = $obj ->getVerlagObject();
+    if(!$verlag) {
+        return 0;
+    }
+      
+    $days = 365;
+    $test = $verlag -> getVerlagSetting('sperrung_vku');
+    if($test){
+       return $test; 
+    }
+          
+return $days; 
+}
+
+
 
 /** Depricated */
 function _lk_username($account){
@@ -330,16 +375,15 @@ function getTeamFromUser($account){
 }
 
 
+
+function getLizenz($lizenz_id){
+  $dbq = db_query("SELECT * FROM lk_vku_lizenzen WHERE id='". $lizenz_id ."'");
+  return $lizenz = $dbq -> fetchObject();
+}
+
+
+
 // DONEEEEE
-function lk_is_in_testverlag($account){
-   
-    $accessed = \LK\get_user($account);
-    if(!$accessed){
-        return false;
-    }
-    
-    return $accessed ->isTestAccount();
- }
 
 function lk_get_user_from_team($team_id){
    

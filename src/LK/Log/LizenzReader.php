@@ -19,12 +19,7 @@ class LizenzReader extends \views_handler_field {
         $lizenz = new Lizenz($value);
         
         if($lizenz -> is()){
-          return $this ->construct($lizenz ->getSummary());
+          return $this -> UI_Well($lizenz ->getSummary());
         }
     }
-    
-    function loadLog($id){
-        //$dbq = db_query("SELECT * FROM " . \LK\Log\LogInterface::DB_TABLE . " WHERE id='". $id ."'");
-        //return $dbq -> fetchObject();
-    }   
 }

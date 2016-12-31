@@ -14,6 +14,25 @@ class Lizenz {
    var $vku_id;
    var $ausgaben = array();
    
+   
+   function __construct($id) {
+       $dbq2 = db_query("SELECT * FROM lk_vku_lizenzen WHERE id='". $id ."'");
+       $lizenz = $dbq2 -> fetchObject();
+       
+       if(!$lizenz){
+           return ;
+       }
+   
+       $this -> data = $lizenz;
+       $this -> id = $id;
+       $this -> vku_id = $this -> data -> vku_id;
+       
+       $dbq = db_query("SELECT ausgabe_id FROM lk_vku_lizenzen_ausgabe WHERE lizenz_id='". $id ."'");
+       foreach($dbq as $all){
+            $this -> ausgaben[] = $all -> ausgabe_id;
+       } 
+   }
+   
    function getId(){
        return $this -> id;
    }
@@ -31,24 +50,86 @@ class Lizenz {
    }
    
    
+   /**
+    * Generates the ZIP for the Licence
+    */
+   function generateZIP(){
+     
+     $manager = new LizenzDownload($this);
+     return $manager -> createZip();
+   }
    
-   function __construct($id) {
-       
-       $dbq2 = db_query("SELECT * FROM lk_vku_lizenzen WHERE id='". $id ."'");
-       $lizenz = $dbq2 -> fetchObject();
-       
-       if(!$lizenz){
-           return ;
-       }
+   /**
+    * Returns a public Lizenz Download link
+    * 
+    * @return String absolute URL
+    */
+   function getDownloadLink($direct = false){
+     
+     $lizenz = $this->data;
+     
+     $infos = array();
+     $infos[] = $lizenz -> lizenz_date;
+     $infos[] = $lizenz -> nid;
+     $infos[] = $lizenz -> lizenz_uid;
+     $infos[] = $lizenz -> lizenz_paket;
+     
+     $arguments = array("absolute" => true);
+     
+     if($direct){
+       $arguments['query'] = [
+           'download' => time()
+       ];
+     }
+     
+     return url("download/" . implode("-", $infos), $arguments);  
+   }
    
-       $this -> data = $lizenz;
-       $this -> id = $id;
-       $this -> vku_id = $this -> data -> vku_id;
-       
-       $dbq = db_query("SELECT ausgabe_id FROM lk_vku_lizenzen_ausgabe WHERE lizenz_id='". $id ."'");
-       foreach($dbq as $all){
-            $this -> ausgaben[] = $all -> ausgabe_id;
-       } 
+   /**
+    * Checks if the Lizenz can be downloaded or not
+    * 
+    * @return Array Descriptions
+    */
+   function canDownload(){
+     
+     $lizenz = $this -> data;
+     
+     $date = $lizenz -> lizenz_until;
+     if(time() > $date){
+        return array('access' => false, 'reason' => "Die Downloads sind zeitlich abgelaufen.");
+     }
+     // Zuviele Downloads
+    if($lizenz -> lizenz_downloads >= variable_get('lk_vku_max_download')){
+      return array('access' => false, 'reason' => "Die Maximalanzahl der Downloads wurde erreicht.");
+    }
+
+    return array('access' => true);
+   }
+   
+   function getNid(){
+     return $this -> data -> nid;
+   }
+   
+   /**
+    * Sets the Values
+    * 
+    * @param type $key
+    * @param type $val
+    */
+   function set($key, $val){
+     $this->data->$key = $val;
+     $id = $this->getId();
+     
+     db_query("UPDATE lk_vku_lizenzen SET ". $key ."='". $val ."' WHERE id='". $id  ."'"); 
+   }
+    
+   /**
+    * Gets the Paket
+    * 
+    * @return Int
+    */
+   function getPaket(){
+       return $this -> data -> lizenz_paket;
    }
    
    function getDate(){
@@ -102,8 +183,24 @@ class Lizenz {
            return $sperre ->setPlzTids($plz_collection);
        }
        
-       
    return false;    
+   }
+   
+   function createSperre($ausgaben, $until_date){
+      
+      $this->setAusgaben($ausgaben);
+     
+      $nid = $this->getNid();
+      $uid = $this->getAuthor();
+      
+      $manager = new \LK\Kampagne\SperrenManager();
+      $result = $manager ->createSperre($nid, $uid, $ausgaben, $until_date);  
+      $plz_id = $result ->getId();
+      
+      db_query("UPDATE lk_vku_lizenzen SET plz_sperre_id='". $plz_id ."' WHERE id='". $this->getId() ."'");
+      $this -> data -> plz_sperre_id = $plz_id;
+      
+   return $result;   
    }
    
    function extend($until_timestamp){
@@ -206,11 +303,180 @@ class Lizenz {
    }
 }
 
+/**
+ * Lizenz Download class
+ * 
+ * Creates the ZIP, Tracks the Downloads
+ */
+class LizenzDownload {
+  
+  use \LK\Log\LogTrait;
+  
+  const DOWNLOAD_DIR = 'sites/default/private/downloads';
+  var $lizenz = null;
+ 
+  function __construct(Lizenz $lizenz) {
+    $this -> lizenz = $lizenz;
+  }
+  
+  /**
+   * Checks if the ZIP is already created
+   * 
+   * @return boolean
+   */
+  public function DownloadReady(){
+    $lizenz = $this->lizenz;
+    
+  return empty($lizenz -> data -> lizenz_download_filename);  
+  }
+  
+  /**
+   * Downloads the ZIP
+   */
+  public function downloadZip(){
+    
+    $savedir = self::DOWNLOAD_DIR;
+    $lizenz = $this->lizenz;
+    
+    if(!$this->DownloadReady()){
+      $result = $this->createZip();
+      
+      if(!$result){
+        $this ->logError("Probleme bei der Generierung von Lizenz #" . $lizenz ->getId());
+        
+        drupal_set_message('Es gab Probleme bei der Generierung der Lizenzdateien. Wir werden uns dazu bei Ihnen melden.');
+        drupal_goto("<front>");
+        drupal_exit();
+      }
+    }
+    
+    $this ->trackDownload();
+    
+    ob_clean();
+    ob_end_flush();
+    header("Content-Type: application/zip");
+    header("Content-Disposition: attachment; filename=\"". $lizenz -> data -> lizenz_download_filename ."\"");
+    readfile($savedir . '/' . $lizenz -> data -> lizenz_download_serverfilename);
+    drupal_exit();   
+  }
+  
+  /**
+   * Tracks the Download
+   * 
+   * @global type $user
+   */
+  private function trackDownload(){
+  global $user;  
+    
+    $lizenz = $this->lizenz;
+    $downloads = $lizenz->data->lizenz_downloads;
+    
+    if($downloads === 0){
+      $lizenz -> set("lizenz_download_date", time());
+    }
+    
+    // Zähler erhöhen
+    $lizenz -> set("lizenz_downloads", $downloads + 1);
+    
+    $array = array(
+        'lizenz_id' => $lizenz ->getId(),
+        'download_date' => time(),
+        'uid' => $user -> uid,
+    );
+    
+    db_insert('lk_vku_lizenzen_downloads')->fields($array)->execute();  
+  }
+  
 
-class LizenzCreator {
+  /**
+   * Creates a ZIP-File
+   * 
+   * @return boolean
+   */
+  public function createZip(){
     
+    $lizenz = $this->lizenz;
     
+    $file_name = $lizenz ->getId() .'.zip';
+    $savedir = self::DOWNLOAD_DIR;
+    
+    $zip = new \ZipArchive(); 
+    $vku = $lizenz->getVku();
+    $account = \LK\get_user($lizenz ->getAuthor());
+    
+   // make sure the Action gets a refresh
+    if(file_exists($savedir . '/' . $file_name)){
+      unlink($savedir . '/' . $file_name);
+    }
+    
+    // uses the Transliterate Module to transform the Filename
+    include_once drupal_get_path('module', "transliteration") . '/transliteration.inc';
+    
+    // Load Node
+    $node = node_load($lizenz ->getNid());
+    $zip->open($savedir . '/' . $file_name, \ZIPARCHIVE::CREATE);
+   
+    $text = variable_get('lk_vku_info_text_downloadfile', '');
+    
+    // Add an Info-Text
+    $variables = array();
+    $variables["[!node_title]"] = $node -> title;
+    $variables["[!node_sid]"] = $node -> sid;
+    $variables["[!node_link]"] = url("node/" . $node -> nid, array("absolute" => true));
+   
+    $term = taxonomy_term_load($lizenz -> getPaket());
+    $variables["[!node_paket]"] = $term -> name;
+    $variables["[!lizenz_start]"] = date("d.m.Y H:i:s", $lizenz ->getDate());
+   
+    // get the Days
+    $days = \LK\Kampagne\LizenzManager::getLizenzTime($account); 
+    
+    $newEndingDate = strtotime(date("Y-m-d H:i:s", time()) . " + ". $days ." day");
+    $variables["[!lizenz_end]"] = date("d.m.Y H:i:s", $newEndingDate);
+   
+    $parsed_text = strtr($text, $variables); 
+     
+    // Adding an Info-File
+    $zip->addFromString('info.txt', $parsed_text);
+   
+    foreach($node -> medien as $med){
+      $url = file_create_url($med->field_medium_source['und'][0]['uri']);
+      $url = str_replace($GLOBALS['base_url'] . "/system/files/", "", $url);
+      $url = 'sites/default/private/' . $url;
+      
+      if(file_exists($url)){
+        ($zip->addFile($url, $med -> id . "-" . $med->field_medium_source['und'][0]['filename'])); 
+      }
+   }
+   
+   $result = $zip->close();
+   
+   // Zip-Archive konnte erstellt werden
+   if($result){
+     $filename_public = date("Y-m-d"). '-' . $lizenz ->getId();
+     $company = $vku -> get('vku_company');
+     
+     if($company) {
+       $filename_public .= '-' . transliteration_clean_filename($company);
+     }
+     
+     $filename_public .= '.zip';
+     $filesize = filesize($savedir . '/' . $file_name); 
+
+     $this ->logNotice("ZIP wurde generiert für Lizenz #" . $lizenz ->getId());
+     
+     //$lizenz -> set()
+     $lizenz->set("lizenz_download_filename", $filename_public);
+     $lizenz->set("lizenz_download_filesize", $filesize);
+     $lizenz->set("lizenz_download_serverfilename", $file_name);
+     
+   return true;  
+   } 
+    
+  return false;  
+  }
 }
+
 
 /**
  * Class PlzSperre

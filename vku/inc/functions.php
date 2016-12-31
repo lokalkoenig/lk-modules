@@ -32,22 +32,6 @@ function get_nid_in_vku_count($nid, $vku_status = array(), $where = array()){
   return $all -> count;
 }  
 
-function _vku_download_file_check_valid($vku, $lizenz){
-   // VKU abgelaufen z.B. 30 Tage
-   $date = $lizenz -> lizenz_until;
-   if(time() > $date){
-     return array('access' => false, 'reason' => "Die Downloads sind zeitlich abgelaufen.");
-   }
-   // Zuviele Downloads
-   if($lizenz -> lizenz_downloads >= variable_get('lk_vku_max_download')){
-    return array('access' => false, 'reason' => "Die Maximalanzahl der Downloads wurde erreicht.");
-   
-   }
-
-return array('access' => true);
-}
-
-
  function vku_node_calculate_size($node){
      $size = 0;
      
@@ -84,37 +68,6 @@ return array('access' => true);
     return true;
   } 
 
-
- function lk_vku_access(){
- global $user;
- 
-  if(!$user -> uid) { 
-      return false;   
-  }
-  
-  if(lk_is_agentur()){
-    return false;
-  }
-  
-  return true;
-}
-
-/** Erstellt einen DL-Link zu einer Lizenz */
-function _lk_generate_download_link($lizenz_id){
-   $dbq = db_query("SELECT * FROM lk_vku_lizenzen WHERE id='". $lizenz_id ."'");
-   $lizenz = $dbq -> fetchObject();
-  
-   if(!$lizenz) return false;
-   
-   $infos = array();
-   $infos[] = $lizenz -> lizenz_date;
-   $infos[] = $lizenz -> nid;
-   $infos[] = $lizenz -> lizenz_uid;
-   $infos[] = $lizenz -> lizenz_paket;
-   
-   
-  return url("download/" . implode("-", $infos), array("absolute" => true)); 
-}
 
 
 function lokalkoenig_merkliste_ajax_callback_vku($tid){
