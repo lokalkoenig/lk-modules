@@ -1,59 +1,6 @@
 <?php
-include("searchindex.inc");
-
- function lokalkoenig_search_cronapi($op, $job = NULL) {
-
-  $items['lokalkoenig_search_index'] = array(
-    'description' => 'UPDATE LK-Search-Index',
-    'rule' => '*/5 * * * *', // Every 5 minutes
-    // i must call: example_news_fetch('all')
-    'callback' => 'search_index_sources',
-    'file' => 'searchindex.inc'
-  );
-
-
-  return $items;
-}
-
-
-function setFacetsTemporary($search){
-global $preserv_fs;
-  
-  $preserv_fs = 1;
-   
-  if(isset($search["f"])){
-      $preserv_fs = $search["f"];
-  } 
-}
-
-
-function resetFacetsTemporary(){
-global $preserv_fs;
-  $preserv_fs = 1;
-}
-
-function _searchindex_get_count_results($search){
- 
-  setFacetsTemporary($search);
- 
-  $view = views_get_view('suchev2', true);
-  $view->set_display('page_2');
-  $view->set_items_per_page(1);
-  $view -> LK_parser = true;
-  $view -> exposed_input = array();
-  while(list($key, $val) = each($search)){
-    $view -> exposed_input[$key] = $val;
-  }
-  
-  $view->execute();              //
-  $response = $view->total_rows;
-  $view->destroy();
-  
-  resetFacetsTemporary();  
-   
-  return $response; 
-}
-
+require_once __DIR__ . "/lokalkoenig_search.theme.inc";
+require_once __DIR__ . "/lokalkoenig_search.block.inc";
 
 function lokalkoenig_search_search_api_data_type_info() {
   return array(
@@ -70,24 +17,6 @@ function lokalkoenig_search_search_api_data_type_info() {
   );
 }
 
-function getSuchCount(){
-  // search_api_views_fulltext=Hund
-  $view = views_get_view('suchev2', true);
-  $view -> exposed_input['search_api_views_fulltext'] = 'Hund';
-  //$view->pre_execute();
-  //$output = $view->display_handler->preview();
-  //$view->post_execute();
-  $view->execute();
-  $response = $view->result;
-  
-  //$view->execute();
-   $objects = $view->result;
- 
-  
-
-}
-
-
 function _lk_get_recomend_count(){
   
   $query = new EntityFieldQuery();
@@ -102,14 +31,11 @@ function _lk_get_recomend_count(){
   return $count;
 }
 
-
-/** Init der LK-Suche */
 function lokalkoenig_search_init(){
   if(in_array(arg(0), array("suche",'suche-grid', 'merkliste'))){
-    
       pathtitle('search');
       $path = drupal_get_path('module', 'lokalkoenig_search');
-      drupal_add_css($path . '/lk_search.css');
+      drupal_add_css($path . '/css/lk_search.css');
   }
   
   if(in_array(arg(2), array('searches'))){
@@ -117,37 +43,54 @@ function lokalkoenig_search_init(){
   }
 }
 
-/** Block Informationen */
-function lokalkoenig_search_block_info(){
- $blocks = array();
 
- $blocks['lk_search_block'] = array(
-    // info: The name of the block.
-    'info' => 'Block: LK-Suche Sortierung',
-    // Block caching options (per role, per user, etc.)
-  ); #
-
-  $blocks['lk_search_other'] = array(
-    // info: The name of the block.
-    'info' => 'Block: LK-Suche Andere Suche',
-    // Block caching options (per role, per user, etc.)
-  ); #
-
-  $blocks['lk_search_empty'] = array(
-    // info: The name of the block.
-    'info' => 'Block: LK-Suche Keine Ergebnisse',
-    // Block caching options (per role, per user, etc.)
-  ); #
-
-    
-
-return $blocks;
+/**
+ * If the current page is the Search-Page
+ * 
+ * @return boolean
+ */
+function lk_search_is_searchpage(){
+  
+  if(in_array(arg(0), array('suche', "suche-grid"))) {
+    return true;
+  }
+  
+return false;  
 }
 
+function lokalkoenig_search_preprocess_page(&$variables){
+  
+  if(lk_search_has_no_results()):
+    unset($variables['page']['sidebar_first']);
+    $variables['page']['content']['system_main']['#access'] = FALSE;
+  
+  endif;  
+}
+
+function lokalkoenig_search_preprocess_html(&$variables){
+  
+  if(lk_search_has_no_results()):
+    $variables['classes_array'][] = 'no-sidebars';
+  endif;   
+}
+
+/**
+ * Gets back TRUE when the Search has no result
+ * 
+ * @return boolean
+ */
 function lk_search_has_no_results(){
-  if(!in_array(arg(0), array('suche', "suche-grid", 'merkliste'))) return false;
-  if(!isset($GLOBALS['pager_total_items'][0])) return false;
-  if(($GLOBALS['pager_total_items'][0] != 0)) return false;
+  
+  if(!lk_search_is_searchpage()) {
+    return false;
+  }
+  if(!isset($GLOBALS['pager_total_items'][0])) {
+    return false;
+  }
+  
+  if(($GLOBALS['pager_total_items'][0] != 0)) {
+    return false;
+  }
   
 return true;    
 }
@@ -179,79 +122,6 @@ global $user;
 }
 
 
-/** Block Ausführung */
-function lokalkoenig_search_block_view($delta = NULL){
-  $block = array();
-  
-  if(in_array(arg(0), array('suche','suche-grid','empfehlungen'))){ 
-    switch($delta){ 
-      case 'lk_search_block':
-      
-        // Add to Database
-        lk_save_current_search();
-      
-        $block = array(
-          'subject' => 'Blubb',
-          'content' => theme('lk_search', array()));
-        
-          break;
-        
-      case 'lk_search_empty':
-          
-        if(!lk_search_has_no_results()) {
-            return array();
-        }
-        
-        if(isset($_GET["search_api_views_fulltext"])){
-           $searchterm = $_GET["search_api_views_fulltext"];
-        }
-        
-      $vars = array('!url' => url(current_path()));
-      $text = t(variable_get('lk_search_noresult_text', ''), $vars); //lk_search_noresult_text
-      
-      include('sites/all/modules/lokalkoenig/functions/lokalkoenig_user/pages/suchanfrage.inc');
-      
-      if(lk_is_agentur())  {
-         $block = array(
-            'subject' => '<none>',
-            'content' => theme('lk_search_empty', array('text' => $text, 
-                                                    'terms' => $searchterm)));
-       
-        return $block;  
-      }
-        
-      
-      
-      $block = array(
-        'subject' => '<none>',
-        'content' => theme('lk_search_empty', array('text' => $text, 
-                                                    'terms' => $searchterm,
-                                                    'form' => drupal_get_form('_lk_suchanfrage_form', $searchterm))));
-        break;
-      
-        
-      case 'lk_search_other':
-        $block = array(
-          'subject' => 'Related',
-          'content' => _lk_generate_search_related_block());
-        break;
-    }
-  }
-
-  return $block;
-}
-
-function lokalkoenig_search_menu(){
-    $items['lksearchindex'] = array(
-      'access callback' => true,
-      'file' => 'searchindex.inc',
-      'page callback' => '_searchindex',
-      'title' => 'Searchindex',
-      'type' => MENU_CONTEXT_NONE);
-
-return $items;      
-}      
-
 
 function form_lk_no_results($form, $form_state, $searchword){
   
@@ -279,7 +149,6 @@ function form_lk_no_results($form, $form_state, $searchword){
     '#default_value' => strip_tags(t(variable_get('lk_search_noresult', ''), $ersetzen)), 
     '#required' => TRUE
   );
-  
 
   $form['submit'] = array(
     '#type' => 'submit',
@@ -290,229 +159,13 @@ return $form;
 }
 
 
-function _lk_generate_search_related_block(){
-global $user;
-  
-  if(lk_is_agentur()) return ;
-   
-  $view = views_get_page_view();
-  
-  //dpm($view);
-
- 
-
-  // 
-  if(!isset($_GET["f"])) return ;
-  
-  // Nur anzeigen wenn zwei Facetts ausgewählt wurden:
-  if(count($_GET["f"]) < 2){
-     return ;
-  }
-
-  $vars = $_GET["f"];
-  shuffle($vars);
-  unset($vars[0]);
-
-  $url = $_GET;
-  $url["f"] = $vars;
-  unset($url["uri"]);
-  
-  $tags = array();
-  $tags_display = array();
-  while(list($key, $val) = each($vars)){
-     $explode  = explode(":", $val);
-     if(isset($explode[1])){
-        if($term = taxonomy_term_load($explode[1])){
-          $tags[] = $explode[1];
-          
-          if(isset($url["q"])) unset($url["q"]);
-          
-          $tags_display[] = l($term -> name, 'suche', array("query" => $url, "attributes" => array("class" => array("btn")))); 
-        }
-     }
-  }
-
-  $nodes_exclude = array();
-
-  $view = views_get_page_view();
-  foreach($view -> result as $entity){
-     
-     if(is_int($entity -> entity)){
-        $nodes_exclude[] = $entity -> entity;
-     }
-     else {
-        $nodes_exclude[] = $entity -> entity -> nid;
-     } 
-  }
-  
-  
-
-  $view = views_get_view('related_kampagnen');
-  $view->get_total_rows = TRUE;
-  $view->set_display('attachment_1');
-  $view->set_arguments(array(implode(",", $tags), implode("+", $nodes_exclude), $user -> uid));
-  $view->pre_execute();
-  $view->execute();
-  $viewsout = $view->render();;
-  
-  if(!$viewsout) return ;
-  
-  $total_items = $view->query->pager->get_total_items(); 
-  
-  if($total_items == 0) return false;
-  
-  $theme = array();
-  $theme["total_items"] = $total_items;
-  $theme["tags_display"] = $tags_display;
-  $theme["viewsout"] = $viewsout;
-  $theme["url"] = $url;
-
-  return theme('lk_search_other', $theme);
-}
-
-
-/** Block Theme */
-function lokalkoenig_search_theme(){
-   $themes = array();
-   
-   
-    $themes["lk_search_other"] = array(
-            'template' => 'lk_search_other', // your template file called custompage.tpl.phü
-            'variables'=> array(
-              'total_items' => NULL,
-              'tags_display' => null,
-              'viewsout' => null,
-              'url' => null
-            ));
-   
-   $themes["lk_search"] = array(
-            'template' => 'lk_search', // your template file called custompage.tpl.phü
-            'variables'=> array('node' => NULL));
-    $themes["lk_search_empty"] = array(
-            'template' => 'lk_search_empty', // your template file called custompage.tpl.phü
-            'variables'=> array());
-
-   
-   
-            return $themes;
-}            
-
 function lokalkoenig_search_form_alter(&$form, &$form_state, $form_id){
-   
-   
-   if(arg(0) == "lkstats"){
-      if($form_id == 'views_exposed_form'){
-        
-        // include JS-File
-        $view = $form_state['view'];
-        drupal_add_library('system', 'ui');
-        drupal_add_library('system', 'ui.datepicker');
-        drupal_add_js("sites/all/modules/lokalkoenig/functions/lokalkoenig_search/searchstats.js");
-      }
-   }
-   
-  
+ 
    if(arg(0) == 'suche' OR arg(0) == "suche-grid"){
-   
     if($form_id == 'views_exposed_form'){
        $form["#attributes"]["class"][] = 'well lk_search_text';
        $form['submit']['#value'] = t('Search');
-       //$form["sort_by"]['#access'] = false;
        $form['help'] = array('#weight' => -20, '#markup' => '<div><b><span class="glyphicon glyphicon-chevron-right"></span> Hilfe zur Suche</b><span style="display: none;">'. variable_get('lk_search_help', '') .'</span></div>');
     }
-    
-    
-    
    }
 }
-
-
-function lokalkoenig_search_views_data2() {
-  $data['search_api_stats']['table']['group'] = ('LK Search Stats');
-
-  $data['search_api_stats']['table']['base'] = array(
-    'field' => 'qid',
-    'title' => ('Query Id'), 
-    'weight' => -10,
-  );
-
-  $data['search_api_stats']['table']['join'] = array(
-    'users' => array(
-      'left_field' => 'uid', 
-      'field' => 'uid',
-    ),
-  );
-
-  $data['search_api_stats']['qid'] = array(
-    'title' => ('Query ID'), 
-    'field' => array(
-      'handler' => 'views_handler_field', 
-      'click sortable' => true,
-    ), 
-  );
-  
-  
-  $data['search_api_stats']['uid'] = array(
-    'title' => ('User-ID'), 
-    'help' => ('Some example content that references a User-ID.'),
-    'relationship' => array(
-      'base' => 'users',
-      'field' => 'uid',
-      'handler' => 'views_handler_relationship', 
-      'label' => ('User ID'),
-    ),
-  );
-  
-
-  $data['search_api_stats']['keywords'] = array(
-    'title' => ('Suchwort'), 
-    'field' => array(
-      'handler' => 'views_handler_field', 
-      'click sortable' => False,
-    ), 
-    'sort' => array(
-      'handler' => 'views_handler_sort',
-    ), 
-    'filter' => array(
-      'handler' => 'views_handler_filter_string',
-    ), 
-    'argument' => array(
-      'handler' => 'views_handler_argument_string',
-    ),
-  );
-
-  $data['search_api_stats']['timestamp'] = array(
-    'title' => ('Datum des Eintrags'), 
-    'help' => ('Datum des Eintrags'), 
-    'field' => array(
-      'handler' => 'views_handler_field_date', 
-      'click sortable' => TRUE,
-    ), 
-    'sort' => array(
-      'handler' => 'views_handler_sort_date',
-    ), 
-    'filter' => array(
-      'handler' => 'views_handler_filter_date',
-    ),
-  );
-  
-  
-  $data['search_api_stats']['numeric_field'] = array(
-    'title' => ('Ergebnisse'),
-    'field' => array(
-      'handler' => 'views_handler_field_numeric',
-      'click sortable' => TRUE,
-    ),
-    'filter' => array(
-      'handler' => 'views_handler_filter_numeric',
-    ),
-    'sort' => array(
-      'handler' => 'views_handler_sort',
-    ),
-  );
-  
-  return $data;
-}
-
-
-?>

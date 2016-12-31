@@ -13,13 +13,17 @@ use LK\Alert\Alert;
  */
 class AlertManager {
     
+    use \LK\UI\Table;
+    use \LK\Log\LogTrait;
+    
     /**
      * Creates a new Alert
      * 
      * @param type $query_array
      * @return \LK\Alert\Alert
      */
-    static public function create($query_array){
+    public function create($query_array){
+         
          $entity = entity_create('alert', array('type' => 'alert'));
          $entity -> field_search_query["und"][0]["value"] = serialize($query_array);
          $query = new Search();
@@ -29,15 +33,19 @@ class AlertManager {
          $entity -> title = 'Suche: ' . SearchQueryParser::toLabel($query_array);
          $entity -> field_search_count["und"][0]["value"] = $num; 
          $entity->save();
-         return self::load($entity -> id);
+         
+         $this-> logNotice("Erstelle Alert: " . $entity -> title);
+         
+         return $this -> loadAlert($entity -> id);
     }
     
-    static public function searchTitle($title, $uid){
+    
+    public function searchTitle($title, \LK\User $account){
         $query = new \EntityFieldQuery();
           // remove all previous created Alters
           $query->entityCondition('entity_type', 'alert')
                ->entityCondition('bundle', 'alert')
-               ->propertyCondition('uid', $uid)
+               ->propertyCondition('uid', $account ->getUid())
                ->propertyCondition('title', 'Suche: ' . $title); 
           $result = $query->execute();
           
@@ -55,7 +63,7 @@ class AlertManager {
      * @param type $id
      * @return boolean|\LK\Alert\Alert
      */
-    static public function load($id){
+    public function loadAlert($id){
         
         try {
           $alert = new Alert($id);
@@ -63,5 +71,35 @@ class AlertManager {
         } catch (\Exception $ex) {
             return false;
         }       
+    }
+    
+    public function listAlerts(\LK\User $account){
+      
+      // Show existing Alters
+      $query = new \EntityFieldQuery();
+      $query->entityCondition('entity_type', 'alert')
+      ->entityCondition('bundle', 'alert')
+      ->propertyCondition('uid', $account -> uid)->propertyOrderBy('changed', 'DESC');
+
+      $result = $query->execute();
+
+      $this ->UI_Table_setHeader(array('Suche', 'Angelegt', 'Kampagnen', ''));
+      $count = 0;
+     if(isset($result["alert"])){
+       foreach($result["alert"] as $alert_entity){
+         
+            $alert = $this ->loadAlert($alert_entity -> id);
+
+            if(!$alert){
+                continue ;
+            }
+            $this -> UI_Table_addRow(array($alert ->getTitle() . '<br /><small><a href="'. $alert -> getSearchLink() .'">Suchergebnisse öffnen</a></small>', 
+                date("d.m.Y", $alert ->getCreated()), 
+                $alert ->getCount(), '<a class="btn btn-sm btn-danger optindelete" href='. $alert ->getRemoveLink() .' optintitle="Alert löschen" optin="Sind Sie sicher?">Alert löschen</a>'));
+            $count++;        
+        }
+     }  
+
+     return theme('alerts_overview', array("account" => $account, 'count' => $count, "table" => $this->UI_Table_render())); 
     }
 }

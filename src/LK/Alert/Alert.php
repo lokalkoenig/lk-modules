@@ -2,14 +2,12 @@
 namespace LK\Alert;
 
 use LK\Solr\SearchQueryParser;
-use LK\Component;
 
-class Alert extends Component {
+class Alert  {
     
+    use \LK\Log\LogTrait;
+  
     var $entity = null;
-    
-    
-    
     
     function __construct($id) {
         $this -> entity = entity_load_single('alert', $id);
@@ -56,7 +54,7 @@ class Alert extends Component {
     }
     
     function getRemoveLink(){
-        return url("user/" . $this ->getAuthor() . "alerts", array("query" => array('action' => "remove", 'id' => $this ->getId())));
+        return url("user/" . $this ->getAuthor() . "/alerts", array("query" => array('action' => "remove", 'id' => $this ->getId())));
     }
     
     function __toString() {
@@ -81,9 +79,8 @@ class Alert extends Component {
     }
     
     function remove(){
-        $this ->logNotice("Remove Alert: " . $this);
+        $this->logNotice('Lösche Alert ' . $this);
+        
         entity_delete('alert', $this -> entity -> id);  
     }
-    
-    function save(){}
 }

@@ -187,7 +187,7 @@ function lokalkoenig_messages_theme(){
             'variables' => array(
               'nodes' => [],
               'title' => NULL,
-              'link' => $link,
+              'link' => NULL,
               'count' => 0,  
             )
     );

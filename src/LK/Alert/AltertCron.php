@@ -10,7 +10,7 @@ namespace LK\Alert;
 
 use LK\Alert\AlertManager;
 use LK\Solr\Search;
-use LK\Component;
+
 
 
 /**
@@ -18,7 +18,7 @@ use LK\Component;
  *
  * @author Maikito
  */
-class AltertCron extends Component {
+class AltertCron extends AlertManager {
     //put your code here
     
     static function run(){
@@ -28,7 +28,7 @@ class AltertCron extends Component {
         $result = $query->execute();
         
         foreach($result["alert"] as $alert):
-            $alert = AlertManager::load($alert -> id);
+            $alert = $this ->loadAlert($alert -> id);
             
             if($alert):
                 self::testAlert($alert);

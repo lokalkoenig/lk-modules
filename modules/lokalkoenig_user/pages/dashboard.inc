@@ -74,13 +74,13 @@
   }
   
    function dashboard_add_alerts(&$list, $account){
-      include("sites/all/modules/lokalkoenig/functions/lokalkoenig_user/pages/alerts.inc");
+      include(__DIR__ . "/alerts.inc");
       
       $id = 'alerts';
       $list[$id] = array();
       $list[$id]["title"] = '<span class="glyphicon glyphicon-flag"></span> Alerts';
       $list[$id]["class"] = 'special-tab';
-      //$list[$id]["content"] = \LK\Alert\_lk_alerts_page($account, false);
+      $list[$id]["content"] = _lk_alerts_page($account, false);
   }
 
   function dashboad_add_adminsupport(&$list){

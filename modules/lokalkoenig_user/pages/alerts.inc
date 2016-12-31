@@ -1,10 +1,6 @@
 <?php
 use LK\Alert\AlertManager;
 use LK\Solr\SearchQueryParser;
-use LK\UI\Table;
-
-
-namespace LK\Alert;
 
 /**
  * Alert Controller
@@ -12,9 +8,9 @@ namespace LK\Alert;
  * @param type $account
  * @param type $page
  */
-function _lk_alerts_page($account, $page = true){
+function _lk_alerts_page($uid, $page = true){
   
-  // GET add=1&search-query
+  $account = \LK\get_user($uid);
   
   $action = ''; 
   $id = 0;
@@ -32,6 +28,8 @@ function _lk_alerts_page($account, $page = true){
       lk_set_icon('flag');
   endif;
   
+  $alertmanager = new \LK\Alert\AlertManager();
+  
   if($action == 'add'){
       $query = SearchQueryParser::get();
       
@@ -41,10 +39,10 @@ function _lk_alerts_page($account, $page = true){
       }
       // prevent double entries
       $title = SearchQueryParser::toLabel($query);
-      $result = AlertManager::searchTitle($title, $account -> uid);
+      $result = $alertmanager -> searchTitle($title, $account);
       
       if(!$result):
-        $alert = AlertManager::create($query);
+        $alert = $alertmanager -> create($query);
         drupal_set_message("Der Alert <em>" . $alert ->getTitle() . "</em> wurde erstellt. " . l("Alerts verwalten", 'user/' . $alert ->getAuthor() . "/alerts"));      
       
      else:
@@ -59,43 +57,17 @@ function _lk_alerts_page($account, $page = true){
       drupal_goto("suche", array("query" => $query));     
   }
   
-  if($action == 'delete' AND $id){
-        $alert = AlertManager::load($id);   
-        if($alert AND $alert -> getAuthor() == $account -> uid){
-            lk_note("alert", "Loesche Alert " . $alert);
+  if($action == 'remove' AND $id){
+        $alert = $alertmanager ->loadAlert($id);
+       
+        if($alert && $alert -> getAuthor() == $account ->getUid()){
             drupal_set_message("Der Alert <em>" . $alert ->getTitle() . "</em> wurde gelöscht.");      
             $alert ->remove();
             drupal_goto('user/' . $alert -> getAuthor() . "/alerts");
         }
   }
-  
-  
-  // Show existing Alters
-  $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', 'alert')
-  ->entityCondition('bundle', 'alert')
-  ->propertyCondition('uid', $account -> uid)->propertyOrderBy('changed', 'DESC');
 
-  $result = $query->execute();
-  
-  $table = new Table();
-  $table ->setHeader(array('Suche', 'Angelegt', 'Kampagnen', ''));
-  $count = 0;
- if(isset($result["alert"])){
-   foreach($result["alert"] as $alert_entity){
-        $alert = AlertManager::load($alert_entity -> id);
-        
-        if(!$alert){
-            continue ;
-        }
-        $table -> addRow(array($alert ->getTitle() . '<br /><small><a href="'. $alert -> getSearchLink() .'">Suchergebnisse öffnen</a></small>', 
-            date("d.m.Y", $alert ->getCreated()), 
-            $alert ->getCount(), '<a class="btn btn-sm btn-danger optindelete" href='. $alert ->getRemoveLink() .' optintitle="Alert löschen" optin="Sind Sie sicher?">Alert löschen</a>'));
-        $count++;        
-    }
- }  
-
- return theme('alerts_overview', array("account" => $account, 'count' => $count, "table" => (string)$table)); 
+  return $alertmanager ->listAlerts($account);
 }
 
 ?>
