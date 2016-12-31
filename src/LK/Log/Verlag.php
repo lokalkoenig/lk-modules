@@ -24,10 +24,6 @@ class Verlag extends LogInterface {
         $this ->setContext("merkliste", $mid);
     }
     
-    function setLizenz(\LK\Lizenz $lizenz){
-        $this -> set("lizenz_id", $lizenz ->getId());
-    }
-    
     function __toString() {
         return "Foobar";
     }

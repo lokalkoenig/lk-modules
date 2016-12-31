@@ -66,6 +66,8 @@ abstract class LogInterface {
         $data = $this -> data;
         $data["context"] = serialize($this -> context);
         db_insert(LogInterface::DB_TABLE)->fields($data)->execute(); 
+    
+    return $data['message'];    
     }
     
     final function setVku(\VKUCreator $vku){
@@ -81,7 +83,12 @@ abstract class LogInterface {
     }
     
     final function setUser(\LK\User $account){
+        $this ->set("uid", $account ->getUid());
         $this ->set("verlag_uid", $account ->getVerlag());
         $this ->set("team_id", $account ->getTeam());
+    }   
+    
+    final function setLizenz(\LK\Lizenz $lizenz){
+        $this ->set("lizenz_id", $lizenz ->getId());
     }    
 }

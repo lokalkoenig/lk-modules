@@ -275,6 +275,14 @@ function vku_theme(){
             ),
         );
  
+        $themes['vkuconnection_add'] = array(
+            'template' => 'templates/vkuconnection_add', // your template file called custompage.tpl.php
+            'variables' => array(
+              'vku' => NULL,
+              'items' => array()
+            ),
+        );
+  
   
 return $themes;
 }
@@ -552,18 +560,14 @@ return $themes;
       'title' => 'VKU-Einstellungen',
       'type' => MENU_CONTEXT_NONE);   
 
-     
-     
-
-    // Admin
-    $items['logbuch/editlizenz/%'] = array(
-      'access callback' => lk_is_moderator(),
-      'page callback' => 'vku_vku_admin_edit',
-      'page arguments' => array(2),
-      'title' => 'Lizenz editieren',
-      'file' => "admin/vku_admin.inc",
-      'type' => MENU_CONTEXT_NONE); 
-     
+  $items['vku/%/addextra/%'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => '_vkuconn_add_docuement',
+      'page arguments' => array(1, 3),
+      'file' => 'inc/vorlagen/adddocument.php',
+      'title' => 'VKU-Entries add',
+      'type' => MENU_CONTEXT_NONE);  
+  
     return $items;
   }
 

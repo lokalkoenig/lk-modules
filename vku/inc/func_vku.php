@@ -92,7 +92,8 @@ global $user;
     drupal_set_title("Verkaufsunterlage");
     lk_set_icon('tint');
    
-     $add = '';
+     $add = _vkuconn_generate($vku);
+     
      drupal_add_library('system', 'ui.sortable');
      drupal_add_js("sites/all/modules/lokalkoenig/vku/js/vku.js");
      drupal_add_css("sites/all/modules/lokalkoenig/vku/css/vku.css");

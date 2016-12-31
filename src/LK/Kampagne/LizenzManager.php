@@ -12,6 +12,8 @@ class LizenzManager {
  
   use \LK\Log\LogTrait;
   
+  const ADMIN_URL = "logbuch/verlag-lizenzen";
+  
   /**
    * Creates a new Lizenz for the Node
    * 
@@ -66,6 +68,10 @@ class LizenzManager {
     ]);
    
   return $lizenz;  
+  }
+  
+  function getOverviewURL(){
+    return self::ADMIN_URL;
   }
   
   /**

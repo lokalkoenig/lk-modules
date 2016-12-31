@@ -112,7 +112,7 @@ class Sperre {
        db_query("DELETE FROM lk_vku_plz_sperre_ausgaben WHERE plz_sperre_id='". $entity_id ."'"); 
        
        $this -> entity = new \stdClass();
-       $this -> manager ->rebuildSperren($nid);
+       $this -> manager ->rebuildAusgabenAccess($nid);
    }
    
    

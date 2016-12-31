@@ -8,7 +8,9 @@ namespace LK;
  */
 
 class Lizenz {
-    
+  
+   use \LK\Log\LogTrait; 
+  
    var $id = null;
    var $data;
    var $vku_id;
@@ -46,7 +48,7 @@ class Lizenz {
    }
    
    function getSummary(){
-     return $this ->__toString();
+     return $this ->toString();
    }
    
    
@@ -177,7 +179,6 @@ class Lizenz {
            }
        }
        
-       
        if($this -> data -> plz_sperre_id){
            $sperre = new PlzSperre($this -> data -> plz_sperre_id);
            return $sperre ->setPlzTids($plz_collection);
@@ -230,11 +231,9 @@ class Lizenz {
       // Remove PLZ-Sperre
       $id = $this -> id;
       $plz_sperre_id = $this -> data -> plz_sperre_id;
-      $vku_id = $this -> vku_id;
       
       db_query("DELETE FROM lk_vku_lizenzen WHERE id='". $id ."'");
       db_query("DELETE FROM lk_vku_lizenzen_ausgabe WHERE lizenz_id='". $id ."'");
-      db_query("DELETE FROM lk_verlag_log WHERE vku_id='". $vku_id ."' AND	nid='". $id ."'");
       
       // Lösche PLZ -Sperre
       if($plz_sperre_id){
@@ -250,10 +249,10 @@ class Lizenz {
          $vku -> logEvent('remove', 'Status geändert auf Deleted, da Lizenz gelöscht wurde.'); 
       }
       
-      return \lk_note('lizenz-admin', "Lösche Lizenz " . $id);
-   }
+  return $this->logNotice("Lizenz gelöscht.", array('lizenz' => $this));
+  }
     
-   function __toString() {
+   function toString() {
       
        $vku = new \VKUCreator($this -> vku_id); 
        $node = node_load($this -> data -> nid); 
@@ -277,11 +276,9 @@ class Lizenz {
        }
        
       if($ausgaben){
-          $ausgaben_formatted[] = 'Ausgaben: ' . implode(" ", $ausgaben_formatted);
+          $array[] = 'Ausgaben: ' . implode(" ", $ausgaben_formatted);
       }
-      
-     
-   
+    
       $data = '<span class="label label-default pull-right">Lizenz #' . $this->getId() . '</span><p><strong>Kampagne: ' . l($node->title, 'node/'. $node->nid) . "</strong> <label class=\"label label-primary\">". $node -> field_sid['und'][0]['value'] ."</label></p>"; 
       $data .= '<div class="row clearfix"><div class="col-xs-6"><ul><li>'. implode('</li><li>', $array) .'</ul></div>'
               . '<div class="col-xs-6">'; 
@@ -294,10 +291,12 @@ class Lizenz {
        
        $data .= '</div></div>';
       
-      if(lk_is_moderator()){
+      
+      // add a check, otherwise Drupal will break
+      if(lk_is_moderator() 
+         && arg(1) != "editlizenz"){
         $data .= '<hr />' . l('<span class="glyphicon glyphicon-pencil"></span> Lizenz editieren', $this ->getEditUrl(), array('html' => true, "query" => drupal_get_destination(), 'attributes' => array('class' => 'btn btn-sm btn-primary')));
       }
-      
       
    return $data;   
    }

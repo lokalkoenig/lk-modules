@@ -140,3 +140,86 @@ global $user;
     
 return $array;    
 } 
+
+
+function _vkuconn_generate($vku){
+
+	if(is_int($vku)){
+          $vku = new VKUCreator($vku);
+	} 
+        
+        $author = $vku ->getAuthor();
+        $account = \LK\get_user($author);
+        $verlags_id = $account ->getVerlag();
+        
+	$items = array();
+            
+        if($vku ->getStatus() != 'template'){
+            $items["kampagnen"] = array('link' => 'suche', "title" => "Kampagnen", 'desc' => 'Fügen Sie dieser Verkaufsunterlage bis zu drei Kampagnen hinzu.', 'icon' => 'search');
+        }
+         
+        $items["new"] = array(
+			"title" => "Dokumente hinzufügen",
+	 		'desc' => 'Fügen Sie dieser Verkaufsunterlage weitere Dokumente hinzu.',
+	 		'items' => array(),
+	 		'icon' => 'th-list'
+	 	);
+
+	$arr = array();
+        vkuconn_get_default_documents($vku, $verlags_id, $arr);
+        
+        $items["new"]["items"] = $arr;
+         
+         // Active only
+         if($vku -> is('active')){
+             $templates = vkuconnection_get_user_templates();
+            if($templates){
+               $items["template"] = array("title" => "Vorlagen", 'desc' => 'Ihre benutzerdefinierten Vorlagen verwenden', 'icon' => 'repeat');
+               $template_arr = array();
+
+
+               foreach($templates as $template){
+
+                   $template_arr[] = array("title" => $template -> vku_template_title . '<br /><small>zuletzt geändert am '. format_date($template -> vku_changed, "short") .'</small>', 
+                               'link' => "vku/" . $vku_id . "/template/" . $template -> vku_id,
+                               'optin' => 'Vorlage übernehmen',
+                               'optin_text' => 'Die Kampagnen werden zusammen mit den Dokumenten der Verkaufsunterlage migriert.', 
+                               'link_title' => "Template anwenden",
+                               'optin_label' => "Übernehmen"
+                     );
+               }
+
+               $items["template"]["items"] = $template_arr;   
+            } 
+         }
+         
+ 	 return theme("vkuconnection_add", array("vku" => $vku, 'items' => $items));
+}
+
+/**
+ * Adds Default Documents to the VKU
+ * @since 2015-11-05
+ * 
+ * @param type $vku
+ * @param type $verlags_id
+ * @param type $items
+ */
+function vkuconn_get_default_documents($vku, $verlags_id, &$items){
+  
+    $check = vku_get_standard_documents();
+    $vku_id = $vku -> getId();
+    
+    foreach($check as $item){
+       $has = $vku -> getPageId($item["id"]);
+       
+       if(!$has){
+           $items[$item["id"]] = 
+                array(
+                    'title' => $item["title"],
+                    'link' => 'vku/' . $vku_id . "/addextra/" . $item["id"],
+                    'type' => 'default',	
+                    //'preview' =>  'preview-template/' . $item["id"],
+    		);	
+       }
+    } 
+}

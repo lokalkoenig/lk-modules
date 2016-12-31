@@ -105,8 +105,12 @@ trait LogTrait {
      */
     private function _parseLogOptions(\LK\Log\LogInterface $log, $options){
       
-      if(isset($options['nid'])){
+       if(isset($options['nid'])){
           $log -> setNid($options['nid']);
+       }
+       
+       if(isset($options['uid'])){
+          $log ->setUser($options['uid']);
        }
        
        if(isset($options['lizenz'])){
