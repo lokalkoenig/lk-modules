@@ -18,8 +18,6 @@ function lk_check_user_profile_access($account_obj){
        
     // Own Profile, yes
     if($account == $current){
-        
-        
         return user_view_access($account_obj);  
     }
     
@@ -268,14 +266,22 @@ global $user;
    _lk_check_if_user_has_plz($user);
   
    
-   if(!$account){
+    // Verlagsproktokoll is optional
+   $arg2 = arg(2); 
+  
+   if($arg2 == "verlagsprotokoll" && ($current ->isVerlag() || $current ->isVerlagController())){
+      if(!$current -> showProtokoll()){
+        drupal_goto("user");
+      }
+   }
+  
+    if(!$account){
       return ; 
    }   
-   
+  
    if($account -> uid == $current -> getUid()){
-       return ;
+     return ;
    }
-   
    
     // Checken ob User is in Verlag
   $vid = $account -> getVerlag();
@@ -288,11 +294,14 @@ global $user;
         drupal_goto('user/' . $user -> uid . "/dashboard");  
    }
    
+   // Verlagscontroller
    if($current -> isVerlag() OR $current -> isVerlagController()){
-      if($current ->isVerlagController() AND $account ->isVerlag()){
+     $arg2 = arg(2); 
+     
+     if($current ->isVerlagController() AND $account ->isVerlag()){
           // grant some
           $grants = array("struktur", "ausgaben", 'abrechnung', 'verlagstats', 'verlagsprotokoll');
-          $arg2 = arg(2); 
+          
           if($arg2 AND in_array($arg2, $grants)){
                return ; 
           }
@@ -305,7 +314,6 @@ global $user;
        
       return ;
    }
-   
     // Checke ob User Verlag ist und ob er auf bestimmte Seiten Zugriff haben kann 
     // Teamleiter
    

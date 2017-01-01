@@ -23,7 +23,7 @@
 <div class="btn-group" style="margin-right: 10px;">
 <form method="GET" id="kampasearch" action="<?php print url('suche'); ?>" class="formhover">
   <input id="searchbegin" title="" title="Geben Sie hier Suchbegriffe ein, wie z.B. Branchenbezeichnungen Bäcker, Fleischer, Auto, ..." value="<?php print $search_value; ?>" type="search" class="form-control form-text apachesolr-autocomplete unprocessed" placeholder="Kampagnensuche" name="search_api_views_fulltext" style="display:inline; margin-right: -10px;" />
-  <a href="<?php print url('suche'); ?>" onclick="jQuery('#kampasearch').submit(); return false;" class="btn btn-primary" title="Kampagnen-Übersicht" style="border-top-left-radius: 0; border-bottom-left-radius: 0;"><span class="glyphicon glyphicon-search"></span></a>
+  <a href="<?php print url('suche'); ?>" onclick="jQuery('#kampasearch').submit(); return false;" class="btn btn-primary" title="Kampagnen-Übersicht" style="border-top-left-radius: 0; border-bottom-left-radius: 0; height: 34px;"><span class="glyphicon glyphicon-search"></span></a>
 
   <div class="showtext tooltip-inner" style="display: none; margin-top: 10px; text-align: left; position: absolute; z-index: 100; width: 400px; max-width: none; ">
       <div class="row clearfix">

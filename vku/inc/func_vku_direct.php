@@ -52,15 +52,9 @@ function _vku_direct_generate($node){
   $lizenz = $manager ->create($node -> nid, $vku_update);
   $lizenz -> generateZIP();
   
-  $return["link"] = $vku_update -> url(); 
-  $return["lizenz_dl_link"] = $lizenz->getDownloadLink(true); 
-  $return["lizenz_dl_size"] = format_size($lizenz -> data -> lizenz_download_filesize);
-  
   $return["theme"] = theme('node_page_lizenz_purchased', 
           [ 
-            "lizenz" => $lizenz, 
-            "filesize" => $return["lizenz_dl_size"],
-            'url' => $return["lizenz_dl_link"],
+            "lizenz" => $lizenz ->getTemplateData()           
           ]
   );
   

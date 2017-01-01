@@ -19,8 +19,7 @@ function _vku_only_download($sid){
   if(!$lizenz) {
     $manager ->logError("Fehlerhafter Downloadlink");
     drupal_set_message('Der Downloadlink ist fehlerhaft. Bitte überprüfen Sie den Download-Link und versuchen Sie es erneut.', 'error');
-    
-    return theme("lizenz_download");
+    return '';
   }
   
   $test = $lizenz->canDownload();
@@ -28,8 +27,7 @@ function _vku_only_download($sid){
   // Wenn kein Zugriff mehr vorhanden ist
   if(!$test["access"]){
       drupal_set_message($test["reason"],'warning');
-      
-      return theme("lizenz_download");
+      return '';
   }
   
   // Show Download link

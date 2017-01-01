@@ -10,19 +10,3 @@
     <li><b>Dateigröße:</b> <?php print format_size($lizenz -> lizenz_download_filesize); ?></li>
   </ul>  
 </div>
-
-<style>
-  
-  .no-sidebars #page #main {
-    width: 100%;
-    float: none;
-    width: 600px;
-    margin: 50px auto;
-  }
-  
-  body {
-    background: #34495e;
-  }
-  
-  
-</style>

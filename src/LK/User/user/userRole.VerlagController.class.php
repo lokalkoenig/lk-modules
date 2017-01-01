@@ -19,6 +19,12 @@ class VerlagController extends User {
       return 'Verkaufsübergreifender Mitarbeiter'; 
    }
    
+   function showProtokoll(){
+     $verlag = $this->getVerlagObject();
+     
+   return $verlag ->showProtokoll();  
+   }
+   
    function isTelefonmitarbeiter(){
        return true;
    }

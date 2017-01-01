@@ -327,9 +327,19 @@ class Kampagne {
          if($node -> plzaccess == false){
             $current_lizenz = vku_user_has_lizenz_node($node -> nid, $user);
             if($current_lizenz){     
-               //$node -> sperre_hinweis = 'Sie haben diese Kampagne lizenziert.'; 
-               $node -> lizenz = $current_lizenz; 
-               return ;
+              // Checken ob Lizenz noch heruntergeladen werden kann.
+              $manager = new \LK\Kampagne\LizenzManager();
+              $lizenz = $manager ->loadLizenz($current_lizenz -> id);
+              
+              if($lizenz){
+                $test = $lizenz ->canDownload();
+                if($test["access"]):
+                  $node -> sperre_hinweis = theme('node_page_lizenz_purchased', [
+                    "lizenz" => $lizenz ->getTemplateData()
+                  ]); 
+                endif;
+              }
+              return ;
             }
          }
 

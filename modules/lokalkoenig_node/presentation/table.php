@@ -1,7 +1,6 @@
 <?php
 
 $programme = array();
-_vku_load_order_node($node);
 
 foreach($node -> medien as $delta => $medium){
     $classes = 'field-item ' . ($delta % 2 ? 'odd' : 'even');
@@ -142,17 +141,6 @@ foreach($node -> medien as $delta => $medium){
        </div>
        
        <?php 
-      }
-      // Downloadbare Lizenz liegt vor
-      elseif($node -> plzaccess == false AND $node -> lizenz AND $node -> online){
-        $url = _lk_generate_download_link($node -> lizenz -> id);
-      
-       ?>
-        <hr /> 
-        <?php print theme('node_page_lizenz_purchased', array("lizenz" => $node -> lizenz, 'url' => $url)); ?>
-        
-      
-       <?php
       }
       else {
          ?> 

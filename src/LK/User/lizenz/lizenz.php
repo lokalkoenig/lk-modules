@@ -129,6 +129,7 @@ class Lizenz {
     return array('access' => true);
    }
    
+   
    function getNid(){
      return $this -> data -> nid;
    }
