@@ -53,12 +53,6 @@ function lk_log_kampagne($nid, $message, $context = []){
 function lk_log_verlag($message){
    
     $log = new VerlagLog($message);
-    $log ->setUser($account);
-    
-    if ($vku){
-        $log -> setVku($vku);
-    }
-    
     $log ->save();
 }
 
@@ -78,8 +72,7 @@ global $user;
     if(!$uid){
         $uid = $user -> uid;
     }
-    
-    $message_striped = strip_tags($message);
+   
     $log = new DebugLog($type . ": " . $message);
     $log->set("uid", $uid);
     $log ->save();

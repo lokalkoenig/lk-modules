@@ -11,7 +11,7 @@ global $user;
     $status = $vku -> getStatus();
    
     $dir = 'sites/default/private/vku/';
-    include_once('sites/all/modules/transliteration/transliteration.inc');
+    include_once(drupal_get_path("module", "transliteration") . '/transliteration.inc');
     
     if($ppt){
         $extension = 'pptx';

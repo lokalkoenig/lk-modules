@@ -1,11 +1,14 @@
 <?php
  /** Zeigt Lizenz-Downloads an */
   print $admin;  
+  
   $status = $vku -> getStatus();
- 
+  $vku_purchased_date = $vku -> get("vku_purchased_date");  
+  $tage = variable_get('lk_vku_max_download_time', 30);
+  $company = $vku -> get("vku_company")
+  
 ?>
 <div class="clearfix"><a class="btn btn-default pull-right" href="<?php print url("user/" . $account -> uid . "/vku"); ?>"><span class="glyphicon glyphicon-chevron-left"></span> Zurück zur Übersicht</a></div>
-
 <hr />
 
 <div class="row">
@@ -15,7 +18,7 @@
   <dt>Titel</dt>
   <dd><?php print $vku -> get("vku_title"); ?></dd>
   
-  <?php if($company = $vku -> get("vku_company")) { ?>
+  <?php if($company) { ?>
     <dt>Unternehmen</dt>
     <dd><?php print $company; ?></dd>
   <?php } ?>
@@ -36,7 +39,7 @@
 
 <div class="col-md-6">
   <?php if($status == 'purchased') : ?>
-   <div class="well">Sie können auf dieser Seite die Lizenzen für <?php print variable_get('lk_vku_max_download_time', 30); ?> Tage downloaden. Zusätzlich können Sie einen Download-Link generieren, den Sie an Mitarbeiter schicken können.</div>
+   <div class="well">Sie können auf dieser Seite die Lizenzen für <?php print $tage; ?> Tage downloaden. Zusätzlich können Sie einen Download-Link generieren, den Sie an Mitarbeiter schicken können.</div>
   <?php else : ?>
     <div class="well">Die Downloads der vorhandenen Lizenzen sind abgelaufen.</div>
   <?php endif; ?> 
@@ -45,21 +48,8 @@
 
 <hr />
 
-<?php
-  
-  $status = $vku -> getStatus();
-
-  if(true) :
-    $vku_purchased_date = $vku -> get("vku_purchased_date");  
-    $tage = variable_get('lk_vku_max_download_time', 30);
-    $bis = $vku_purchased_date + (60*60*24*$tage);
-?>
-
 
 <h4><span class="glyphicon glyphicon-download"></span> Lizenzen herunterladen</h4>
-
-
-
 
 <div class="panel panel-default panel-info">
 <div class="panel-body">
@@ -73,50 +63,48 @@
     
 <?php 
   foreach($lizenzen as $l){
-    $node = node_load($l -> nid);
      
-    $bild = $node->field_kamp_teaserbild['und'][0]['uri'];
+    $bild = $l -> node->field_kamp_teaserbild['und'][0]['uri'];
     $img = image_style_url('kampagne_klein', $bild);
-    $access = _vku_download_file_check_valid($vku, $l);
-    
-    
+    $sid = $l -> node -> sid;
     ?>
+   
     <tr>
       <td>
         <div class="pull-left" style="margin-right: 10px;"><img src="<?php print $img; ?>" /></div>
-        <strong><?php print $node -> title; ?></strong><br />
-        <span class="label label-primary"><?php print $node->field_sid['und'][0]['value']; ?></span>
+        <strong><?php print $l -> node -> title; ?></strong><br />
+        <span class="label label-primary"><?php print $sid; ?></span>
       </td>
-      <td class="text-center"><?php print $l -> lizenz_downloads ?> von <?php print variable_get('lk_vku_max_download'); ?></td>
+      <td class="text-center"><?php print $l -> lizenz_downloads ?> von <?php print $l -> download_max; ?></td>
       <td class="text-center">
-        <?php
-         if($access["access"]){
-        ?>
-          <a class="btn btn-primary btn-sm" href="<?php print url("user/" . $account -> uid . "/vku/" . $vku -> getId() . "/download/" . $l -> id); ?>"><span class="glyphicon glyphicon-hdd"></span> Direktdownload ZIP (<?php print format_size(vku_node_calculate_size($node)); ?>)</a>
-        <?php } else { print '<em>' . $access["reason"] . '</em>'; } ?>
+        
+      <?php  if($l -> can_download): ?>
+          <a class="btn btn-primary btn-sm" href="<?php print $l -> download_link_direct; ?>"><span class="glyphicon glyphicon-hdd"></span> Direktdownload ZIP (<?php print format_size($l -> lizenz_download_filesize); ?>)</a>
+      <?php 
+        else: 
+        
+          print '<em>' . $l -> can_download_info["reason"] . '</em>'; 
+        
+        endif; 
+      ?>
+      
       </td>
      </tr> 
-    <?php
     
-     if($access["access"]){
-        ?>
+    <?php if($l -> can_download): ?>
         <tr><td colspan="3"><div class="alert">
-        <b>Downloadlink:</b> <input style="width: 75%; display: inline; margin-left: 10px;" type="text" class="form-control form-text" value="<?php print _lk_generate_download_link($l->id); ?>" />
+        <b>Downloadlink:</b> <input style="width: 75%; display: inline; margin-left: 10px;" type="text" class="form-control form-text" value="<?php print $l -> download_link_external; ?>" />
          <small>(Downloads gültig bis zum <?php print format_date($l -> lizenz_until); ?>)</small>
         </div>
         
         </td></tr>
         <?php
-     }  
+        
+     endif;
   }
-
 ?>
-
-
 </table>
 </div></div></div>
-<?php endif; ?>
-
 
 
 <?php $nodes = $vku -> getKampagnen(); ?>
@@ -128,7 +116,6 @@
 <div class="well">
   <a href="<?php print url($vku -> renewUrl()); ?>"><strong><span class="glyphicon glyphicon-refresh"></span> Verkaufsunterlage duplizieren</strong></a><br />
   Die aktuelle Verkaufsunterlage wird kopiert und Sie können eine neue Verkaufsunterlage mit den vorhandenen Daten erstellt.
-
 </div>
 
 <hr />
@@ -140,7 +127,4 @@ foreach($nodes as $node){
    print render($node_view);
 }
 endif; 
-?>
-
-
 

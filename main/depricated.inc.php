@@ -113,41 +113,11 @@ return 10;
 
 
 
+/**
+ * @deprecated
+ */
 function na_check_user_has_access($uid, $nid){
-global $user;
-  
- $account = \LK\get_user($uid);
- // If no Account
- if(!$account) {
-    return false;
- }
- 
- // No Node
- $node = node_load($nid);
- if(!$node){
-     return false;
- }
-  
- // Status of the Node is Offline
- if($node -> lkstatus != 'published' OR $node -> status != 1) {
-      return array('access' => false, "reason" => "Kampagene nicht mehr Online.");
- }
- 
- // No Ausgaben
- $ausgaben = $account -> getCurrentAusgaben();
- if(!$ausgaben){
-   return array('access' => true);  
- }
- 
- $dbq = db_query("select until as date_until from na_node_access_ausgaben_time WHERE nid='". $nid ."' AND aid IN (". implode(",", $ausgaben) .") ORDER BY until DESC LIMIT 1"); 
- $result = $dbq -> fetchObject();
- 
- if(!$result) return array('access' => true);
- else {
-     return array('access' => false, 
-                  'time' => $result -> date_until,
-                  "reason" => "Die Kampagne ist ab dem ". date("d.m.Y", $result -> date_until) ." wieder verfügbar.");
-  }
+  return \LK\Kampagne\AccessInfo::userHasAccessToKampagne($uid, $nid);
 }
 
 

@@ -151,7 +151,7 @@ function _vkuconn_generate($vku){
         $author = $vku ->getAuthor();
         $account = \LK\get_user($author);
         $verlags_id = $account ->getVerlag();
-        
+        $vku_id = $vku ->getId();
 	$items = array();
             
         if($vku ->getStatus() != 'template'){

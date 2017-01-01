@@ -35,7 +35,7 @@ trait LogTrait {
      * 
      * @param type $message
      * @param Array $options Options
-     * @return String
+     * @return string
      */
    
     function logError($message, $options = array()){
@@ -51,7 +51,7 @@ trait LogTrait {
      * 
      * @param type $message
      * @param Array $options Options 
-     * @return type
+     * @return string
      */
     function logNotice($message, $options = array()){
       $log = new Debug($message);

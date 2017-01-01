@@ -8,14 +8,12 @@
 
 namespace LK\Files;
 
-use LK\Component;
-
 /**
  * Description of FileGetter
  *
  * @author Maikito
  */
-class FileGetter extends Component {
+class FileGetter {
   
     const PLACEHOLDER = 'sites/default/files/vkucache/img-placeholder-160x160.png';
     
@@ -41,7 +39,10 @@ class FileGetter extends Component {
             
             $file = file_get_contents($url);
             if(!$file){
-                self::logError("Die VKU Datei wurde nicht gefunden: " . $url);
+                $error = new \LK\Log\Debug('Die VKU Datei wurde nicht gefunden: ' . $url);
+                $error ->setCategory('error');
+                $error ->save();
+                
                 return self::PLACEHOLDER;
             }
             

@@ -159,7 +159,6 @@ global $user;
          }
      }
      
-     
      $link = '';
      // Can adjust theese Settings
      if($account -> isTelefonmitarbeiter()){
@@ -263,8 +262,3 @@ global $user;
     drupal_goto('user/'. $author .'/vku/'. $id .'/details');
   }
 
-
-
-
-
-?>

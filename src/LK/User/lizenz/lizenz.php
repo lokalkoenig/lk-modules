@@ -35,6 +35,27 @@ class Lizenz {
        } 
    }
    
+   /**
+    * Gets an Object for the Template
+    * 
+    * @return \stdClass
+    */
+   function getTemplateData(){
+     
+     $data = $this->data;
+     $data -> download_link_direct = $this->getDownloadLink(true);
+     $data -> download_link_external = $this->getDownloadLink();
+     $data -> node = \node_load($this->getNid());
+     $data -> download_max = variable_get('lk_vku_max_download');
+     
+     // gets the Information
+     $test =  $this->canDownload();
+     $data -> can_download = $test["access"];
+     $data -> can_download_info = $test;
+     
+   return $data;  
+   }
+   
    function getId(){
        return $this -> id;
    }

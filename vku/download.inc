@@ -17,6 +17,7 @@ function _vku_only_download($sid){
   $lizenz = $manager ->getLizenzFromSignature($sid);
   
   if(!$lizenz) {
+    $manager ->logError("Fehlerhafter Downloadlink");
     drupal_set_message('Der Downloadlink ist fehlerhaft. Bitte überprüfen Sie den Download-Link und versuchen Sie es erneut.', 'error');
     
     return theme("lizenz_download");
@@ -35,7 +36,7 @@ function _vku_only_download($sid){
   if(!isset($_GET["download"])){
     return theme("lizenz_download", 
             [
-                'lizenz' => $lizenz, 
+                'lizenz' => $lizenz ->getTemplateData(), 
                 'link' => $lizenz->getDownloadLink(true)
             ]
     );

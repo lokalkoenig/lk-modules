@@ -225,7 +225,7 @@ class Kampagne {
       if($view_mode != "grid"):
         
         if($node -> plzaccess == false && $account->isAgentur() === FALSE){
-            $result = AccessInfo::getUserBasedAccess($user -> uid, $node -> nid);
+            $result = AccessInfo::getUserBasedAccess($account ->getUid(), $node -> nid);
             $node -> plzinfo = $result;
 
             if($node -> plzinfo["access"] == false){

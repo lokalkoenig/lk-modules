@@ -38,10 +38,16 @@ class Debug extends LogReader {
            $bg = $this -> log_background[$category];
         }
         
+        $category_show = ucfirst($data -> category);
+        
+        if($data -> sub_category){
+          $data -> message = '<strong>' . ucfirst($data -> sub_category) . '</strong> ' . $data -> message;
+        }
+        
         return $this ->out(
                 $bg, 
                 '<small>' .format_date($data -> request_time) . '</small> | '
                 . \LK\u($data -> uid) . '<br />' . $data -> message  . $this -> getContext(), 
-                '<small class="label label-primary">'. ucfirst($data -> category) .' #'. $data -> id .'</small><br />' . $this ->getNode());
+                '<small class="label label-primary">'. $category_show .' #'. $data -> id .'</small><br />' . $this ->getNode());
   }
 }

@@ -580,11 +580,14 @@ function setPageStatus($pid, $status = true){
 
 
  function getLizenzen(){
-
+      
+     $manager = new \LK\Kampagne\LizenzManager(); 
+   
      $lizenzen = array();		
- 	 $dbq = db_query("SELECT * FROM lk_vku_lizenzen WHERE vku_id='". $this -> getId() ."'");
+     $dbq = db_query("SELECT id FROM lk_vku_lizenzen WHERE vku_id='". $this -> getId() ."'");
      foreach($dbq as $all){
-     	$lizenzen[] = $all; 
+       $lizenz = $manager ->loadLizenz($all -> id);
+       $lizenzen[] = $lizenz -> getTemplateData(); 
      }	
 
      return $lizenzen;

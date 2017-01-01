@@ -78,9 +78,16 @@ global $user;
  
   if($vkustatus == 'purchased' OR $vkustatus == 'purchased_done'){
     $lizenzen = $vku -> getLizenzen();  
+    
     drupal_set_title('Downloads');  
     lk_set_icon('download');
-    return theme('vkudetails_lizenzen', array('admin' => $admin, 'lizenzen' => $lizenzen, 'account' => $account, "vku" => $vku, "form" => ''));
+    return theme('vkudetails_lizenzen', 
+            array('admin' => $admin, 
+                  'lizenzen' => $lizenzen, 
+                  'account' => $account, 
+                  "vku" => $vku, 
+                  "form" => ''
+            ));
   }
   else {
     $form = drupal_get_form('lk_form_purchase_licences', $vku_id, $kampagnen);  
@@ -119,8 +126,8 @@ global $user;
         if($show_plz_info AND $show_plz_info["ausgaben_ids"]){
             // Set User to PLZ-Gebiet
             // Remove from VKU 
-            $vku ->removePLZSperren();
-            $account = \LK\get_user((int)$user -> uid);
+            $vku -> removePLZSperren();
+            $account = \LK\get_user($user -> uid);
             // Set new Ausgaben
             $account -> setAusgaben($show_plz_info["ausgaben_ids"]);
         }
@@ -134,12 +141,14 @@ global $user;
     $values = $form_state["values"];
     while(list($key, $val) = each($values["kampagnen"])){
         if($key == $val){
-          $access = na_check_user_has_access($author, $key);
-        
-          if($access == false OR $access["access"] == false) {
+          
+          
+        $access = \LK\Kampagne\AccessInfo::userHasAccessToKampagne($author, $key);
+        if(!$access) {
              // Reload Page to Show Reasons
              drupal_get_messages(); 
              drupal_goto($vku -> url()); 
+             drupal_exit();
           }
 
           $nodes[] = $key;  
@@ -149,7 +158,8 @@ global $user;
    $manager = new \LK\Kampagne\LizenzManager(); 
     
    foreach($nodes as $node){
-      $manager ->create($node, $vku);
+      $lizenz = $manager ->create($node, $vku);
+      $lizenz ->generateZIP();
    }
    
    drupal_get_messages(); 
