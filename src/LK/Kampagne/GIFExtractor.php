@@ -14,6 +14,10 @@ use GifFrameExtractor\GifFrameExtractor;
  */
 class GIFExtractor {
   
+  use \LK\Log\LogTrait;
+  var $LOG_CATEGORY = 'gif-conversion'; 
+ 
+  var $node = null;
   var $file = null;
   var $dir = 'sites/default/private/gifs';
   
@@ -38,8 +42,8 @@ class GIFExtractor {
      $url = file_create_url($this -> file["uri"]);
      
      if (!GifFrameExtractor::isAnimatedGif($url)) {
-       \LK\Component::logError('['. $file['fid'] .'] File is not a valid Gif ' . $url);
-        return false;
+       $this ->logError('['. $file['fid'] .'] File is not a valid Gif ' . $url);
+       return false;
      }
      
      $dir_name = $this -> dir . "/" . $this -> file["fid"];
@@ -92,7 +96,7 @@ class GIFExtractor {
          $x++;       
      endforeach;
      
-     \LK\Component::logNotice('Generated ' . $x . " frames from " . $url);
+     $this ->logNotice('Generated ' . $x . " frames from " . $url);
   }
   
   /**

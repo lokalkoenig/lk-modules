@@ -105,6 +105,15 @@ trait LogTrait {
      */
     private function _parseLogOptions(\LK\Log\LogInterface $log, $options){
       
+       // set Category from Class Variable 
+       if(isset($this -> LOG_CATEGORY)){
+         $log -> set("sub_category", $this -> LOG_CATEGORY);
+       } 
+       
+       if(isset($options['category'])){
+          $log -> set("sub_category", $options['category']);
+       }
+       
        if(isset($options['nid'])){
           $log -> setNid($options['nid']);
        }

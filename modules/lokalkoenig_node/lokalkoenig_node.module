@@ -112,17 +112,16 @@ function _lk_check_node_kampagne(&$variables, $node){
         $variables['theme_hook_suggestions'][] = 'node__kampagne__' . $node -> vmode; 
       }
       elseif(in_array($variables["view_mode"], array('full', 'proof'))){
-         //$variables['theme_hook_suggestions'] = array();
-         
          $taxos = _lokalkeonig_get_missing_mediums($node);
+         
          if($taxos["incomplete"]){
             drupal_set_message('Sie haben noch nicht alle notwendigen Medien hochgeladen.');
             drupal_goto('node/' . $node -> nid . '/media');
          }
          
-         
          if(lk_is_agentur()){
-            $node -> submitform = drupal_render(drupal_get_form('lk_kampagnen_submit_form', $node)); 
+            $form = drupal_get_form('lk_kampagnen_submit_form', $node);
+            $node -> submitform = drupal_render($form); 
          }
          
          

@@ -41,7 +41,7 @@ function lk_log_cron($message){
  */
 
 function lk_log_kampagne($nid, $message, $context = []){
-    $log = new KampagnenLog($message);
+    $log = new KampagnenLog($nid, $message);
    
     while(list($key, $val) = each($context)){
        $log ->setContext($key, $val); 

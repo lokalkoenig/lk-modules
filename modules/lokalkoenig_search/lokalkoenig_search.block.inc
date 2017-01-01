@@ -37,7 +37,12 @@ function lokalkoenig_search_block_view($delta = NULL){
   if(in_array(arg(0), array('suche','suche-grid','empfehlungen'))){ 
     switch($delta){ 
       case 'lk_search_block':
-      
+        
+        // Do not show for Agentur
+        if(lk_is_agentur()){
+          return array();
+        }
+        
         // Add to Database
         lk_save_current_search();
       

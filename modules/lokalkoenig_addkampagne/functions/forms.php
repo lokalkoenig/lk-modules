@@ -54,12 +54,7 @@ function __function_node_edit_lk(&$form, &$form_state){
             //'#autocomplete_path' => 'lkautoeditbranche',
          );
 
-          drupal_add_js('sites/all/themes/bootstrap_lk/js/select2/select2.js');
-          drupal_add_css('sites/all/themes/bootstrap_lk/js/select2/select2.css');
-          drupal_add_css('sites/all/themes/bootstrap_lk/js/select2/select2-bootstrap.css');
-
-
-
+          
           $form["field_user_denied"]["#access"] = false;
           $form["field_kamp_format"]["#access"] = false;
           

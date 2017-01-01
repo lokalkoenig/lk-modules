@@ -1,17 +1,7 @@
-
 <?php
-
 global $user;
 
-if(lk_is_agentur()) :
-?>
-<div class="alert alert-success"><span class="glyphicon glyphicon-info-sign"></span> Sie sehen den Suchindex mit den veröffentlichten Kampagnen Ihrer Agentur. </div>
-
-
-<?php
-endif;
-
-if(true AND (isset($_GET["f"]) OR (isset($_GET["search_api_views_fulltext"]) AND $_GET["search_api_views_fulltext"]))) :
+if((isset($_GET["f"]) OR (isset($_GET["search_api_views_fulltext"]) AND $_GET["search_api_views_fulltext"]))) :
   $search = array();
   if(isset($_GET["f"])){
      $search['f'] = $_GET["f"]; 

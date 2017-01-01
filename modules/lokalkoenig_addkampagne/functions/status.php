@@ -31,9 +31,9 @@ function lokalkoenig_addkampagne_contact(){
   pathtitle('node/x/contact');
   
   $node = node_load(arg(1)); 
+  $form = drupal_get_form('lokalkoenig_addkampagne_contact_form', $node);
   
-  
-  return render(drupal_get_form('lokalkoenig_addkampagne_contact_form', $node));
+  return render($form);
 }
 
 
@@ -41,7 +41,6 @@ function lokalkoenig_addkampagne_contact_form_submit($form, $form_state){
 global $user;
 
     $nachricht = $form_state["values"]["nachricht"]; 
-    
     $node = $form["#node"];
     
     $nachricht .= "\n\nLink zur Kampagne: ". url("node/" . $node -> nid, array("absolute" => true));

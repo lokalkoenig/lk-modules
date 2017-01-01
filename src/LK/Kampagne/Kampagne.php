@@ -43,7 +43,7 @@ class Kampagne {
     private function initMedias(){
         
         $this -> node -> loadedmedias = true;
-        $this -> node -> lkstatus = $this -> node -> field_kamp_status["und"][0]["value"];   
+        $this -> node -> lkstatus = @$this -> node -> field_kamp_status["und"][0]["value"];   
         $this -> node -> plzaccess = AccessInfo::loadAccess($this -> node -> nid); 
         $this -> node -> sid = @$this -> node -> field_sid["und"][0]["value"];   
         
@@ -274,7 +274,7 @@ class Kampagne {
             $node -> basic_links["alerts"]["attributes"] = array('class' => array("new-style-icon alert-icon"));
         }
         
-        if($node -> online){
+        if($node -> online && !$account ->isAgentur()){
            $node -> basic_links["recomend"] = array();
            $node -> basic_links["recomend"]["title"] = '<span class="glyphicon glyphicon-envelope" data-toggle="tooltip" title="Versenden Sie diese Kampagne"></span>';
            $node -> basic_links['recomend']["href"] = "node/" . $node -> nid;
