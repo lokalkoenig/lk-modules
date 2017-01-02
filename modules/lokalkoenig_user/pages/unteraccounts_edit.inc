@@ -60,6 +60,7 @@
  
  function lk_user_edit_ma_submit($form, &$form_state){
     $account = $form["#account"];
+    $account_obj = \LK\get_user($account);
     $verlag = \LK\get_verlag_id($account);
     
     $edit = array();
@@ -97,9 +98,11 @@
     
     // From Members-Page
     if(isset($_GET["members"])){
-       if($team = getTeamFromUser($account)){
-          drupal_goto("team/" . $team . "/members");
-       } 
+      $team = $account_obj ->getTeamObject();
+      
+      if($team){
+        drupal_goto($team ->getUrl());
+      }
     }
     
     // Redirect to Verlags-Page

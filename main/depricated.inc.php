@@ -1,59 +1,4 @@
 <?php
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-
-/** 
- *   DEPRICATED
- *   Erstellt eine Regel für die PLZ des Users   
- *
- **/
-function na_create_node_rule($nid, $uid, $until_date){
-  
-  $account = \LK\get_user($uid);
-  $ausgaben = $account -> getCurrentAusgaben();
-  
-  $manager = new \LK\Kampagne\SperrenManager();
-  $result = $manager ->createSperre($nid, $uid, $ausgaben, $until_date);  
-  
-  if($result){
-      return $result ->getId();
-  }  
-  
-  return false;    
-}
-
-
-/** Erstellt einen DL-Link zu einer Lizenz */
-function _lk_generate_download_link($lizenz_id){
-   
-  $manager = new \LK\Kampagne\LizenzManager();
-  $lizenz = $manager ->loadLizenz($lizenz_id);
-  
-  if(!$lizenz){
-    return false;
-  }
-  
-  return $lizenz ->getDownloadLink();
-}
-
-function _vku_download_file_check_valid($vku, $lizenz){
-    
-  $manager = new \LK\Kampagne\LizenzManager();
-  $lizenz_obj = $manager ->loadLizenz($lizenz -> id);
-  
-  if(!$lizenz_obj){
-    return array('access' => false, 'reason' => "Keine Lizenz gefunden.");
-  }
-  
-  return $lizenz_obj->canDownload();
-}
-
-
 /**
  * 
  * @deprecated since version number
@@ -300,50 +245,7 @@ global $user;
 }
 
 
-
-function _lk_get_user_pos_format($accuid){
-  return _lk_get_user_pos_format_html($accuid);
-}
-
-function _lk_get_user_pos_format_html($accuid){  
-    
-    
-}
-
-
-function _lk_get_user_pos($accuid){
-   return array();
-}
-
-
-/******************************************* /
-
-
-/** Deprecated */
-function lk_ausgabe_from_user($account){
-
-  $account = _lk_user($account);
-
-  if(isset($account -> profile['mitarbeiter']->field_ausgabe['und'][0]['target_id'])){
-      return $account -> profile['mitarbeiter']->field_ausgabe['und'][0]['target_id']; 
-  }
-
-return false;
-}
-
-
-function getTeamFromUser($account){
-  // User kann nur ein Team haben
-  $account = _lk_user($account);
-  
-  if(isset($account->profile['mitarbeiter']->field_team['und'][0]['target_id'])){
-    return $account->profile['mitarbeiter']->field_team['und'][0]['target_id'];
-  }
-  else {
-    return 0;
-  }
-}
-
+/*******************************************/
 
 
 function getLizenz($lizenz_id){
@@ -351,58 +253,9 @@ function getLizenz($lizenz_id){
   return $lizenz = $dbq -> fetchObject();
 }
 
-
-
-// DONEEEEE
-
-function lk_get_user_from_team($team_id){
-   
-   $dbq = db_query("SELECT p.uid FROM 
-                      profile p, 
-                      field_data_field_team t,
-                      users u 
-    WHERE 
-   p.type='mitarbeiter' AND
-   p.pid=t.entity_id AND p.uid IS NOT NULL AND
-   t.field_team_target_id='". $team_id ."' AND u.uid=p.uid AND u.status='1' 
-   ORDER BY u.name ASC");
-    foreach($dbq as $all){
-      $return[] = $all -> uid;
-    }
-  
-return $return;
-}
-
 function lk_get_verlag_from_team($team){
    $team = lk_get_team($team);
    return $team->field_verlag['und'][0]['uid'];  
-}
-
-
-function getVerkaufsleiterFromTeam($team_id){
-    
-    $vkl = array();
-    $team = \LK\get_team($team_id);
-    
-    if($team){
-        $vkl[] = $team ->getLeiter();
-    }
-   
-return $vkl;   
-}
-
-function format_team_linked($team){
-    
-   if(!$team){
-       return ;
-   } 
-    
-   $entity = entity_load('team', array($team));
-   $team_entity =  $entity[$team];
-   
-   if($team_entity){
-      return '<span>' . l($team_entity -> title, "team/" . $team_entity -> id) . '</span>';
-   }
 }
 
 
@@ -422,26 +275,6 @@ function format_team($team){
    if($team_entity){
       return '<span>' . $team_entity -> title . '</span>';
    }
-}
-
-
-function gettheVerkaufsleiterFromTeam($team){
-    $user = getVerkaufsleiterFromTeam($team);
-    
-    if($user){
-      return $user[0];
-    }
-}
-
-
-function team_is_telephone_team($team_id){
-   $entity = entity_load('team', array($team_id));
-   $team_entity =  $entity[$team_id];
-
-   if($team_entity->field_telefonteam['und'][0]['value']){
-      return true;
-   }
-   else return false;
 }
 
 function getVerlagFromTeam($team){
@@ -562,22 +395,5 @@ function get_verlag_from_ausgabe($ausgabe){
 
 function _format_user($user_id){
     return \LK\u($user_id);
-}
-
-
-function lizenz_log_augaben($lizenz_id){
-  $dbq = db_query("SELECT lizenz_uid FROM lk_vku_lizenzen WHERE id='". $lizenz_id ."'");
-  $lizenz = $dbq -> fetchObject();
-  
-  $account = \LK\get_user($lizenz -> lizenz_uid);
-  if(!$account){
-      return ;
-  }
-  
-  $ausgaben = $account ->getCurrentAusgaben();
-  
-  foreach($ausgaben as $ausgabe){
-    db_query("INSERT INTO lk_vku_lizenzen_ausgabe SET lizenz_id='". $lizenz_id ."', ausgabe_id='". $ausgabe ."'"); 
-  }
 }
 

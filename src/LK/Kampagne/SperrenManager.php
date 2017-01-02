@@ -132,8 +132,8 @@ class SperrenManager {
     /**
      * Creates a Sperre
      * 
-     * @param type $nid
-     * @param type $uid
+     * @param Int $nid
+     * @param Int $uid
      * @param type $ausgaben
      * @param type $duration
      * @return \LK\Kampagne\Sperre|boolean

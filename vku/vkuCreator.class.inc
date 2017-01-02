@@ -9,7 +9,7 @@ if(!defined('LK_TEST_VERLAG_UID')){
 
 class VKUCreator {
     
-   use \LK\Log\LogTrait; 
+  use \LK\Log\LogTrait; 
     
   /**
    * VKUData Class
@@ -741,12 +741,12 @@ function setPageStatus($pid, $status = true){
    * @return type
    */
   function cloneVku(){
-  global $user;
-    
-      $verlag_uid = (int)lk_get_verlag_from_user($user);
+      
+      $current = \LK\current();
+      $verlag_uid = $current ->getVerlag();
       
       $array = array();
-      $array["uid"] = $user -> uid;
+      $array["uid"] = $current ->getUid();
       $array["vku_created"] = time();
       $array["vku_status"] = 'active';
       $array["verlag_uid"] = $verlag_uid; 
@@ -758,6 +758,7 @@ function setPageStatus($pid, $status = true){
       $vku_id = db_insert('lk_vku')->fields($array)->execute();
       $new_data = new VkuData($vku_id);
       $new_data -> takeOver($this -> data);
+      
       return $vku_id; 
   }
   
@@ -805,7 +806,10 @@ function setPageStatus($pid, $status = true){
         $nodes = $this -> getKampagnen();
         foreach($nodes as $nid){
              $node = node_load($nid);
-             $plz_id = na_create_node_rule($node -> nid, $account -> uid, $dateplz);
+             
+             $manager = new \LK\Kampagne\SperrenManager();
+             $sperre = $manager ->createSperre($node -> nid, $account -> uid, $ausgaben, $dateplz);
+             $plz_id = $sperre ->getId();
              
              $array = array(
                  'vku_id' => $this -> getId(),

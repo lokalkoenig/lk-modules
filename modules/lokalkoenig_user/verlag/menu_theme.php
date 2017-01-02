@@ -121,7 +121,7 @@ function lokalkoenig_user_verlag_menu(){
    
   
     $items['user/%user/setplz'] = array(
-      'access callback' => 'lokalkoenig_user_is_telefonmitarbeiter',
+      'access callback' => 'lk_is_telefonmitarbeiter',
       'access arguments' => array(1),
       'file' => 'pages/telefonmitarbeiter.inc',
       'page callback' => 'drupal_get_form',

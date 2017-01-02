@@ -21,7 +21,6 @@ function __function_node_edit_lk(&$form, &$form_state){
          $form["field_kamp_preisnivau"]["#access"] = false; 
          $form["field_kamp_format"]["#access"] = false;
           
-         $form["field_user_denied"]["#access"] = false;
          unset($form["#groups"]["group_kamp_preis_tab"]);
           pathtitle('node/kampagne/edit', '<span class="label label-success">'. $tax -> name .'</span>');
            $form_state['redirect'] = 'node/' . $form["#node"] -> nid . "/media";  
@@ -55,9 +54,7 @@ function __function_node_edit_lk(&$form, &$form_state){
          );
 
           
-          $form["field_user_denied"]["#access"] = false;
           $form["field_kamp_format"]["#access"] = false;
-          
           $form['actions']['submit']['#submit'][] = '_lokalkoenig_add_kampagnen_form_react';
           $form['actions']['submit']["#value"] = 'Speichern und weiter zum Medienupload';
           

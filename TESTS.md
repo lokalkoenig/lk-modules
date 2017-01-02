@@ -116,6 +116,13 @@ VKU-Old:
 - Sperre aktivieren
 - Gesperrte Kampagne, Sichtbarkeit
 - Test: Gesperrte Kampagnen
+
+--------------------------
+
+VKU-New: (baut auf dem alten auf)
+- Test funktional
+- PPTX Generierung
+
 --------------------------
 
 Test: Direkt-Lizenz erstellen:
@@ -140,5 +147,9 @@ Test: Neuigkeiten erstellen
 
 --------------------------
 
-
 Test: Kurzzeitsperre von Kampagnen:
+
+
+Moderations-Funktionen:
+- Kampagnen editieren
+- Adminbereich
