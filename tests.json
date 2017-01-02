@@ -3,7 +3,7 @@
     "cases": [{
        "LK\\Tests\\TestSolr": "Solr Search Test",
        "LK\\Tests\\TestVKU": "VKU Test (Generieren von Test-VKU)",
-       "LK\\Tests\\AlertTest": "Alert Test",
+       "LK\\Alert\\Test\\AlertTest": "Alert Test",
        "LK\\Tests\\PPTTest": "VKU Test PPT",
        "LK\\Kampagne\\Tests\\GIFExtractorTest": "GIF Extractor Test"
     }]  

@@ -158,6 +158,9 @@ Test: Kurzzeitsperre von Kampagnen:
 - Hinweis wird in der VKU erstellen angezeigt
 - Hinweis wird bei anderen Benutzern angezeigt, z.T. kann die Kampagne nicht in die VKU hinzugefuegt werden.
 
+--------------------------
+
 Moderations-Funktionen:
 - Kampagnen editieren
 - Adminbereich
+- ntbc.

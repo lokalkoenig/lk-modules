@@ -17,11 +17,9 @@ function lokalkoenig_Autoload($className) {
       return ;
     endif;
     
-    if(in_array($explode[1], array('Kampagne', 'Alert', 'Solr', 'Tests', 'UI', 'PDF', 'PPT', 'Files', 'Admin', 'Log','Component'))){
+    if(in_array($explode[1], array('Kampagne', 'Alert', 'Solr', 'Stats','Tests', 'UI', 'PDF', 'PPT', 'Files', 'Admin', 'Log','Component'))){
         require __DIR__ . '/' .$className . '.php';
     }  
 }
-
-
 
 spl_autoload_register("lokalkoenig_Autoload");

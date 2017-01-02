@@ -6,45 +6,41 @@
  * and open the template in the editor.
  */
 
-namespace LK\Alert;
+namespace LK\Alert\Cron;
 
+use LK\Alert\Alert;
 use LK\Alert\AlertManager;
 use LK\Solr\Search;
-
-
 
 /**
  * Description of AltertCron
  *
  * @author Maikito
  */
-class AltertCron extends AlertManager {
+class AlertCron extends AlertManager {
     //put your code here
     
-    static function run(){
+    public function run(){
         
         $query = new \EntityFieldQuery();
         $query->entityCondition('entity_type', 'alert')->propertyOrderBy('changed', 'ASC')->range(0, 100);
         $result = $query->execute();
         
+        $x = 0;
         foreach($result["alert"] as $alert):
             $alert = $this ->loadAlert($alert -> id);
             
             if($alert):
-                self::testAlert($alert);
+                $this->testAlert($alert);
             endif;
-     
+        
+        $x++;    
         endforeach;
         
-        
-        self::logCron("Parse " . count($result["alert"]) . " Alerts");
+        $this->logCron("Parse " . $x . " Alerts");
     }
     
-     function getContext(){
-        return __NAMESPACE__ . '/' . __CLASS__;
-    }
-    
-    static protected function testAlert(Alert $alert){
+    protected function testAlert(Alert $alert){
         
       $query = $alert ->getQuery();
       $timestamp = $alert ->getTimestamp();
@@ -56,7 +52,7 @@ class AltertCron extends AlertManager {
       $nodes = $search -> getNodes();
       
       if($nodes):
-          self::sendNotification($alert, $nodes);
+          $this->sendNotification($alert, $nodes);
             
           // Create another Query to measure the new Counts
           $search2 = new \LK\Solr\Search();
@@ -64,12 +60,11 @@ class AltertCron extends AlertManager {
           $count = $search2 ->getCount();
           $alert ->updateCount($count);
           
-          self::logCron("Sende Notifikation ueber neue Kampagnen an " . $alert);
-   
+          $this ->logCron("Sende Notifikation ueber neue Kampagnen an " . $alert);
         endif;
     }
     
-    static protected function sendNotification(Alert $alert, $nodes){
+    protected function sendNotification(Alert $alert, $nodes){
         $uid = $alert ->getAuthor();
         $account = user_load($uid);
         
@@ -90,4 +85,12 @@ class AltertCron extends AlertManager {
         
         privatemsg_new_thread(array($account), $subject, implode("\n\n", $message), array("nodes" => $nodes, 'author' => user_load(11)));  
     }    
+    
+    /**
+     * Access to run the cron
+     */
+    public static function executeCron(){
+      $manager = new AlertCron();
+      $manager ->run();
+    }   
 }

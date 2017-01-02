@@ -1,7 +1,6 @@
 <?php
   // VKU
 
-include("inc/cronjobs.inc");
 include("inc/views_data.inc");
 include("inc/menu_theme.inc");
 include("inc/functions.php");

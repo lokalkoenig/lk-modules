@@ -1,21 +1,5 @@
 <?php
 
-
-function lokalkoenig_user_stats_cronapi(){
-    
-  $items = array();
-  $items['vku_user_stats_generate'] = array(
-    'description' => '1. User-Statistiken ',
-    'file' => 'user.jobs.inc', 
-    'file path' => drupal_get_path('module', 'lokalkoenig_user_stats') . '/cron',
-    'callback' => '_vku_user_stats_generate',
-    'arguments' => array('all'),
-  );
-  
-return $items;    
-}
-
-
 function lokalkoenig_user_stats_menu(){
   $items = array();
   $items['user/%user/stats'] = array(

@@ -1,10 +1,10 @@
 <?php
 
-namespace LK\Tests;
+namespace LK\Alert\Test;
 
 use LK\Alert\AlertManager;
 use LK\Tests\TestCase;
-use LK\Alert\AltertCron;
+use LK\Alert\Cron\AlertCron;
 use LK\Solr\Search;
 
 class AlertTest extends TestCase {
@@ -14,7 +14,8 @@ class AlertTest extends TestCase {
         $query = array("search_api_views_fulltext" => "Sommer");
         
         // create a Outdated 
-        $alert = AlertManager::create($query);
+        $manager = new AlertManager();
+        $alert = $manager -> create($query);
         $this -> printLine('Create new Alert', $alert);
         $newtime = time() - 60*60*24*356;
         $alert -> updateTimestamp($newtime);
@@ -30,7 +31,10 @@ class AlertTest extends TestCase {
         $this -> printLine('______', 'Run the cron');
         
         try {
-            AltertCron::run();
+            
+            $alertcron = new AlertCron();
+            $alertcron -> run();
+            
         } catch (Exception $ex) {
             $this -> printLine('Cronrun', "Failed");
         }

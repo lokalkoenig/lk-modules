@@ -94,23 +94,6 @@ function lokalkoenig_messages_entity_view($entity, $type, $view_mode) {
    
 }
 
-
-/************** */
-
-function lokalkoenig_messages_cronapi($op, $job = NULL) {
-  
-  $items['parse_active_alerts'] = array(
-    'description' => 'Send Alerts',
-    'rule' => '*/5 * * * *', // Every 5 minutes
-    // i must call: example_news_fetch('all')
-    'callback' => 'cron/parse_active_alerts',
-    'file' => 'parsealerts.inc'
-  );
-
-  return $items;
-}
-
-
 /** 
  * HOOK  
  */
