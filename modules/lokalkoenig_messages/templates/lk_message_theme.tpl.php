@@ -124,7 +124,7 @@
                       if(isset($entities[$id]->field_suchwort['und'][0]['value']) AND $entities[$id]->field_suchwort['und'][0]['value']){
                            $sort = 'search_api_relevance';
           
-                            switch($elements['#entity']->field_sortierung['und'][0]['value']){
+                            switch($entities[$id]->field_sortierung['und'][0]['value']){
                               case 'neueste':
                                 $sort = 'created';
                                 break;

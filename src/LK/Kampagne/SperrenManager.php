@@ -134,7 +134,7 @@ class SperrenManager {
      * 
      * @param Int $nid
      * @param Int $uid
-     * @param type $ausgaben
+     * @param array $ausgaben
      * @param type $duration
      * @return \LK\Kampagne\Sperre|boolean
      */

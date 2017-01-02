@@ -15,3 +15,5 @@ MAKE CONVERT JOBS
 REMOVE TABLE na_node_access_log
 REMOVE TABLE lk_vku_log
 REMOVE TABLE lk_common_log
+
+  DELETE FROM `lk_vku_data` WHERE `data_module` = 'vkuaddon'

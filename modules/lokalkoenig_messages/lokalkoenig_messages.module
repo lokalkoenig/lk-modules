@@ -261,14 +261,9 @@ function lk_theme_search_result_view($search){
     $kampagnen = [];
     $solr ->setLimit(4);
     $nodes = $solr ->getNodes();
-    foreach ($nodes as $nid){
-        $node = node_load($nid);
-        $view = node_view($node, "grid");
-        $kampagnen[] = render($view);
-    }
     
     $array = [
-        'nodes' => $kampagnen, 
+        'nodes' => $nodes, 
         'total' => $count, 
         'show' => count($nodes), 
         'title' => $title, 

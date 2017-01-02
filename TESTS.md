@@ -145,11 +145,18 @@ Test: Testverlag
 --------------------------
 
 Test: Neuigkeiten erstellen
+- Als verschiedene Rollen
+
+Todo: IDEE
+- Vielleicht Bereich abspecken, da er nicht genutzt wird.
+- Villeicht Bereich komplett ueberarbeiten, vielleicht Blog-Aehnlich
+- Sperren auf bestimmte Nutzer oder Gruppen vielleicht weg nehmen
 
 --------------------------
 
 Test: Kurzzeitsperre von Kampagnen:
-
+- Hinweis wird in der VKU erstellen angezeigt
+- Hinweis wird bei anderen Benutzern angezeigt, z.T. kann die Kampagne nicht in die VKU hinzugefuegt werden.
 
 Moderations-Funktionen:
 - Kampagnen editieren

@@ -52,8 +52,6 @@ global $user;
 function _vku_show($id){
 global $user;
     
-    
-
     $vku = new VKUCreator($id);
     if(!$vku -> is()){  	
     	drupal_goto("user");

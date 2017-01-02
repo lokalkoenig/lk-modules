@@ -88,7 +88,7 @@ global $user;
       return ;
   }
  
-  include_once("sites/all/modules/privatemsg/privatemsg.pages.inc");
+  include_once(drupal_get_path('module', 'privatemsg') . "/privatemsg.pages.inc");
   drupal_add_library('system', 'effects.shake');
   
   $support = user_load(LK_SYSTEM_USER_UID);
@@ -409,12 +409,12 @@ function lokalkoenig_user_dashboard_form_alter(&$form, &$form_state, $form_id){
   }
   
   if($form_id == 'eck__entity__form_add_neuigkeit_neuigkeit'){
-    require_once('sites/all/modules/lokalkoenig/functions/lokalkoenig_user/pages/neuigkeit.inc');
+    require_once(drupal_get_path('module', 'lokalkoenig_user') . '/pages/neuigkeit.inc');
     neuigkeit_form_alter($form, $form_state);
   }
   
   if($form_id == 'eck__entity__form_edit_neuigkeit_neuigkeit'){
-    require_once('sites/all/modules/lokalkoenig/functions/lokalkoenig_user/pages/neuigkeit.inc');
+    require_once(drupal_get_path('module', 'lokalkoenig_user') .'/pages/neuigkeit.inc');
     neuigkeit_form_alter($form, $form_state);
   }
 }

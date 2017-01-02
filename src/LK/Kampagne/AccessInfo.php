@@ -7,6 +7,7 @@
  */
 
 namespace LK\Kampagne;
+use VKUCreator;
 
 /**
  * Description of KampagnenAccess
