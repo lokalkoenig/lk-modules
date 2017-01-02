@@ -28,7 +28,7 @@ global $user;
 
 
 function lokalkoenig_user_dashboard_entity_view($entity, $type, $view_mode, $langcode) {
-  
+ 
  if($type == 'neuigkeit'){
      if(lk_is_moderator() AND $entity->field_message_status['und'][0]['value'] != 'draft'):
          require_once(__DIR__ . '/pages/neuigkeit.inc');

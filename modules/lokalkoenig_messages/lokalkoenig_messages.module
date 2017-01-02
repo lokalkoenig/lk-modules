@@ -3,78 +3,62 @@
 use LK\Solr\SearchQueryParser;
 use LK\Solr\Search;
 
+function lokalkoenig_user_privatemsg_message_view_alter(&$vars){
+global $user;
 
-function _lk_get_search_options_array(){
-   return false;    
-}
-
-function lk_theme_search_result_view($search){
-   $view = views_get_view('suchev2');
-  $view->set_display('page_2');
-  while(list($key, $val) = each($search)){
-    $view -> exposed_input[$key] = $val;
+  $message = $vars['message'];
+  
+  // Kampagnen
+  if(
+    isset($vars['message']->field_msg_kampagnen['und']) 
+    && $vars['message']->field_msg_kampagnen['und']
+  ){
+    $nodes = array();
+    foreach($message->field_msg_kampagnen["und"] as $nodeobj){
+      if($nodeobj["access"]){
+        $node = node_load($nodeobj["nid"]);
+        $view = node_view($node, 'teaser');
+        $nodes[] = render($view);
+      }
+    }
+    
+    if($nodes):
+      $vars['kampagnen'] = [
+        '#markup' => implode('', $nodes),
+        '#weight' => 10,
+      ];
+    endif;
   }
   
-  $link = url("suche", array('absolute' => true, "query" => $search));
-  $view->set_items_per_page(4);
-  $view->execute();              //
-  $response = $view->result;
-
-  $nodes = array();
-  foreach($response as $res){
-     $nodes[] = $res -> entity->nid; 
-  }
-   
-return array('total' => $view->total_rows, 'show' => count($nodes), 'link' => $link, "nodes" => $nodes);
-}
-
-
-function lk_theme_search_result_block($search){
-
-// search_api_views_fulltext=Hund
-  $view = views_get_view('suchev2');
-  $view->set_display('page_2');
-  while(list($key, $val) = each($search)){
-    $view -> exposed_input[$key] = $val;
+  // Suche
+  if(isset($message->field_search_query['und'][0]['value'])){
+      $search = unserialize($message->field_search_query['und'][0]['value']);
+      
+      if($search){
+        $vars['search'] = [
+          '#markup' => lokalkoenig_search_preview_theme($search),
+          '#weight' => 10,
+        ];
+      }
   }
   
-  $pager = $view->display_handler->get_option('pager');
-  $pager['type'] = 'some';
-  $pager['options']['items_per_page'] = 4;
-  $view->set_items_per_page(4);
-
-  $view->display_handler->set_option('pager', $pager);
-  
-  //$view->pre_execute();
-  //$output = $view->display_handler->preview();
-  //$view->post_execute();
-  $view->execute();              //
-  $response = $view->result;
-  //dpm($view);
-   $view->execute();
-   
-   $link = url("suche", array("query" => $search));
-   
-   
-  
-    $view -> footer = array();
-   
-   return '<div class="suche-in-msg well well-white clearfix">
-   <h3 style="margin-top: 0;">Suchergebnisse <small><a href="'. $link .'">Suchergebnisse öffnen <span class="glyphicon glyphicon-chevron-right"></span></a></small></h3>
-   '.  theme('lk_search_parse', array('search' => $search)) .'<hr />
-   
-   
-   ' . $view->render() . '
-   </div>';
-   
-   //$objects = $view->result;
-  
-
+  // news
+  if(isset($message->field_neuigkeit['und'][0]['target_id'])){
+      $entities = entity_load('neuigkeit', array($message->field_neuigkeit['und'][0]['target_id']));
+      $view = entity_view('neuigkeit', $entities, 'teaser');
+      
+      $vars['news'] = [
+          '#markup' => render($view),
+          '#weight' => 10,
+      ];
+      
+      // track it
+      track_read_neuigkeit($user -> uid, $message->field_neuigkeit['und'][0]['target_id']);
+  }
 }
 
 
 function lokalkoenig_messages_entity_view($entity, $type, $view_mode) {
-   
     
    if(
         $type == "neuigkeit" && 
@@ -155,6 +139,12 @@ function lokalkoenig_messages_menu_alter(&$items) {
 }
 
 
+/**
+ * Alters the mail
+ * 
+ * @param type $message
+ * @return array Message
+ */
 function lokalkoenig_messages_mail_alter(&$message){
     
     if($message["id"] != 'pm_email_notify_notice') {
@@ -169,7 +159,9 @@ function lokalkoenig_messages_mail_alter(&$message){
     $message['headers']['Return-Path'] = $from;
     
     $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
-    $message['body'] = array( theme('lk_message_theme', array("message" => $message['params']['message']))); 
+    $message['body'] = array(theme('lk_message_theme', 
+            array("message" => $message['params']['message']))
+    ); 
 }
 
 function lokalkoenig_messages_theme(){
@@ -243,6 +235,49 @@ function _lokalkoenig_messages_check_users(&$form, &$form_state){
         }
      }  
 }
+
+
+
+/**
+ * Gets back an array for the lk_message_theme
+ * 
+ * @deprecated
+ * @param array $search 
+ * @return boolean|array
+ */
+function lk_theme_search_result_view($search){
+
+  $solr = new \LK\Solr\Search();
+    $solr ->addFromQuery($search);
+    $count = $solr ->getCount();
+    
+    if($count == 0){
+        return false;
+    }
+
+    $title = \LK\Solr\SearchQueryParser::toMarkup($search);
+    $link = \LK\Solr\SearchQueryParser::buildLink($search);
+    
+    $kampagnen = [];
+    $solr ->setLimit(4);
+    $nodes = $solr ->getNodes();
+    foreach ($nodes as $nid){
+        $node = node_load($nid);
+        $view = node_view($node, "grid");
+        $kampagnen[] = render($view);
+    }
+    
+    $array = [
+        'nodes' => $kampagnen, 
+        'total' => $count, 
+        'show' => count($nodes), 
+        'title' => $title, 
+        'link' => $link
+    ];
+    
+return $array;
+}
+
 
 
 
@@ -356,5 +391,3 @@ function lokalkoenig_messages_form_alter(&$form, &$form_state, $form_id){
       }
    }
 }
-
-?>

@@ -35,6 +35,7 @@ Test: Agentur
 
 Todos:
 - Workflow ueberarbeiten, huebscher machen
+- Kann keine Messages schreiben, Form wird aber angezeigt. Sollte zumindest an den Support schreiben koennen
 
 
 --------------------------

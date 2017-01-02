@@ -397,3 +397,7 @@ function _format_user($user_id){
     return \LK\u($user_id);
 }
 
+
+function _lk_get_search_options_array(){
+   return false;    
+}
