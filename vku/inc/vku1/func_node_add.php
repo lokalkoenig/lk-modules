@@ -1,5 +1,38 @@
 <?php
 
+/** Get the IDs of the last active VKUs */
+function vku_get_active_ids($account){
+global $user;
+
+  if(!$account){
+    $account = $user;
+  }
+
+  $vkus = array();
+  $dbq = db_query("SELECT vku_id FROM lk_vku WHERE uid='". $account -> uid ."' AND vku_status='active' ORDER BY vku_changed DESC, vku_id DESC");
+  foreach($dbq as $all){
+    $vkus[] = $all -> vku_id;
+  }
+
+return $vkus; 
+}
+
+
+/** Get the Number of Kampangen in the Active VKU */
+function vku_get_active_id_count(){
+     $id = vku_get_active_id();
+     
+     if(!$id) return 0;
+
+      $vku = new VKUCreator($id);
+      if(!$vku -> is()){
+          return 0;
+      }
+
+      $data = $vku -> getKampagnen();
+      return count($data);
+  }
+
  function _vku_add_node($node, $vku_id = NULL){
  global $user;
 

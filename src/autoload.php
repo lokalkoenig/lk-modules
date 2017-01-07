@@ -17,8 +17,10 @@ function lokalkoenig_Autoload($className) {
       return ;
     endif;
     
-    if(in_array($explode[1], array('Kampagne', 'Alert', 'Solr', 'Stats','Tests', 'UI', 'PDF', 'PPT', 'Files', 'Admin', 'Log','Component'))){
-        require __DIR__ . '/' .$className . '.php';
+    if(in_array($explode[1], array('Kampagne', 'Alert', 'Solr', 'Stats','Tests', 'UI', 'PDF', 'PPT', 'Files', 'Admin', 'Log', 'VKU'))){
+      $include_file = str_replace('\\', '/', $className);
+      
+      require __DIR__ . '/' . $include_file . '.php';
     }  
 }
 

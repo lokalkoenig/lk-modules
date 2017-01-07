@@ -15,10 +15,6 @@ $pdf -> SetTopMargin(30);
 $node -> title = swca($node -> title);
 
 $totalpages = 0;
-_vku_load_order_node($node);
-
-
-
 
 if(!isset($_GET["full"])){
     _vku_load_vku_settings_node($node, $page);

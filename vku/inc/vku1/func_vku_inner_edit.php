@@ -1,6 +1,6 @@
 <?php
 
-require_once 'func_vku_edit_node.php';
+require_once __DIR__ .'/func_vku_edit_node.php';
 
 /**
  * Deletes an Line-Item from the VKU

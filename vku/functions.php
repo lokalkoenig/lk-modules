@@ -1,292 +1,175 @@
 <?php
 
-/** Gets number of active VKUS */
-function vku_get_active_count($account = null){
-global $user;
+function vku_is_update_user_ppt(){
+    return vku_is_update_user();
+}    
 
-  if(!$account){
-    $account = $user;
-  }
-
-  $dbq = db_query("SELECT count(*) as count FROM lk_vku WHERE uid='". $account -> uid ."' AND vku_status='active'");
-  $count = $dbq -> fetchObject();
- 
-
-return $count -> count;
-}
-
-/** Get the Number of Kampangen in the Active VKU */
-function vku_get_active_id_count(){
-     $id = vku_get_active_id();
-     
-     if(!$id) return 0;
-
-      $vku = new VKUCreator($id);
-      if(!$vku -> is()){
-          return 0;
-      }
-
-      $data = $vku -> getKampagnen();
-      return count($data);
-  }
-
-  /** Get the VKU-ID of the Last active VKU */
- function vku_get_active_id(){
-  global $user; 
-  
-    $dbq = db_query("SELECT vku_id FROM lk_vku WHERE uid='". $user -> uid ."' AND vku_status='active' ORDER BY vku_changed DESC LIMIT 1");
-    $record = $dbq->fetchObject();
+function vku_is_update_user(){
     
-    if($record){
-      return $record -> vku_id;
+    if(lk_is_moderator()){
+           return true;    
     }
     
-    return false;
-  }
-
-
-/** Get the IDs of the last active VKUs */
-function vku_get_active_ids($account){
-global $user;
-
-  if(!$account){
-    $account = $user;
-  }
-
-  $vkus = array();
-  $dbq = db_query("SELECT vku_id FROM lk_vku WHERE uid='". $account -> uid ."' AND vku_status='active' ORDER BY vku_changed DESC, vku_id DESC");
-  foreach($dbq as $all){
-    $vkus[] = $all -> vku_id;
-  }
-
-return $vkus; 
-}
-
-
-
-
-
-function vku_create_item_desc($vku, $item){
-
-	$vku_id = $item["vku_id"];
-	$id = $item["id"];
-
-	$item['pages'] = 1;
-	$item['icon'] = 'tasks';
-	
-        
-        
-	$item['edit'] = false;
-        $item['candeactivate'] = false;
-	
-        if(!$item['data_active']){
-            $item['candeactivate'] = true;
-	}
-      
-        $item['candeactivate_url'] = 'vku/' . $vku_id . "/" . $id . '/status';
-	$item['preview'] = "vku/" . $vku_id . "/preview/" . $id;
-        $item['candelete'] = false;
-        $item['candelete_url'] = 'vku/' . $vku_id .'/delete/' . $item['id'];
-        $item["candelete_desc"] = 'Möchten Sie das Dokument aus der Verkaufsunterlage löschen?';
-
-	// need to be overwritten
-	$item['title'] = $item['desc'] = $item['short'] =  ucfirst($item['data_module']);
-
-	// Edit
-	$item['edit_title'] = 'Editieren';
-	$item['edit_glyph'] = 'edit';
-	$item['edit_class'] = 'primary';
-
-	// make them Dynamic
-	$func = 'vku_create_item_desc_' . $item['data_module'];
-	
-	if(function_exists($func)){
-		$func($item, $vku);	
-	}
-			
-return $item;
-}
-
-function vku_create_item_desc_node(&$item, $vku){
-
-$nid = $item["data_entity_id"];
-$node = node_load($nid);
-$id = $vku -> getId();
-$item['title'] = $item['desc'] = $item['short'] = 'Kampagne: ' . $node -> title;
-$item['short'] = 'Kampagne';
-$item["desc"] = '<span class="label label-primary">'. $node->field_sid['und'][0]['value'] .'</span> ' .$node->field_kamp_untertitel['und'][0]['value'];
-$item['pages'] = (int)$node -> field_kamp_pdf_pages['und'][0]['value'];
-
-
-
-
-$item["desc"] .= ' -  ' . l("Kampagne ansehen", "node/" . $nid, array("attributes" => array("target" => "_blank")));
-
-if($item["data_serialized"]){
+    $account = \LK\current();
+    if($account AND 
+          $account ->getVerlag() == LK_TEST_VERLAG_UID){
+            return true;
+    }   
     
-   $data = unserialize($item["data_serialized"]);
-   if(isset($data["pages"])){
-       $item["pages"] = $data["pages"];
-   }
-    
-   $item["desc"] .= '<br /><em class="pull-right">Individuelle Einstellungen</em>'; 
-}
+return false;    
+} 
 
- $bild = $node->field_kamp_teaserbild['und'][0]['uri'];
- $img = image_style_url('kampagne_klein', $bild);
-
- $item["title"] .= '<img src="'. $img .'" class="pull-left" style="margin-right: 20px;" />';
- $item['candeactivate'] = false;
- $item['candelete'] = true;
- $item['candelete_url'] = 'vku/' . $id .'/delete/' . $item['id'];
- $item["candelete_desc"] = 'Möchten Sie die Kampagne aus der Verkaufsunterlage löschen?';
- $item['icon'] = 'lock';
- 
- if(lk_is_moderator()){
-    //vku/' . $id .'/edit/' . $item['id'];
-    $item['edit_title'] = 'Kampagnenausgabe editieren';
-    require_once __DIR__ . "/inc/func_vku_inner_edit.php";    
-    $form = drupal_get_form("vku_form_vku_edit_kampagne", $id, $item['id'], false);
-    $item['edit_form'] = render($form);
- }
- 
-  $author = $vku -> getAuthor();
-  $access = na_check_user_has_access($author, $node -> nid);
-
- 
-  if(!$node -> status OR $access["access"] == false){
-       if(isset($access["reason"])){
-          $item["desc"] .= '<p class="alert alert-danger">'. $access["reason"] .'</p>';
-       }
-       else {
-          $item["desc"] .= '<p class="alert alert-danger">Diese Kampagne ist für Sie nicht verfügbar</p>'; 
-       }
-
-  }
-}
 
 /**
- * Default VKU Items
+ * Returns back settings for the current VKU
+ * Can be used by PPT and PDF output
  * 
- * @changed 2015-11-05, Added Delete Support
- * 
- * @param type $item
- * @param type $vku
- */
-function vku_create_item_desc_default(&$item, $vku){
-        
-    
-        $item["candelete"] = true;    
-        $item["title"] = $item["desc"] = $item["short"] = vku_get_default_titles($item["data_class"]);
-        
-	$id = $vku -> getId();
-
-	switch($item["data_class"]){
-			case 'title':
-				$item['edit'] = 'vku/' . $id .'/edit/' . $item['id'];
-				$item['edit_title'] = 'Titelseite editieren';
-		
-                            $arr = array();
-
-                            if($title = $vku -> get("vku_title")){
-                                     $arr[] = "Titel: " . $title;
-                            }
-
-                            if($title = $vku -> get("vku_company")){
-                                  $arr[] = "Unternehmen: " . $title;
-                            }
-            
-        
-                                $item['desc'] = implode(", ", $arr);
-				break;	
-
-			case 'tageszeitung':
-				$item['short'] = 'Tageszeitungen';
-				break;		
-
-			case 'wochen':
-				$item['short'] = 'Wochen-/Anzeigeblätter';
-				break;	
-			
-			case 'onlinewerbung':
-				$item['short'] = 'Online';
-				break;		
-
-			case 'kplanung':
-				$item['short'] = 'Planung';
-				break;					
-
-			case 'kontakt':
-				$author = $vku -> getAuthor();
-				$item['edit'] = 'user/' . $author .'/edit/main';
-				$item['edit_title'] = 'Profildaten editieren';
-				$item['icon'] = 'envelope';
-				$item['short'] = 'Kontakt';
-				break;
-
-	}
-}
-
-/**
- * 
- * Gets the standard VKU Elements
- * 
- * @since 2015-11-05
+ * @param VKUCreator $vku
  * @return Array
  */
-function vku_get_standard_documents(){
-   $keys = array('title', 'tageszeitung', 'wochen', 'onlinewerbung', 'kplanung', 'kontakt');
+function vku_get_output_basics(VKUCreator $vku){
    
-   $return = array();
-   $x = 0;
-   foreach($keys as $item){
-      $return[$item]['id'] = $item;
-      $return[$item]['weight'] = $x;
-      $return[$item]['title'] = vku_get_default_titles($item);
-      $x += 10; 
-   }
+    $array = array(
+        // Base font - Lato or Arial
+        'font' => 'lato',
+        // Logo position Header
+        'logo_position' => 'left',
+        // Contact page layout
+        'contact_layout' => 'default',
+        
+        'hide_size_online' => 'no',
+        'vku_hintergrundfarbe' => 'FFFFFF',
+        'title_bg_color' => '646464',
+        'title_vg_color' => 'FFFFFF',
+        'logo_oben' => '',
+        'logos_unten' => array()
+    );
+    
+    $author = $vku ->getAuthor();
+    $account = \LK\get_user($author);
+    $verlag = $account ->getVerlagObject();
+    
+    if(!$verlag){
+        if($account ->isModerator()){
+            // Load Handbuchverlag to test the Settings
+            $verlag = \LK\get_user(LK_TEST_VERLAG_UID);
+        }
+        else {
+            return $array;
+        }
+    }
+    
+    // Logo top
+    $logo_oben = $verlag -> getVerlagSetting("verlag_logo", false, 'uri');
+    if($logo_oben){
+       $array["logo_oben"] = $logo_oben;
+    }
+    
+    // Logo position
+    $array["logo_position"] = $verlag -> getVerlagSetting("verlag_logo_position", 'left', 'value');
+    
+    // Logos unten
+    $logos = array();
+    if(isset($verlag->profile['verlag']->field_verlag_marken_logos['und'])){
+        foreach($verlag->profile['verlag']->field_verlag_marken_logos['und'] as $logo){
+          $logos[] = $logo["uri"];
+        }
+    }
+    
+    $array["logos_unten"] = $logos;
    
-   return $return;
+    // HG-Farbe VKU
+    if($color = $verlag -> getVerlagSetting("vku_hintergrundfarbe", false, 'jquery_colorpicker')){
+       $array["vku_hintergrundfarbe"] = $color; 
+    }
+    
+    // HG-Farbe Titel
+    if($color = $verlag -> getVerlagSetting("vku_hintergrundfarbe_titel", false, 'jquery_colorpicker')){
+        $array["title_bg_color"] = $color; 
+    }
+
+    // VG-Farbe Titel    
+    if($color = $verlag -> getVerlagSetting("vku_vordergrundfarbe_titel", false, 'jquery_colorpicker')){
+        $array["title_vg_color"] = $color; 
+    }
+    
+    // Font
+    $array["font"] = $verlag -> getVerlagSetting("verlag_font", 'lato', 'value');
+    
+    // Contact Template
+    $array["contact_layout"] = $verlag -> getVerlagSetting("verlag_kontakt_vorlage", 'default', 'value');
+    
+return $array;    
 }
+
+
+
+function vku_get_top_menu(){
+global $user;
+  
+  drupal_add_js(drupal_get_path('module', 'vku') .'/js/vku2-handling.js', 'file');
+  drupal_add_css(drupal_get_path('module', 'vku') .'/css/vku2.css');
+ 
+ $array = array(); 
+ $dbq = db_query("SELECT vku_id FROM lk_vku WHERE vku_status='active' AND uid='".$user -> uid  ."' ORDER BY vku_changed DESC");
+ foreach($dbq as $all){
+   $array[]  = new VKUCreator($all -> vku_id);
+ }
+ 
+ return theme("vku_menu", array('vkus' => $array));   
+}
+
 
 /**
- * Returns the Titles of the Standard Elements
- * @since 2015-11-05
- * 
- * @param type $key
- * @return string
- * 
- */
-function vku_get_default_titles($key){
-   
-    switch($key){
-        case 'kontakt':
-          return 'Ihre Kontaktdaten';  
-      
-        case 'kplanung':
-            return 'Kampagnenplanung';
-     
-        case 'onlinewerbung':
-            return 'Online-Werbung (Display-Ads)';
-     
-               
-        case 'wochen':
-            return 'Medienargumentation Wochen-/Anzeigeblätter';
-            
-         case 'tageszeitung':
-            return 'Medienargumentation Tageszeitungen';
-            
-            
-        case 'title':
-            return 'Titelseite';
-          
-        default:
-            return 'Unbekanntes Dokument';
+  * @deprecated 
+  */
+ function vku_get_active_id(){
+ global $user; 
+  
+    return \LK\VKU\VKUManager::getActiveVku($user -> uid);
+ }
+
+ function get_nid_in_vku_count($nid, $vku_status = array(), $where = array()){
+
+  $where_first = array();
+  
+  //$where = array();
+  $where_first[] = "n.data_entity_id='". $nid  ."'";
+  $where_first[] = "n.data_class='kampagne'";
+  
+  if($vku_status){
+    $where_first[] = "v.vku_status IN ('". implode("','", $vku_status)  ."')";
+  }
+  
+  if($where) {
+    foreach($where as $item){
+      $where_first[] = $item;
     }
-}
+  }
 
 
+   $dbq = db_query("SELECT 
+        count(*) as count
+        FROM lk_vku_data n, lk_vku v 
+        WHERE 
+            n.vku_id=v.vku_id 
+           
+            AND " . implode(" AND ", $where_first));
+  $all = $dbq -> fetchObject();
+  
+  return $all -> count;
+}  
+ 
 
+  function vku_active_user_notfinal_count($uid){
+    //created ready downloaded
+    $dbq = db_query("SELECT count(*) as count FROM lk_vku WHERE uid='". $uid ."' AND vku_status IN ('active', 'ready', 'created', 'downloaded')");
+    $result = $dbq -> fetchObject();
+    
+  return $result -> count;  
+  }
+ 
+ 
 /** 
  * Gets a Standard PDF based from a VKU
  * 
@@ -389,47 +272,6 @@ function vku_generate_pdf_node($vku, $page, $pdf){
 }
 
 
-
-/**
- * Sortiert die Medien, so dass sie für die Ausgabe
- * verwendet werden können
- * 
- * @param Object $node
- */
-function _vku_load_order_node(&$node){
-    
-    // Serie, Medien umsortieren
-    if(count($node -> medien) > 2){
-       $medien = array();
-       $medien2 = array();
-        
-       
-       
-       // Print  
-       foreach($node -> medien as $media){
-           $test = _lk_get_medientyp_print_or_online($media->field_medium_typ['und'][0]['tid']);
-           
-           if(!lk_upgrade_medienformate() AND (isset($media -> variante) AND $media -> variante == 1)){
-              continue;
-           } 
-           
-           if($test == 'print'){
-             $medien[] = $media; 
-           }
-           else {
-               $medien2[] = $media; 
-           }
-       }
-
-       foreach($medien2 as $media){
-          $medien[] = $media;
-       }
-
-      $node -> medien = $medien;     
-    }
-}
-
-
 function _vku_load_vku_settings_node(&$node, $page){
     
     if(!isset($page["data_serialized"]) OR !$page["data_serialized"]){
@@ -462,4 +304,56 @@ function _vku_load_vku_settings_node(&$node, $page){
     endwhile;       
 }
 
-?>
+function lokalkoenig_merkliste_ajax_callback_vku($tid){
+global $user;
+
+  $term = taxonomy_term_load($tid);
+  $title = 'IHR ANGEBOT';
+  
+  $post_title = trim($_POST["title"]);
+  if($post_title){
+    $title = $post_title; 
+  }
+  
+  
+  if(!$term){
+    drupal_goto(MERKLISTE_URI);
+  }
+  
+  $view = views_get_view_result('merkliste3', 'page', $term -> tid);
+  $nids = array();
+  
+  foreach($view as $res){
+    $nid = $res ->field_field_merkliste_node[0]['raw']['nid'];
+    $nids[$nid] = $nid;
+  }
+   
+   $can_nids = array();
+   while(list($key, $val) = each($nids)){
+   
+      $check = na_check_user_has_access($user -> uid, $val);
+      $node = node_load($val);
+      
+      if($check["access"]){
+          $can_nids[] = $val;
+      }
+      else {
+        drupal_set_message('Die Kampagne "'. $node -> title .'" ist im Moment für Sie nicht verfügbar und wurde deswegen der Verkaufsunterlage nicht hinzugefügt.', 'error');  
+      }
+   }   
+    
+   if(count($can_nids) == 0){
+      drupal_goto(MERKLISTE_URI . "/" . $term -> tid);
+      drupal_exit();
+   }  
+    
+   $vku = new VKUCreator('new', array("vku_title" => $title, 'vku_company' => $term -> name, 'vku_generic' => 0));
+   $x = 0;
+   foreach($can_nids as $nid){
+      $vku -> addKampagne($nid);  
+   }
+   
+   // Erstelle Node-VKU
+   drupal_set_message('Eine neue Verkaufsunterlage wurde erstellt.');
+   drupal_goto($vku -> vku_url());
+}

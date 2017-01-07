@@ -2,11 +2,12 @@
 
 function _vku_download_vku($account, $vku_id, $ppt = false){
 global $user;
-   
-    $vku = new VKUCreator($vku_id);
-    if(!$vku -> hasAccess()){  	
-    	drupal_goto("user");
+    
+    $vku = \LK\VKU\VKUManager::getVKU($vku_id, true);
+    if(!$vku){
+      	drupal_goto("user");
     }
+   
     ob_clean();
     $status = $vku -> getStatus();
    

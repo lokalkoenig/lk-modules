@@ -1,123 +1,5 @@
 <?php
 
-function vku_is_update_user_ppt(){
-    return vku_is_update_user();
-}    
-
-function vku_is_update_user(){
-    
-    if(lk_is_moderator()){
-           return true;    
-    }
-    
-    $account = \LK\current();
-    if($account AND 
-          $account ->getVerlag() == LK_TEST_VERLAG_UID){
-            return true;
-    }   
-    
-return false;    
-} 
-
-
-/**
- * Returns back settings for the current VKU
- * Can be used by PPT and PDF output
- * 
- * @param VKUCreator $vku
- * @return Array
- */
-function vku_get_output_basics(VKUCreator $vku){
-   
-    $array = array(
-        // Base font - Lato or Arial
-        'font' => 'lato',
-        // Logo position Header
-        'logo_position' => 'left',
-        // Contact page layout
-        'contact_layout' => 'default',
-        
-        'hide_size_online' => 'no',
-        'vku_hintergrundfarbe' => 'FFFFFF',
-        'title_bg_color' => '646464',
-        'title_vg_color' => 'FFFFFF',
-        'logo_oben' => '',
-        'logos_unten' => array()
-    );
-    
-    $author = $vku ->getAuthor();
-    $account = \LK\get_user($author);
-    $verlag = $account ->getVerlagObject();
-    
-    if(!$verlag){
-        if($account ->isModerator()){
-            // Load Handbuchverlag to test the Settings
-            $verlag = \LK\get_user(LK_TEST_VERLAG_UID);
-        }
-        else {
-            return $array;
-        }
-    }
-    
-    // Logo top
-    $logo_oben = $verlag -> getVerlagSetting("verlag_logo", false, 'uri');
-    if($logo_oben){
-       $array["logo_oben"] = $logo_oben;
-    }
-    
-    // Logo position
-    $array["logo_position"] = $verlag -> getVerlagSetting("verlag_logo_position", 'left', 'value');
-    
-    // Logos unten
-    $logos = array();
-    if(isset($verlag->profile['verlag']->field_verlag_marken_logos['und'])){
-        foreach($verlag->profile['verlag']->field_verlag_marken_logos['und'] as $logo){
-          $logos[] = $logo["uri"];
-        }
-    }
-    
-    $array["logos_unten"] = $logos;
-   
-    // HG-Farbe VKU
-    if($color = $verlag -> getVerlagSetting("vku_hintergrundfarbe", false, 'jquery_colorpicker')){
-       $array["vku_hintergrundfarbe"] = $color; 
-    }
-    
-    // HG-Farbe Titel
-    if($color = $verlag -> getVerlagSetting("vku_hintergrundfarbe_titel", false, 'jquery_colorpicker')){
-        $array["title_bg_color"] = $color; 
-    }
-
-    // VG-Farbe Titel    
-    if($color = $verlag -> getVerlagSetting("vku_vordergrundfarbe_titel", false, 'jquery_colorpicker')){
-        $array["title_vg_color"] = $color; 
-    }
-    
-    // Font
-    $array["font"] = $verlag -> getVerlagSetting("verlag_font", 'lato', 'value');
-    
-    // Contact Template
-    $array["contact_layout"] = $verlag -> getVerlagSetting("verlag_kontakt_vorlage", 'default', 'value');
-    
-return $array;    
-}
-
-
-
-function vku_get_top_menu(){
-global $user;
-  
-  drupal_add_js(drupal_get_path('module', 'vku') .'/js/vku2-handling.js', 'file');
-  drupal_add_css(drupal_get_path('module', 'vku') .'/css/vku2.css');
- 
- $array = array(); 
- $dbq = db_query("SELECT vku_id FROM lk_vku WHERE vku_status='active' AND uid='".$user -> uid  ."' ORDER BY vku_changed DESC");
- foreach($dbq as $all){
-   $array[]  = new VKUCreator($all -> vku_id);
- }
- 
- return theme("vku_menu", array('vkus' => $array));   
-}
 
 function vku_theme(){
 
@@ -298,27 +180,10 @@ return $themes;
       'title' => 'Generierte Verkaufsunterlagen',
       'type' => MENU_CONTEXT_NONE);     
         
-    // vku / active
-    $items['vku/add/%node'] = array(
-      'access callback' => '_vku_node_access',
-      'access arguments' => array(2),
-      'page callback' => '_vku_add_node',
-      'file' => 'inc/func_node_add.php',
-      'page arguments' => array(2),
-      'title' => 'Kampagne zu Verkaufsunterlagen hinzufügen',
-      'type' => MENU_CONTEXT_NONE);
-    
-    
-     $items['vkudoc'] = array(
-      'access callback' => 'lk_is_moderator',
-      'page callback' => 'newDocs',
-      'file' => 'src/ap.php',
-      'title' => 'TEST TEST',
-      'type' => MENU_CONTEXT_NONE);
-
+ 
      // vku / active
     $items['vku/%/add/%node'] = array(
-      'access callback' => '_vku_node_access',
+      'access callback' => 'lk_vku_access',
       'access arguments' => array(3),
       'page callback' => '_vku_add_node',
       'file' => 'inc/func_node_add.php',
@@ -353,15 +218,7 @@ return $themes;
       'title' => 'Generierte Verkaufsunterlagen',
       'type' => MENU_CONTEXT_NONE);  
   
-  // VKU final generieren
-  $items['user/%user/vku/%/generate'] = array(
-      'access callback' => 'lk_vku_access',
-      'page callback' => '_vku_ontheflygenerate',
-      'page arguments' => array(1, 3),
-      'file' => 'inc/func_generate_vku.php',
-      'title' => 'Generierte Verkaufsunterlagen',
-      'type' => MENU_CONTEXT_NONE); 
-    
+  
 
   // VKU verwalten   
   $items['user/%user/vku/%/download'] = array(
@@ -420,25 +277,7 @@ return $themes;
       'file' => "inc/func_vku.php",
       'type' => MENU_CONTEXT_NONE); 
 
-
-    $items['vku/get'] = array(
-      'access callback' => 'lk_vku_access',
-      'page callback' => '_vku_show_current_ajax',
-      'title' => 'Verkaufsunterlagen',
-      'page arguments' => array(),
-     'file' => "inc/func_vku_current.php",
-      'type' => MENU_CONTEXT_NONE); 
-
-    $items['vku/test'] = array(
-      'access callback' => 'lk_is_moderator',
-      'page callback' => 'vku2_checkup',
-      'title' => 'Verkaufsunterlagen',
-      'page arguments' => array(),
-     'file' => "inc/func_vku2_check.php",
-      'type' => MENU_CONTEXT_NONE); 
-
-    
-    $items['vku/%'] = array(
+   $items['vku/%'] = array(
       'access callback' => 'lk_vku_access',
       'page callback' => '_vku_show',
       'title' => 'Verkaufsunterlagen',
@@ -461,42 +300,6 @@ return $themes;
       'file' => "inc/func_vku_inner_remove_vku.php",
       'title' => 'VKU löschen',
       'type' => MENU_CONTEXT_NONE);  
-
-    $items['vku/%/%/status'] = array(
-      'access callback' => 'lk_vku_access',
-      'page callback' => 'vku_item_status_change',
-      'page arguments' => array(1, 2),
-      'file' => 'inc/func_vku_inner_status.php',
-      'title' => 'VKU Item Status Change',
-      'type' => MENU_CONTEXT_NONE);    
-
-
-      $items['vku/%/changeorder'] = array(
-      'access callback' => 'lk_vku_access',
-      'page callback' => 'vku_changeorder',
-      'page arguments' => array(1),
-      'title' => 'Verkaufsunterlagen',
-      'file' => 'inc/func_vku_inner_order.php',
-      'type' => MENU_CONTEXT_NONE);   
-
-       $items['vku/%/edit/%'] = array(
-      'access callback' => 'lk_vku_access',
-      'page callback' => 'vku_edit_line_item',
-      'page arguments' => array(1,3),
-      'title' => 'Verkaufsunterlagen',
-      'file' => 'inc/func_vku_inner_edit.php',
-      'type' => MENU_CONTEXT_NONE);  
-
-
-      $items['vku/%/delete/%'] = array(
-      'access callback' => 'lk_vku_access',
-      'page callback' => 'vku_delete_line_item',
-      'page arguments' => array(1,3),
-      'title' => 'Verkaufsunterlagen',
-      'file' => 'inc/func_vku_inner_edit.php',
-      'type' => MENU_CONTEXT_NONE);  
-
-
 
       $items['vku/%/preview/%'] = array(
         'access callback' => 'lk_vku_access',
@@ -532,8 +335,6 @@ return $themes;
       'file' => "download.inc",
       'type' => MENU_CONTEXT_NONE); 
 
-
-    
      // VKU Templates
      
     $items['vku/create/vorlage'] = array(
@@ -560,16 +361,85 @@ return $themes;
       'title' => 'VKU-Einstellungen',
       'type' => MENU_CONTEXT_NONE);   
 
-  $items['vku/%/addextra/%'] = array(
-      'access callback' => 'lk_vku_access',
-      'page callback' => '_vkuconn_add_docuement',
-      'page arguments' => array(1, 3),
-      'file' => 'inc/vorlagen/adddocument.php',
-      'title' => 'VKU-Entries add',
-      'type' => MENU_CONTEXT_NONE);  
-  
+ 
+      
+    vku_menu_version1($items);
+    
     return $items;
   }
 
+/**
+ * Adds Menu item for VKU-1-Version
+ * 
+ * @param array $items
+ */  
+function vku_menu_version1(&$items){
+  
+   $items['vku/%/addextra/%'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => '_vkuconn_add_docuement',
+      'page arguments' => array(1, 3),
+      'file' => 'inc/vku1/adddocument.php',
+      'title' => 'VKU-Entries add',
+      'type' => MENU_CONTEXT_NONE);  
+   
+    $items['vku/%/changeorder'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'vku_changeorder',
+      'page arguments' => array(1),
+      'title' => 'Verkaufsunterlagen',
+      'file' => 'inc/vku1/func_vku_inner_order.php',
+      'type' => MENU_CONTEXT_NONE);   
+   
+     $items['vku/%/delete/%'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'vku_delete_line_item',
+      'page arguments' => array(1,3),
+      'title' => 'Verkaufsunterlagen',
+      'file' => 'inc/vku1/func_vku_inner_edit.php',
+      'type' => MENU_CONTEXT_NONE);   
+  
+    $items['vku/%/edit/%'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'vku_edit_line_item',
+      'page arguments' => array(1,3),
+      'title' => 'Verkaufsunterlagen',
+      'file' => 'inc/vku1/func_vku_inner_edit.php',
+      'type' => MENU_CONTEXT_NONE);  
 
-?>
+      $items['vku/%/%/status'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => 'vku_item_status_change',
+      'page arguments' => array(1, 2),
+      'file' => 'inc/vku1/func_vku_inner_status.php',
+      'title' => 'VKU Item Status Change',
+      'type' => MENU_CONTEXT_NONE);    
+      
+         // vku / active
+    $items['vku/add/%node'] = array(
+      'access callback' => 'lk_vku_access',
+      'access arguments' => array(2),
+      'page callback' => '_vku_add_node',
+      'file' => 'inc/vku1/func_node_add.php',
+      'page arguments' => array(2),
+      'title' => 'Kampagne zu Verkaufsunterlagen hinzufügen',
+      'type' => MENU_CONTEXT_NONE);
+ 
+    // VKU final generieren
+  $items['user/%user/vku/%/generate'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => '_vku_ontheflygenerate',
+      'page arguments' => array(1, 3),
+      'file' => 'inc/func_generate_vku.php',
+      'title' => 'Generierte Verkaufsunterlagen',
+      'type' => MENU_CONTEXT_NONE); 
+      
+     $items['vku/get'] = array(
+      'access callback' => 'lk_vku_access',
+      'page callback' => '_vku_show_current_ajax',
+      'title' => 'Verkaufsunterlagen',
+      'page arguments' => array(),
+     'file' => "inc/vku1/func_vku_current.php",
+      'type' => MENU_CONTEXT_NONE); 
+
+}
