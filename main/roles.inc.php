@@ -27,6 +27,42 @@ function lk_user_is_in_verlag($uid, $verlag_id){
 return false;
 }
 
+
+/**
+ * Checks weather the current user is a Verlag
+ * and if the current user can access this
+ * 
+ * @param type $account
+ * @return boolean
+ */
+function lk_verlag_access($account){
+  
+  $current = \LK\current();
+  $verlag = \LK\get_user($account);
+  
+  if(!$current){
+    return false;
+  }
+  
+  if(!$verlag || !$verlag ->isVerlag()){
+    return false;
+  }
+  
+  if($current ->isModerator()){
+    return true;
+  }
+  
+  if($current ->getVerlag() === $verlag ->getUid()){
+    return true;
+  }
+  
+  if($current ->isVerlag() || $current ->isVerlagController()){
+    return true;
+  }
+  
+return false;  
+}
+
 /**
  * Gives back the Information 
  * if the user is in a Testverlag
@@ -208,3 +244,4 @@ function lklink($title, $url, $glyph = NULL, $class = 'list-group-item'){
 
 return l($title, $url, array('html' => true, 'attributes' => array("class" => array($class))));
 }
+

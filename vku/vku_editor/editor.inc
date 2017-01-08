@@ -17,7 +17,7 @@ function vku_editor_menu(){
     
   $items =[];
   $items['user/%user/vku_editor'] = array(
-      'access callback' => 'lk_is_verlag',
+      'access callback' => 'lk_verlag_access',
       'access arguments' => array(1),
       'page callback' => 'vku_editor_page_verlag_cb',
       'page arguments' => array(1),
@@ -141,4 +141,30 @@ function vku_editor_image_default_styles() {
 
   return $styles;
 }
+
+function vku_editor_verlag_documents_themed(\LK\Verlag $verlag){
   
+  $manager = new \LK\VKU\Editor\Manager(); 
+  $categories = $manager ->getCategoriesAvailable($verlag);
+  $presets = $manager->getPresetsAvailable($verlag);
+  
+  $array = [];
+  while(list($key, $val) = each($categories)){
+    $array[$key] = [
+        'title' => $val, 
+        'documents' => $manager ->getDocumentsPerVerlag($verlag, $key),
+        'presets' => []
+    ];
+  }
+  
+  // Add the presets
+  while(list($key, $val) = each($presets)){
+    $array[$val['category']]['presets'][$key] = $val;
+  }
+  
+  return theme('vku_editor_verlag_documents', [
+    'account' => $verlag, 
+    'documents' => $array,
+    ]
+  );  
+}

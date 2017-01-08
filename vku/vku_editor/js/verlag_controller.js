@@ -2,12 +2,17 @@
 jQuery(document).ready(function($){
   
   // Test-Open-Editor
-  $('#vku-editor-verlag-documents').on('click', 'button', function(){
+  $('#vku-editor-verlag-documents').on('click', '.btn-create-document', function(){
+    
     var editor = PXEdit();
-    editor.loadDocument({'preset': 'Preisliste'}, function(){
-       console.log('Event came back!');
+    var preset = $(this).data('preset');
+    
+    editor.loadDocument({'preset': preset}, function(){
+      editor.performAjax({'action': 'update-documents'}, function(data){
+          $('#vku-editor-verlag-documents').html(data.documents); 
+          editor.loading(-1);
+       });
     });
-  });
-  
+  }); 
 });
 

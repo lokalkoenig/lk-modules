@@ -5,6 +5,7 @@ namespace LK\VKU\Editor;
 
 class Manager extends \LK\PXEdit\DyanmicLayout {
   
+  use \LK\Log\LogTrait;
   
   /**
    * Gets the Editor-Template
@@ -32,20 +33,103 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
   
   
   /**
-   * Gets the available Presets per Account
+   * Gets the Documents per Category and Verlag
    * 
-   * @param \LK\User $account Account
+   * @param \LK\Verlag $verlag Verlag-Account
+   * @param string $category
    * @return array
    */
-  function getPresetsAvailable(\LK\User $account){
+  function getDocumentsPerVerlag(\LK\Verlag $verlag, $category){
     
-    
-    return [
-       'OnlineArgumentation',
-        
-    ];
-    
+    return [];  
   }
   
+  
+  /**
+   * Returns a Verlag from as Hash
+   * 
+   * @todo Access-Check
+   * @return boolean|\LK\Verlag
+   */
+  function getVerlagFromHash(){
+    
+    if(!isset($_REQUEST['hash'])){
+        return false;
+    }
+    
+    $explode = explode('-', $_REQUEST['hash']);
+    if(!isset($explode[1])){
+      return false;
+    }
+    
+    $uid = (int)$explode[1];
+    
+    //$current = \LK\current();
+    $account = \LK\get_user($uid);
+    
+    if(!$account || !$account ->isVerlag()){
+      return false;
+    }
+    
+    return $account;
+  }
+  
+  
+  /**
+   * Gets the available Presets per Account
+   * 
+   * @param \LK\Verlag $account Account
+   * @return array
+   */
+  function getPresetsAvailable(\LK\Verlag $account){
+    return [
+       'OnlineArgumentation' => [
+           'title' => 'Online Argumentation', 
+           'category' => 'online',
+           'desc' => 'Erstellen Sie ...', 
+        ],
+       
+        'OnlineMedium' => [
+           'title' => 'Online Medium', 
+           'category' => 'online',
+           'desc' => 'Erstellen Sie ...', 
+        ],
+        
+       'RegionalArgumentation' => [
+           'title' => 'Regional Argumentation', 
+           'category' => 'print',
+           'desc' => 'Erstellen Sie ...', 
+        ],
+        
+       'Preisliste' => [
+           'title' => 'Preisliste', 
+           'category' => 'sonstiges',
+           'desc' => 'Erstellen Sie ...',
+        ],
+        
+        'OpenDokument' => [
+           'title' => 'Freies Dokument', 
+           'category' => 'sonstiges',
+           'desc' => 'Erstellen Sie ...',
+        ],
+        
+       'OnlineMediumCollection' => [
+           'title' => 'Online Medien Kollektion', 
+           'category' => 'online',
+           'desc' => 'Erstellen Sie ...',
+        ],
+    ];
+  }
+  
+  
+  function getCategoriesAvailable(\LK\User $account){
+  
+    return [
+      'print' => "Print",
+      'online' => "Online",
+      'sonstiges' => "Sonstiges",
+    ];  
+  }
+    
 }
 
