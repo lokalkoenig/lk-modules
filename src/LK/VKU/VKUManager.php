@@ -1,10 +1,8 @@
 <?php
 
-namespace LK\VKU;﻿
-use VKUCreator;
+namespace LK\VKU;
 
 class VKUManager {
-  
   
   /**
    * Loads a VKU from the VKUCreator
@@ -15,7 +13,7 @@ class VKUManager {
    */
   public static function getVKU($id, $check_permissions = false){
     
-    $vku = new VKUCreator($id);
+    $vku = new \VKUCreator($id);
     
     if(!$vku ->is()){
       return false;
@@ -45,5 +43,4 @@ class VKUManager {
     
     return 0;  
   }
-  
 }

@@ -4,8 +4,6 @@
 include("inc/views_data.inc");
 include("inc/menu_theme.inc");
 include("inc/vku1/functions.php");
-
-include("vkuCreator.class.inc");
 include("vorlagen.inc");
 
 if(!function_exists('is_local')){

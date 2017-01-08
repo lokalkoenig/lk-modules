@@ -1,0 +1,7 @@
+name = "Lokalkönig VKU-Editor"
+description = "Stellt alle Libraries und Funktionen des PXEdit bereit"
+core = "7.x"
+package = Lokalkoenig
+
+dependencies[] = lokalkoenig_admin
+dependencies[] = vku

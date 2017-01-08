@@ -15,17 +15,6 @@ function vku_theme(){
         ),
   );
  
- 
-    // VKU-DOC
-    $themes["vku2doc_overview"] = array(
-            'template' => 'templates/doc/vku2doc_overview', // your template file called custompage.tpl.php
-            'variables' => array(
-              'nodes' => array(),
-              'vku' => NULL
-            ),
-        );
- 
- 
   $themes["vku2"] = array(
             'template' => 'templates/vku2', // your template file called custompage.tpl.php
             'variables' => array(
