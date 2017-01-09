@@ -26,11 +26,14 @@ namespace LK\VKU\Editor;
  */
 class Document {
   
+  const TABLE = 'lk_vku_documents';
+
+
   /**
    * Data Array
    * @var array 
    */
-  var $data = [
+  protected $data = [
       'document_vorlage' => 0,
       'document_usage' => 0
   ];
@@ -41,37 +44,147 @@ class Document {
    */
   var $id = null;
   
+  function __construct($data = array()){
+      
+  if(isset($data['id'])){
+    $this -> id = $data['id'];
+    unset($data['id']);
+        
+    $this-> data = $data;
+   }
+      
+   return $this;
+  }
+  
+  
+  /**
+   * Sets the Category
+   * 
+   * @param type $category
+   * @return $this
+   */
+  function setCategory($category){
+    return $this->setData('document_category', $category);
+  }
+  
+  
+  /**
+   * Sets Data
+   * 
+   * @param Key $key
+   * @param Val $val
+   * @return $this
+   */
   function setData($key, $val){
     $this -> data[$key] = $val;
     
     return $this;
   }
   
-  function __clone() {
-    
+  /**
+   * Get the Title
+   * 
+   * @return string
+   */
+  function getTitle(){
+    return $this->data['document_title'];
   }
   
+  /**
+   * Sets the Content
+   * 
+   * @param array $data
+   */
+  function setContent($data){
+    $this ->setData('document_content', serialize($data));
+  }
+  
+  /**
+   * Sets the Status
+   * 
+   * @param int $status
+   * @return $this
+   */
+  function setStatus($status){
+    return $this->setData('status', $status);  
+  }
+  
+  /**
+   * Saves the Document
+   * 
+   * @return $this
+   */
   function save(){
+    $time = REQUEST_TIME;
+    $this->setData('document_changed', $time);
+    $this->setData('document_created', $time);
     
+    if(!$this -> id){
+      $this -> id = db_insert(self::TABLE)->fields($this -> data)->execute();
+    }
+    else {
+      
+      
+      db_update(self::TABLE)
+              ->fields($this -> data)
+              ->condition('id', $this->id, '=')
+              ->execute();
+    }
     
+  return $this;  
   }
   
+  
+  /**
+   * Sets the title
+   * 
+   * @param string $title
+   * @return $this
+   */
+  function setTitle($title){
+    return $this->setData('document_title', $title);
+  }
+  
+  /**
+   * Sets the footnote
+   * 
+   * @param string $footnote
+   * @return $this
+   */
+  function setFootnote($footnote){
+    return $this->setData('document_footnote', $footnote);
+  }
+  
+  /**
+   * Set the present
+   * 
+   * @param string $present Preset
+   * @return $this
+   */
+  function setPreset($present){
+    return $this->setData('document_preset', $present);
+  }
+  
+  /**
+   * Sets the Layout
+   * 
+   * @param type $layout
+   * @return $this
+   */
+  function setLayout($layout){
+    return $this->setData('document_layout', $layout);
+  }
+  
+  /**
+   * Gets the ID
+   * 
+   * @return id
+   */
   function getId(){
     return $this -> id;
   }
   
-  function __construct($data){
-      
-      if(isset($data['id'])){
-        $this -> id = $data['id'];
-        unset($data['id']);
-        
-        $this-> data = $data;
-      }
-      
-      return $this;
-  }
-  
+
   function setUser($uid){
     $this -> setData('uid', $uid);
     
@@ -83,9 +196,11 @@ class Document {
   } 
   
   function remove(){
-      if($this -> id){
-        
-          
-      }
+    
+      $count = db_delete(self::TABLE)
+          ->condition('id', $this -> id)
+          ->execute();
+      
+      return $count;
   }
 }

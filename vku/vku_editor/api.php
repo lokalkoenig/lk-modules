@@ -20,19 +20,24 @@ function vku_editor_api_cb(){
     exit;
  }
  
- $verlag = $manager -> getVerlagFromHash();
- if(!$verlag){
+  $verlag = $manager -> getVerlagFromHash();
+  if(!$verlag){
     $manager ->sendError("Sie haben keinen Zugriff auf diese Funktion.");
     exit;
- }
+  }
  
- if(isset($_GET['action']) && $_GET['action'] === 'update-documents'){
+  if(isset($_GET['action']) && $_GET['action'] === 'update-documents'){
    $manager ->sendJson(['documents' => \vku_editor_verlag_documents_themed($verlag)]);
- }
+  }
  
- if(isset($_GET['preset']) && is_string($_GET['preset'])){
+  if(isset($_GET['preset']) && is_string($_GET['preset'])){
       $manager ->createNewPreset($_GET['preset']);
- }
+  }
   
+  if(isset($_POST['action']) && is_string($_POST['action']) && $_POST['action'] == 'save-document'){
+    $data = $_POST;
+    $manager -> saveContentData($data);
+  }
+ 
  $manager ->sendError("No Action provided");  
 }
