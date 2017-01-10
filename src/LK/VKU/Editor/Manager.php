@@ -56,11 +56,93 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
    * 
    * @param \LK\Verlag $verlag Verlag-Account
    * @param string $category
+   * @param int $status
    * @return array
    */
-  function getDocumentsPerVerlag(\LK\Verlag $verlag, $category){
+  function getDocumentsPerVerlag(\LK\Verlag $verlag, $category, $status = 1){
     
-    return [];  
+    $array = [];
+    $preset = $this -> getPresetsAvailable($verlag);
+    
+    $dbq = db_query("SELECT * FROM " . Document::TABLE . " WHERE document_vorlage=1 AND uid=:uid AND document_category=:category AND status=:status ORDER BY document_title ASC",[
+        ':uid' => $verlag ->getUid(),
+        ':category' => $category,
+        ':status' => $status,
+    ]);
+    
+    while($data = $dbq -> fetchObject()){
+      $document = new Document((array)$data);
+      $template_data = $document ->getTemplateData();
+      $template_data['preset_title'] = $preset[$template_data['document_preset']]['title'];
+      
+      $array[] = $template_data;
+    }
+    
+    return $array;  
+  }
+  
+  /**
+   * Loads an Document as Verlag
+   * 
+   * @param \LK\Verlag $verlag
+   * @param int $id
+   */
+  function loadDocumentVerlag(\LK\Verlag $verlag, $id){
+    
+    $document = $this->getDocumentVerlag($verlag, $id);
+    if(!$document){
+      $this->sendError('Das Dokument wurde nicht mehr gefunden.');
+    }
+    
+    $preset = $this->loadPreset($document -> getPreset());
+    
+    $callback['values'] = $preset -> getDefaultValues();
+    $callback['options'] = $preset -> getOptions();
+    $callback['options']['category'] = $document ->getCategory();  
+    $callback['options']['status'] = $document ->getStatus();  
+    $callback['options']['action'] = 'load-document';
+    $callback['options']['image_presets'] = $this->getImagePresets();  
+    $callback['options']['title'] = $document ->getTitle();
+    $callback['options']['id'] = $document ->getId();
+    $callback['inputs'] = $preset -> getManagedInputs();
+    $callback['values']-> preset = $document -> getPreset();  
+    $callback['values']-> content = $document -> getContent();
+    
+    $html = array();
+    $layouts = $preset -> getAvailableLayouts();
+        
+    foreach ($layouts as $layout){
+      $layout = $this->getLayout($layout);
+      $html[] = (string)$layout;
+    }
+
+    $callback['image_presets'] = $this -> getImagePresetsParsed();
+    $callback['layouts'] = implode('', $html);
+    
+    $this ->sendJson($callback);
+  }
+  
+  /**
+   * Gets the Document on Verlags-Level
+   * 
+   * @param \LK\Verlag $verlag
+   * @param int $id
+   * @return \LK\VKU\Editor\Document Document
+   */
+  function getDocumentVerlag(\LK\Verlag $verlag, $id){
+    
+    $dbq = db_query("SELECT * FROM " . Document::TABLE . " WHERE document_vorlage=1 AND uid=:uid AND id=:id",[
+        ':uid' => $verlag ->getUid(),
+        ':id' => $id,
+    ]);
+    
+    $data = $dbq -> fetchObject();
+    if(!$data){
+      return false;
+    }
+    
+    $document = new Document((array)$data);
+    return $document;  
   }
   
   /**
@@ -87,8 +169,19 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
    */
   function saveDocument($data){
     
-    $document = new Document();
-    $document ->setUser($this->getAccount()->getUid());
+    if(isset($data['id'])){
+      $document = $this->getDocumentVerlag($this->getAccount(), $data['id']);
+      if(!$document){
+        $this->sendError("Fehler beim Speichern");
+      }  
+    }
+    else {
+      $document = new Document();
+      $document ->setVorlage(1);
+      $document ->setUser($this->getAccount()->getUid());
+    }
+    
+    
     $document ->setLayout($data['layout']);
     $document ->setCategory($data['category']);
     $document ->setPreset($data['preset']);

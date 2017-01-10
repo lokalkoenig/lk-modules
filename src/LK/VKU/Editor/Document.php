@@ -56,6 +56,29 @@ class Document {
    return $this;
   }
   
+  /**
+   * Gets the preset
+   * 
+   * @return string
+   */
+  function getPreset(){
+   return $this -> data['document_preset']; 
+  }
+  
+  function  getCategory(){
+    return $this -> data['document_category']; 
+  }
+  
+  /**
+   * Sets the Vorlage
+   * 
+   * @param type $vorlage
+   * @return $this
+   */
+  function setVorlage($vorlage){
+    return $this->setData('document_vorlage', $vorlage);
+  }
+  
   
   /**
    * Sets the Category
@@ -124,9 +147,13 @@ class Document {
     }
     else {
       
+      $data = $this -> data;
+      if($data['id']){
+        unset($data['id']);
+      }
       
       db_update(self::TABLE)
-              ->fields($this -> data)
+              ->fields($data)
               ->condition('id', $this->id, '=')
               ->execute();
     }
@@ -175,6 +202,16 @@ class Document {
     return $this->setData('document_layout', $layout);
   }
   
+  
+  /**
+   * Gets the content
+   * 
+   * @return array
+   */
+  function getContent(){
+    return unserialize($this -> data['document_content']);
+  }
+  
   /**
    * Gets the ID
    * 
@@ -182,6 +219,10 @@ class Document {
    */
   function getId(){
     return $this -> id;
+  }
+  
+  function getStatus(){
+    return $this->data['status'];
   }
   
 
@@ -194,6 +235,17 @@ class Document {
   function getData(){
     return $this -> data;
   } 
+  
+  /**
+   * Gets back Data for Template-Usage
+   * 
+   * @return array
+   */
+  function getTemplateData(){
+    return $this->getData() + [
+      'id' => $this->getId()
+    ];   
+  }
   
   function remove(){
     

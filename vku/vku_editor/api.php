@@ -26,10 +26,14 @@ function vku_editor_api_cb(){
     exit;
   }
  
-  if(isset($_GET['action']) && $_GET['action'] === 'update-documents'){
+  if(isset($_POST['action']) && $_POST['action'] === 'update-documents'){
    $manager ->sendJson(['documents' => \vku_editor_verlag_documents_themed($verlag)]);
   }
- 
+  
+  if(isset($_GET['action']) && $_GET['action'] == 'load-document' && isset($_GET['id'])){
+    $manager ->loadDocumentVerlag($verlag, $_GET['id']);
+  }
+  
   if(isset($_GET['preset']) && is_string($_GET['preset'])){
       $manager ->createNewPreset($_GET['preset']);
   }

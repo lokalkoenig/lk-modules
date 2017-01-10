@@ -153,6 +153,7 @@ function vku_editor_verlag_documents_themed(\LK\Verlag $verlag){
     $array[$key] = [
         'title' => $val, 
         'documents' => $manager ->getDocumentsPerVerlag($verlag, $key),
+        'documents_unpublished' => $manager ->getDocumentsPerVerlag($verlag, $key, 0),
         'presets' => []
     ];
   }
