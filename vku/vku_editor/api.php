@@ -25,17 +25,23 @@ function vku_editor_api_cb(){
     $manager ->sendError("Sie haben keinen Zugriff auf diese Funktion.");
     exit;
   }
- 
+  
+  // Verlag- Releated requests
   if(isset($_POST['action']) && $_POST['action'] === 'update-documents'){
    $manager ->sendJson(['documents' => \vku_editor_verlag_documents_themed($verlag)]);
   }
   
+  // Load document
   if(isset($_GET['action']) && $_GET['action'] == 'load-document' && isset($_GET['id'])){
     $manager ->loadDocumentVerlag($verlag, $_GET['id']);
   }
   
   if(isset($_GET['preset']) && is_string($_GET['preset'])){
       $manager ->createNewPreset($_GET['preset']);
+  }
+  
+  if(isset($_POST['action']) && is_string($_POST['action']) && $_POST['action'] == 'remove-document'){
+    $manager -> removeDocument((int)$_POST['id']);
   }
   
   if(isset($_POST['action']) && is_string($_POST['action']) && $_POST['action'] == 'save-document'){

@@ -83,6 +83,11 @@ class User {
     return false;    
     }
     
+    /**
+     * Gets the Verlag-Object
+     * 
+     * @return \LK\Verlag|boolean
+     */
     function getVerlagObject(){
         
         if($this ->isVerlag()){

@@ -6,17 +6,26 @@ function vku_is_update_user_ppt(){
 
 function vku_is_update_user(){
     
-    if(lk_is_moderator()){
-           return true;    
-    }
+  $account = \LK\current();
+  if(!$account || $account ->isAgentur()){
+    return false;
+  }
+
+  if($account ->isModerator()){
+    return true;
+  }
+
+  $verlag = $account ->getVerlagObject();
+  if(!$verlag){
+    return false;
+  }
+
+  $vku2 = $verlag ->getVerlagSetting('vku_2', 0);
+  if($vku2){
+    return true;
+  }
     
-    $account = \LK\current();
-    if($account AND 
-          $account ->getVerlag() == LK_TEST_VERLAG_UID){
-            return true;
-    }   
-    
-return false;    
+  return false;    
 } 
 
 

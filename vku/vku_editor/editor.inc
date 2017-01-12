@@ -46,17 +46,19 @@ return $items;
 function vku_editor_page_alter(&$page) {
   
   if(arg(2) == 'vku_editor'){
-    $document = new \LK\VKU\Editor\Manager();
+    $manager = new \LK\VKU\Editor\Manager();
+    $account = \LK\get_user(arg(1));
     
-    $html = $document-> getEditorTemplate([
-        'pxeditid' => 'verlag-' . arg(1) . '-' . time() 
-    ]);
+    if($account && $account ->isVerlag()){
+      $manager ->setAccount($account);
+      $html = $manager-> getEditorTemplate();
     
-    $page['page_bottom']['vku_editor'] = array(
-      '#weight' => -10,
-      '#markup' => $html
-    );
-  }  
+      $page['page_bottom']['vku_editor'] = array(
+        '#weight' => -10,
+        '#markup' => $html
+      );
+     } 
+    }
 }
 
 /**
@@ -68,10 +70,11 @@ function vku_editor_theme(){
   
   $themes["vku_editor_verlag"] = array(
     'template' => 'templates/vku_editor_verlag_overview',
-    'variables' => array(
+    'variables' => [
       'account' => new stdClass,
-      'documents' => NULL
-    ),
+      'documents' => NULL,
+      'available_presets' => 0,  
+    ],
   );
   
   $themes["vku_editor_verlag_documents"] = array(
@@ -146,7 +149,14 @@ function vku_editor_verlag_documents_themed(\LK\Verlag $verlag){
   
   $manager = new \LK\VKU\Editor\Manager(); 
   $categories = $manager ->getCategoriesAvailable($verlag);
-  $presets = $manager->getPresetsAvailable($verlag);
+  $presets = $manager->getPresetsAvailable();
+  
+  $allowed = [];
+  $items = $verlag -> getVerlagSettingMultiple('vku_editor_dokumente');
+  
+  foreach($items as $item){
+    $allowed[] = $item['option'];
+  }
   
   $array = [];
   while(list($key, $val) = each($categories)){
@@ -160,7 +170,9 @@ function vku_editor_verlag_documents_themed(\LK\Verlag $verlag){
   
   // Add the presets
   while(list($key, $val) = each($presets)){
-    $array[$val['category']]['presets'][$key] = $val;
+    if(in_array($key, $allowed)){
+      $array[$val['category']]['presets'][$key] = $val;
+    }
   }
   
   return theme('vku_editor_verlag_documents', [

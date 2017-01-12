@@ -1,15 +1,25 @@
 <?php
 
 /* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * @file
+ * Callback-Page for the user/%/vku_editor
  */
 
+/**
+ * 
+ * @param sdtClass $account
+ * @return array
+ */
 function vku_editor_page_verlag_cb($account){
   
   drupal_set_title('Verlagseigene Verkaufsdokumente');
+  lk_set_icon('tint');
+  
   $verlag = \LK\get_user($account);
+  if(!$verlag ->getVerlagSetting('vku_editor', 0)){
+    drupal_set_message('Dieses Feature ist im Moment nicht für Sie verfügbar.');  
+    drupal_goto('user');
+  }
   
   $documents = vku_editor_verlag_documents_themed($verlag);
   
@@ -21,6 +31,6 @@ function vku_editor_page_verlag_cb($account){
       'documents' => $documents,
   ]);
   
-return $theme;   
+  return $theme;   
 }
 

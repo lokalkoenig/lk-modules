@@ -28,16 +28,32 @@ function lokalkoenig_user_verlag_check_user_access_is_verlag($account){
   return false;
 }
 
+/**
+ * Restricts the Settings 
+ * on the Verlags-Settings
+ * 
+ * @param array $form
+ * @return array
+ */
 function lokalkoenig_user_verlag_form_alter_may_hide_plz(&$form){
+    
     $current = \LK\current();
     if(!$current -> hasRight("edit plz")){
-        $form['profile_verlag']['field_plz_sperre']['#access'] = false;
-        $form['profile_verlag']['field_anzeige_des_ma_protokolls']['#access'] = false;
-        $form['profile_verlag']['field_sperrung_vku']['#access'] = false;
-        $form['profile_verlag']['field_testverlag']['#access'] = false;
-        $form['profile_verlag']['field_sperrung_vku_hinweis']['#access'] = false;
-        $form['profile_verlag']['field_sperrung_vku_pdf']['#access'] = false;
-
+        $deny = [
+         'field_vku_editor',
+         'field_plz_sperre',
+         'field_anzeige_des_ma_protokolls',
+         'field_testverlag',
+         'field_sperrung_vku',   
+         'field_sperrung_vku_hinweis',
+         'field_sperrung_vku_pdf',
+         'field_vku_editor_dokumente',  
+         'field_vku_2',   
+        ];  
+        
+        foreach ($deny as $field){
+          $form['profile_verlag'][$field]['#access'] = false;
+        }
     }
     
     return $form;

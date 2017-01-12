@@ -140,9 +140,9 @@ class Document {
   function save(){
     $time = REQUEST_TIME;
     $this->setData('document_changed', $time);
-    $this->setData('document_created', $time);
     
     if(!$this -> id){
+      $this->setData('document_created', $time);
       $this -> id = db_insert(self::TABLE)->fields($this -> data)->execute();
     }
     else {
@@ -255,4 +255,14 @@ class Document {
       
       return $count;
   }
+  
+  /**
+   * Gets back the String
+   * of the object
+   * 
+   * @return string
+   */
+  function __toString() {
+    return $this->getTitle() . " (" .ucfirst($this->getCategory())  .")";
+  } 
 }

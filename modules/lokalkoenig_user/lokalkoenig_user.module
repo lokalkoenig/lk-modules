@@ -8,6 +8,10 @@ require_once("pages/verlagsstruktur.inc");
 
 function lk_check_user_profile_access($account_obj){
     
+  if($account_obj -> uid == 0){
+    return false;
+  }
+   
     $account = \LK\get_user($account_obj);
     $current = \LK\current();
     

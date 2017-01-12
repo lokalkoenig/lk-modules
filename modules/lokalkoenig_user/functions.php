@@ -52,29 +52,28 @@ return $links;
 function lokalkoenig_user_profile_links_verlag(\LK\User $account){
     
     $links = array();
-    $current = \LK\current();
     $uid = $account -> getUid();
-    
-    $verlag = $account ->getVerlag();
-    $verlag_obj = \LK\get_user($verlag);
+    $verlag = $account ->getVerlagObject();
+    $verlag_uid = $verlag ->getUid();
+    $current = \LK\current();
     
     if($account -> isVerlag()){
        $links[] = array('title' => "Verlagsdaten editieren", "link" => "user/" . $uid . "/edit/verlag", 'icon' => "wrench");
     }
     
-    $links[] = array('title' => "Mitarbeiter", "link" => "user/" . $verlag . "/struktur", 'icon' => "user");
-    $links[] = array('title' => "Ausgaben", "link" => "user/" . $verlag . "/ausgaben", 'icon' => "globe");
-    $links[] = array('title' => "Verlags-Statistiken", "link" => "user/" . $verlag . "/verlagstats", 'icon' => "stats");
+    $links[] = array('title' => "Mitarbeiter", "link" => "user/" . $verlag_uid . "/struktur", 'icon' => "user");
+    $links[] = array('title' => "Ausgaben", "link" => "user/" . $verlag_uid . "/ausgaben", 'icon' => "globe");
+    $links[] = array('title' => "Verlags-Statistiken", "link" => "user/" . $verlag_uid . "/verlagstats", 'icon' => "stats");
     
-    if($verlag_obj -> showProtokoll()){
-        $links[] = array('title' => "Mitarbeiter Protokoll", "link" => "user/" . $verlag . "/verlagsprotokoll", 'icon' => "list");
+    if($verlag -> showProtokoll()){
+      $links[] = array('title' => "Mitarbeiter Protokoll", "link" => "user/" . $verlag_uid . "/verlagsprotokoll", 'icon' => "list");
     }
     
-    if($current ->isModerator()){
-        //$links[] = array('title' => "NEU: VKU-Extras", "link" => "user/" . $verlag . "/vkuextras", 'icon' => "tint");
+    if($verlag ->getVerlagSetting('vku_editor', 0) || $current ->isModerator()){
+      $links[] = array('title' => "VKU Editor", "link" => "user/" . $verlag_uid . "/vku_editor", 'icon' => "tint");
     }
     
-    $links[] = array('title' => "Abrechnung", "link" => "user/" . $verlag . "/abrechnung", 'icon' => "euro");
+    $links[] = array('title' => "Abrechnung", "link" => "user/" . $verlag_uid . "/abrechnung", 'icon' => "euro");
 
 return $links;    
 }

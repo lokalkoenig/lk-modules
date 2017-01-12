@@ -3,11 +3,16 @@
 namespace LK\VKU\Editor;
 use LK\VKU\Editor\Document;
 
+/**
+ * Manage the things all around the Verlag
+ */
 class Manager extends \LK\PXEdit\DyanmicLayout {
   
   use \LK\Log\LogTrait;
   
   var $account;
+  var $LOG_CATEGORY = 'VKU Editor Verlag';
+  var $document;
   
   /**
    * Gets the Editor-Template
@@ -16,8 +21,11 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
    * @return string
    */
   function getEditorTemplate($variables = []){
-  
-
+    
+    $variables = [
+      'pxeditid' => 'verlag-' . $this->account->getUid() . '-' . time() 
+    ];
+    
     $variables['footer_logos'] = array(
       "/sites/default/files/styles/verlags-logos-klein/public/verlagslogo/ft.png",
       '/sites/default/files/styles/verlags-logos-klein/public/verlagslogo/br.png?itok=cu0U17XP',
@@ -141,8 +149,8 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
       return false;
     }
     
-    $document = new Document((array)$data);
-    return $document;  
+    $this -> document = new Document((array)$data);
+    return $this -> document;  
   }
   
   /**
@@ -156,13 +164,22 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
        $this->sendError('Fehler beim Speichern');
     }
             
-    $this ->sendJson([
-      'message' => 'Das Dokument ' . $document ->getTitle() . ' ['. $document ->getId()  .'] wurde erfolgreich gespeichert.'
-    ]);
+    $this ->sendSuccess('Das Dokument <em>' . $document . '</em> wurde erfolgreich gespeichert.');
+ }
+ 
+ function removeDocument($id){
+   $document = $this ->getDocumentVerlag($this->getAccount(), $id);
+   
+   if($document){
+     $document ->remove();
+     $this ->sendSuccess("Das Dokument <em>" . $document . "</em> wurde gelöscht.");
+   }
+   
+   $this ->sendError('Das Dokument <em>ID: '. $id .'</em> wurde nicht gefunden oder Sie haben keinen Zugriff.');
  }
   
-  /**
-   * Saves the Document
+ /**
+ * Saves the Document
    * 
    * @param array $data
    * @return Document
@@ -233,7 +250,7 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
    * @param \LK\Verlag $account Account
    * @return array
    */
-  function getPresetsAvailable(\LK\Verlag $account){
+  function getPresetsAvailable(){
     return [
        'OnlineArgumentation' => [
            'title' => 'Online Argumentation', 
@@ -273,9 +290,27 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     ];
   }
   
+  /**
+   * Sends back an Error
+   * 
+   * @param type $message
+   */
+  function sendError($message) {
+    $this ->logError($message);
+    parent::sendError($message);
+  }
+  
+  /**
+   * Sends back a Success-Request with message
+   * 
+   * @param type $message
+   */
+  function sendSuccess($message){
+    $this->logNotice($message);
+    $this ->sendJson(['message' => $message]);
+  }
   
   function getCategoriesAvailable(\LK\User $account){
-  
     return [
       'print' => "Print",
       'online' => "Online",

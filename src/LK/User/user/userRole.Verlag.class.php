@@ -72,6 +72,24 @@ class Verlag extends User {
    }
    
    /**
+    * Gets Verlag-Settings (Multiple Values)
+    * 
+    * @param type $id
+    * @param type $default_value
+    */
+   function getVerlagSettingMultiple($id, $default_value = []){
+    $setting_name = 'field_' . $id;
+    $values = (array)$this->profile['verlag'];
+    
+    if(isset($values[$setting_name]['und'])){
+      return $values[$setting_name]['und'];  
+    } 
+    else {
+      return $default_value;
+    }       
+   }
+   
+   /**
     * Protokoll
     * 
     * @return Int

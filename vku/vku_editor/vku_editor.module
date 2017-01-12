@@ -1,3 +1,9 @@
 <?php
+/**
+ * @file 
+ * VKU-Editor-Module
+ */
 
 require_once __DIR__ . '/editor.inc';
+require_once __DIR__ . '/vku_editor.field_widget.php';
+
