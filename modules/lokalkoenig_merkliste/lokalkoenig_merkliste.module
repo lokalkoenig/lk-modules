@@ -22,12 +22,9 @@ global $user, $preserv_fs;
   }
   
   // Need to Delete, because of visibility issues
-  if($query['params']['fq'][1] == 'is_status:"1"'){
+  if(isset($query['params']['fq'][1]) && $query['params']['fq'][1] == 'is_status:"1"'){
     unset($query['params']['fq'][1]);
-  }
-  
-  
-   
+  } 
 }
 
 

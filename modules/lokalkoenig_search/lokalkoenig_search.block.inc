@@ -45,12 +45,13 @@ function lokalkoenig_search_block_view($delta = NULL){
         
         // Add to Database
         lk_save_current_search();
-      
+     
         $block = array(
           'subject' => 'Blubb',
           'content' => theme('lk_search', array()));
         
-          break;
+        return $block;
+        break;
         
       case 'lk_search_empty':
           

@@ -17,6 +17,7 @@ function lokalkoenig_search_theme(){
    $themes["lk_search"] = array(
             'template' => 'templates/lk_search', // your template file called custompage.tpl.phü
             'variables'=> array('node' => NULL));
+   
     $themes["lk_search_empty"] = array(
             'template' => 'templates/lk_search_empty', // your template file called custompage.tpl.phü
             'variables'=> array());

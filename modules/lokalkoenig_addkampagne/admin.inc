@@ -228,15 +228,12 @@ global $user;
 
   
   $form['contact']["mark4"] = array(
-      '#markup' => '<div class="form-group"><strong>Von:</strong> ' . lk_get_username_and_role(user_load($user -> uid)) . '</div>'
+      '#markup' => '<div class="form-group"><strong>Von:</strong> ' . \LK\u($user -> uid) . '</div>'
   );  
   
   $account = user_load($uid);
-  
- 
-  
   $form['contact']["mark3"] = array(
-      '#markup' => '<div class="form-group"><strong>An:</strong> ' . lk_get_username_and_role($account) . '</div>'
+      '#markup' => '<div class="form-group"><strong>An:</strong> ' . \LK\u($account -> uid) . '</div>'
   );  
   
   

@@ -217,60 +217,14 @@ return $days;
 
 
 /** Depricated */
-function _lk_username($account){
-  
-    $obj = \Lk\get_user($account);
-    if($obj){
-        return (string)$account;
-    }
-    
-return '';
-}
-
-function format_ausgaben_kurz($account){ }
-
-function _lk_can_access_protokoll_verlag($account){ 
-  return false;
-}
-
-
-function format_team_title($team){ }
-
 
 /** Depricated */
 
 function print_plz2($account){ }
 function print_plz($account){ return ''; }
 
-function lokalkoenig_merkliste_test_access($node){
- 
-}
-
-
-function _lk_check_private_terms($tids){
-global $user;
-  
-  foreach($tids as $tid){
-    $dbq = db_query("SELECT count(*) as count FROM  lk_merklisten_terms WHERE uid='". $user -> uid ."' AND tid='". $tid ."'");
-    $res = $dbq -> fetchObject();
-    
-    if($res -> count == 0){
-        $taxo = taxonomy_term_load($tid);  
-        $nid = db_insert('lk_merklisten_terms') // Table name no longer needs {}
-        ->fields(array(
-          'uid' => $user -> uid,
-          'tid' => $tid,
-          'term_name' => $taxo -> name
-        ))
-        ->execute();
-      
-    } 
-  }
-}
-
 
 /*******************************************/
-
 
 function getLizenz($lizenz_id){
   $dbq = db_query("SELECT * FROM lk_vku_lizenzen WHERE id='". $lizenz_id ."'");
