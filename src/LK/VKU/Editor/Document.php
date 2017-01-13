@@ -146,11 +146,7 @@ class Document {
       $this -> id = db_insert(self::TABLE)->fields($this -> data)->execute();
     }
     else {
-      
       $data = $this -> data;
-      if($data['id']){
-        unset($data['id']);
-      }
       
       db_update(self::TABLE)
               ->fields($data)

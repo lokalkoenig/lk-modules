@@ -1,12 +1,14 @@
 <?php
 
-namespace LK;
+namespace LK\Admin;
 
 class UserManagerMaintanance {
-   
+    
+    use \LK\Log\LogTrait;
+    var $LOG_CATEGORY = "User";
+  
     var $account = NULL;
     var $uid = NULL;
-    
     var $can_deactivate = false;
     var $can_activate = false;
     var $can_delete = false;
@@ -248,10 +250,11 @@ class UserManagerMaintanance {
     * @param String $message
     */
    function log($message){
-       $log = $message;
-       $title = $this -> account -> getTitle(); 
-       $log .= ' ['. $title .' - UID: '. $this -> uid .']';
-       return lk_note('manager', $log);
+     $log = $message;
+     $title = $this -> account -> getTitle(); 
+     $log .= ' ['. $title .' - UID: '. $this -> uid .']';
+     
+     return $this->logNotice($message);   
    }
    
    function listStats(){

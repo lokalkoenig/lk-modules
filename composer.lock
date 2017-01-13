@@ -4,55 +4,9 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cc190e0e958233e97a2bd3845bc72ec3",
-    "content-hash": "badaa906dfba8c76fd197043ca22c213",
+    "hash": "328ba766fa4c89c62096ce4d54fb7758",
+    "content-hash": "3cf466ea4c70251116463ca78ebff0cf",
     "packages": [
-        {
-            "name": "internations/solr-utils",
-            "version": "v0.6.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/InterNations/SolrUtils.git",
-                "reference": "ade1c00cd746eebc5130e44261c43d0524ce0c7f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/InterNations/SolrUtils/zipball/ade1c00cd746eebc5130e44261c43d0524ce0c7f",
-                "reference": "ade1c00cd746eebc5130e44261c43d0524ce0c7f",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.6"
-            },
-            "require-dev": {
-                "internations/kodierungsregelwerksammlung": "dev-master",
-                "phpunit/phpunit": "~5|~4"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "InterNations\\Component\\Solr\\Util": "src/",
-                    "InterNations\\Component\\Solr\\ExpressionInterface": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Lars Strojny",
-                    "email": "lars.strojny@internations.org"
-                }
-            ],
-            "description": "Solr/Lucene utilities for PHP",
-            "time": "2016-07-13 15:52:47"
-        },
         {
             "name": "pclzip/pclzip",
             "version": "2.8.2",

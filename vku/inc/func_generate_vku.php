@@ -83,7 +83,7 @@ function _vku_generate_final_vku_v2(VKUCreator $vku){
     
     $dir = "sites/default/private/vku/";
     $pdf->Output($dir . $fn, 'F');
-
+    
     if(!file_exists("sites/default/private/vku/" . $fn)){
         return false;   
     }
@@ -96,18 +96,13 @@ function _vku_generate_final_vku_v2(VKUCreator $vku){
 }    
 
 
-
-
  function _vku_generate_final_vku(VKUCreator $vku){
-
-     
   $author = $vku -> getAuthor();
   $id = $vku -> getId();
 
   
   $pdf = vku_generate_get_pdf_object($vku); 
-	$fn = $id . ".pdf";
-
+  $fn = $id . ".pdf";
   $pages = $vku -> getPages();
 
 
@@ -125,10 +120,10 @@ function _vku_generate_final_vku_v2(VKUCreator $vku){
   //drupal_get_messages();
   $dir = "sites/default/private/vku/";
   $pdf->Output($dir . $fn, 'F');
-
-	if(!file_exists("sites/default/private/vku/" . $fn)){
- 		return false;   
-	}
+  
+  if(!file_exists("sites/default/private/vku/" . $fn)){
+    return false;   
+  }
 
   $vku -> set("vku_ready_filename", $fn);
   $vku ->logVerlagEvent('Verkaufsunterlage zum Download bereit');

@@ -97,6 +97,24 @@ function lokalkoenig_admin_views_data() {
     ),
   );
   
+  $data['lk_log']['sub_category'] = array(
+    'title' => ('Sub-Kategorie'), 
+    'help' => ('Sekundäre Kategorie'), 
+    'field' => array(
+      'handler' => 'views_handler_field', 
+      'click sortable' => False,
+    ), 
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ), 
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ), 
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+  
   $data['lk_log']['request_time'] = array(
     'title' => ('Datum des Eintrags'), 
     'help' => ('Datum des Eintrags'), 

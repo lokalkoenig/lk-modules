@@ -6,7 +6,8 @@ use LK\Solr\SearchQueryParser;
 class Alert  {
     
     use \LK\Log\LogTrait;
-  
+    var $LOG_CATEGORY = "Alert";
+    
     var $entity = null;
     
     function __construct($id) {
@@ -80,7 +81,6 @@ class Alert  {
     
     function remove(){
         $this->logNotice('Lösche Alert ' . $this);
-        
         entity_delete('alert', $this -> entity -> id);  
     }
 }

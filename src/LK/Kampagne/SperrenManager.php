@@ -16,7 +16,7 @@ namespace LK\Kampagne;
 class SperrenManager {
     //put your code here
     use \LK\Log\LogTrait;
-    
+    var $LOG_CATEGORY = "PLZ";
   
     public function updateNodeAccess($nid){
         $this ->rebuildAusgabenAccess($nid);

@@ -10,6 +10,8 @@ namespace LK\PPT;
 
 use PhpOffice\PhpPresentation\Shape\Drawing\File;
 use PhpOffice\PhpPresentation\Style\Fill;
+use PhpOffice\PhpPresentation\Shape\Drawing;
+
 
 /**
  * Description of PPT_Base
@@ -103,9 +105,7 @@ abstract class PPT_Base {
     
     function addImage($image, $options){
        //$shape_image = $this -> current_slide -> createDrawingShape();
-       $shape_image = new File();
-       
-      
+       $shape_image = new Drawing();
        $shape_image->setName('logo')->setPath($image);
        //$shape_image->setMimeType(Drawing\Gd::MIMETYPE_DEFAULT);
        

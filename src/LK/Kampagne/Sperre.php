@@ -16,7 +16,8 @@ namespace LK\Kampagne;
 class Sperre {
     
     use \LK\Log\LogTrait;
-    
+    var $LOG_CATEGORY = "PLZ";
+  
     var $manager = null;
     var $entity = null;
     

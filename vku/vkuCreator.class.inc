@@ -10,7 +10,8 @@ if(!defined('LK_TEST_VERLAG_UID')){
 class VKUCreator {
     
   use \LK\Log\LogTrait; 
-    
+  var $LOG_CATEGORY = 'VKU';
+  
   /**
    * VKUData Class
    * 
@@ -34,7 +35,6 @@ class VKUCreator {
 
   function hasAccess(){
    global $user;
-    
 
     if(!$this -> is()) return false;
     if(lk_is_moderator()) return true;

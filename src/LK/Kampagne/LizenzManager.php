@@ -12,7 +12,7 @@ class LizenzManager {
  
   use \LK\Log\LogTrait;
   
-  var $LOG_CATEGORY = "lizenzen";
+  var $LOG_CATEGORY = "Lizenzen";
   const ADMIN_URL = "logbuch/verlag-lizenzen";
   
   /**

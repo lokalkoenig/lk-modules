@@ -79,9 +79,10 @@ class LK_PPT_Creator {
      */
     function __construct($vku_id) {
         $this -> vku = new \VKUCreator($vku_id);
-       
+        $account = \LK\get_user($this->vku->getAuthor());
+        
         // Get common VKU Settings
-        $this -> settings = vku_get_output_basics($this -> vku);
+        $this -> settings = \LK\VKU\VKUManager::getVKU_RenderSettings($account);
         $this -> start_time = microtime();
         
         // https://github.com/PHPOffice/PHPPresentation/issues/266
@@ -144,31 +145,7 @@ class LK_PPT_Creator {
         $img_url = image_style_url($style, $uri);
         
        return \LK\Files\FileGetter::get($img_url);
-  
-        
-        
-        // For private Files
-        if (strpos($img_url, 'private') !== false) {
-            $img_url = str_replace($base_url . '/system/files/styles', 'sites/default/private/styles', $img_url);
-            $explode = explode("?", $img_url);
-            $img_url = $explode[0];
-        }
-        
-        $ext = 'jpg';
-        
-        // get the file-extension
-        $size = getimagesize($img_url);
-        if($size[2] == '1'){ $ext = 'gif'; }
-        if($size[2] == '3'){  $ext = 'png'; }
-        
-        $count = count($this -> tmp_images);
-        $new_name = time() . 'image_' . $count . '.' . $ext;
-        file_put_contents($dir . "/" . $new_name, file_get_contents($img_url));
-        $this -> tmp_images[] = $new_name;
-        
-        return $dir . "/" . $new_name;
     }
-    
     
     /**
      * Adds all the necessary Slides based on the Configuration
@@ -213,17 +190,18 @@ class LK_PPT_Creator {
     }
     
     function createSlide(){
-        $this -> slide_count++;
         
-        if($this -> slide_count == 1){
+        if($this -> slide_count === 0){
+           //$this -> ppt->removeSlideByIndex(0);
            $slide = $this -> ppt ->getActiveSlide(); 
            //$slide->setSlideLayout($this -> oSlideLayout);
         }
         else {
             $slide = $this -> ppt ->createSlide();
-            $slide ->setSlideLayout($this -> oSlideLayout);
+            //$slide ->setSlideLayout($this -> oSlideLayout);
         }
         
+        $this -> slide_count++;
         return $slide;
     }
     

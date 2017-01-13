@@ -19,7 +19,9 @@ use LK\Solr\Search;
  */
 class AlertCron extends AlertManager {
     //put your code here
-    
+    use \LK\Log\LogTrait;
+    var $LOG_CATEGORY = "Alert";
+  
     public function run(){
         
         $query = new \EntityFieldQuery();

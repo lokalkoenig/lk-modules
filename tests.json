@@ -5,6 +5,7 @@
        "LK\\Tests\\TestVKU": "VKU Test (Generieren von Test-VKU)",
        "LK\\Alert\\Test\\AlertTest": "Alert Test",
        "LK\\Tests\\PPTTest": "VKU Test PPT",
-       "LK\\Kampagne\\Tests\\GIFExtractorTest": "GIF Extractor Test"
+       "LK\\Kampagne\\Tests\\GIFExtractorTest": "GIF Extractor Test",
+       "LK\\Admin\\Tests\\UserCheckup": "Check all Users"
     }]  
 }

@@ -22,7 +22,7 @@ trait LogTrait {
      * @param Array $options Options
      * @return String
      */
-     function logCron($message, $options = array()){
+    protected function logCron($message, $options = array()){
        $log = new Debug($message);
        $log -> setCategory("cron");
        $this -> _parseLogOptions($log, $options);
@@ -38,7 +38,7 @@ trait LogTrait {
      * @return string
      */
    
-    function logError($message, $options = array()){
+    protected function logError($message, $options = array()){
        $log = new Debug($message);
        $log -> setCategory("error");
        $this -> _parseLogOptions($log, $options);
@@ -53,7 +53,7 @@ trait LogTrait {
      * @param Array $options Options 
      * @return string
      */
-    function logNotice($message, $options = array()){
+    protected function logNotice($message, $options = array()){
       $log = new Debug($message);
       $log -> setCategory('debug');
       $this -> _parseLogOptions($log, $options);
@@ -68,7 +68,7 @@ trait LogTrait {
      * @param String $message
      * @param Array $options
      */
-    function logVerlag($message, $options = array()){
+    protected function logVerlag($message, $options = array()){
       
        // Log the Event
        $log = new \LK\Log\Verlag($message);
@@ -86,7 +86,7 @@ trait LogTrait {
      * @param Array $options Options
      * @return String
      */
-    function logKampagne($message, $nid, $options = array()){
+    protected function logKampagne($message, $nid, $options = array()){
       $log = new Debug($message);
       $log -> setCategory('kampagne');
       $log->setNid($nid);

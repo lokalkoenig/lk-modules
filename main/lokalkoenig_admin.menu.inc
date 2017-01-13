@@ -52,6 +52,32 @@ function lokalkoenig_admin_menu(){
       'file' => "pages/logbuch_editlizenz.inc",
       'type' => MENU_CONTEXT_NONE); 
      
+  // Lizenz admin
+  $items['logbuch/editlizenz/%'] = array(
+      'access callback' => lk_is_moderator(),
+      'page callback' => 'vku_vku_admin_edit',
+      'page arguments' => array(2),
+      'title' => 'Lizenz editieren',
+      'file' => "pages/logbuch_editlizenz.inc",
+      'type' => MENU_CONTEXT_NONE); 
+  
+  
+ $items['user/%user/info'] = array(
+      'access callback' => 'lk_is_moderator',
+      'file' => 'pages/user_admin.inc',
+      'page callback' => 'lokalkoenig_user_info',
+      'page arguments' => array(1),
+      'title' => 'Administrieren',
+      'type' => MENU_LOCAL_TASK);
+ 
+ 
+   $items['verlage/addverlag'] = array(
+      'access callback' => 'lk_is_moderator',
+      'file' => 'pages/user_verlag_create.inc',
+      'page callback' => 'lokalkoenig_user_verlag_create',
+      'page arguments' => array(1),
+      'title' => 'Verlag anlegen',
+      'type' => MENU_LOCAL_TASK);
+ 
     return $items;
 }
-

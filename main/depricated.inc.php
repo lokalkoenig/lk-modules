@@ -6,13 +6,37 @@
  * @return boolean
  */
 function lokalkoenig_nodeaccess_delete_rule($entity_id){
-    
     $manager = new \LK\Kampagne\SperrenManager();
-
     return $manager ->removeSperre($entity_id);
 }
 
+function vku_is_update_user_ppt(){
+    return vku_is_update_user();
+}    
 
+function vku_is_update_user(){
+    
+  $account = \LK\current();
+  if(!$account || $account ->isAgentur()){
+    return false;
+  }
+
+  if($account ->isModerator()){
+    return true;
+  }
+
+  $verlag = $account ->getVerlagObject();
+  if(!$verlag){
+    return false;
+  }
+
+  $vku2 = $verlag ->getVerlagSetting('vku_2', 0);
+  if($vku2){
+    return true;
+  }
+    
+  return false;    
+} 
 
 
 

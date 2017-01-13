@@ -15,7 +15,7 @@ use GifFrameExtractor\GifFrameExtractor;
 class GIFExtractor {
   
   use \LK\Log\LogTrait;
-  var $LOG_CATEGORY = 'gif-conversion'; 
+  var $LOG_CATEGORY = 'GIF-Conversion'; 
  
   var $node = null;
   var $file = null;

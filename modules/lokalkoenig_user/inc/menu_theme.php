@@ -75,25 +75,6 @@ function lokalkoenig_user_menu(){
       'page arguments' => array(1),
       'title' => 'Meine Kampagnen',
       'type' => MENU_LOCAL_TASK);
- 
- 
- $items['user/%user/info'] = array(
-      'access callback' => 'lk_is_moderator',
-      'file' => 'pages/admin.inc',
-      'page callback' => 'lokalkoenig_user_info',
-      'page arguments' => array(1),
-      'title' => 'Administrieren',
-      'type' => MENU_LOCAL_TASK);
- 
- 
-   $items['verlage/addverlag'] = array(
-      'access callback' => 'lk_is_moderator',
-      'file' => 'user_admin.inc',
-      'page callback' => 'lokalkoenig_user_verlag_create',
-      'page arguments' => array(1),
-      'title' => 'Verlag anlegen',
-      'type' => MENU_LOCAL_TASK);
-
    
       return $items;    
       

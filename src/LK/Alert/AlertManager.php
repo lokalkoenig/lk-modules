@@ -15,6 +15,7 @@ class AlertManager {
     
     use \LK\UI\Table;
     use \LK\Log\LogTrait;
+    var $LOG_CATEGORY = "Alert";
     
     /**
      * Creates a new Alert

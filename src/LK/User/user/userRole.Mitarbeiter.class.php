@@ -40,9 +40,15 @@ class Mitarbeiter extends User {
        $return = parent::__construct($user, $reference);
        
         // Init the User
-       $this -> verlag = (int)$this -> profile['mitarbeiter']->field_mitarbeiter_verlag['und'][0]['uid'];
-       $this -> team = (int)$this -> profile['mitarbeiter']->field_team['und'][0]['target_id'];
-    
+       if(isset($this -> profile['mitarbeiter']) && isset($this -> profile['mitarbeiter']->field_mitarbeiter_verlag['und'][0]['uid'])){
+        $this -> verlag = (int)$this -> profile['mitarbeiter']->field_mitarbeiter_verlag['und'][0]['uid'];
+       }
+       
+       
+       if(isset($this -> profile['mitarbeiter']) && isset($this -> profile['mitarbeiter']->field_team['und'][0]['target_id'])){
+          $this -> team = $this -> profile['mitarbeiter']->field_team['und'][0]['target_id'];
+       }
+       
        if(!$return) {
             return false;
        }
