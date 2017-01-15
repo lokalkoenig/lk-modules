@@ -171,15 +171,6 @@ return $themes;
         
  
      // vku / active
-    $items['vku/%/add/%node'] = array(
-      'access callback' => 'lk_vku_access',
-      'access arguments' => array(3),
-      'page callback' => '_vku_add_node',
-      'file' => 'inc/func_node_add.php',
-      'page arguments' => array(3, 1),
-      'title' => 'Kampagne zu Verkaufsunterlagen hinzufügen',
-      'type' => MENU_CONTEXT_NONE);
-
    $items['user/%user/vku/%/delete'] = array(
       'access callback' => 'lk_vku_access',
       'page callback' => '_vku_current_delete',
@@ -428,7 +419,16 @@ function vku_menu_version1(&$items){
       'page callback' => '_vku_show_current_ajax',
       'title' => 'Verkaufsunterlagen',
       'page arguments' => array(),
-     'file' => "inc/vku1/func_vku_current.php",
+      'file' => "inc/vku1/func_vku_current.php",
       'type' => MENU_CONTEXT_NONE); 
+     
+     $items['vku/%/add/%node'] = array(
+      'access callback' => 'lk_vku_access',
+      'access arguments' => array(3),
+      'page callback' => '_vku_add_node',
+      'file' => 'inc/vku1/func_node_add.php',
+      'page arguments' => array(3, 1),
+      'title' => 'Kampagne zu Verkaufsunterlagen hinzufügen',
+      'type' => MENU_CONTEXT_NONE);
 
 }

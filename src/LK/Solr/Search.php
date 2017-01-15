@@ -24,7 +24,8 @@ class Search {
      */
     function __construct() {
         $this -> solr = apachesolr_drupal_query("select");
-        //$this -> solr -> addParam('fq','index_id:default_node_index');
+        $this -> solr -> addParam('fq','index_id:default_node_index');
+        $this -> solr -> addParam('fl','item_id');
     }   
     
     /**
@@ -61,8 +62,9 @@ class Search {
      */
     public function setSearchTerm($term){
        //$sanitized = \InterNations\Component\Solr\Util::sanitize($term); 
-       //$this -> solr ->addParam('q', '"' . $term .  '"');  
         $this -> term = $term;
+        $this -> solr -> addParam('qf','tm_field_kamp_suche^1.0');
+        $this -> solr -> addParam('q','"'. $term .'"');
     }
     
     /**
@@ -96,6 +98,15 @@ class Search {
        $this ->solr ->addParam('fq', "ds_created:[". $date ."Z TO NOW]");
     }
     
+    /**
+     * Excludes a NID
+     * 
+     * @param type $nid
+     */
+    function excludeNode($nid){
+       $this ->solr ->addParam('fq', '-item_id:"'. $nid .'"');
+    }
+    
     
     /**
      * Gets the number of results
@@ -118,7 +129,12 @@ class Search {
        $response = $this -> callSOLR();  
        $nodes = array();
        foreach ($response->docs as $doc):
+         if(isset($doc-> entity_id)){
            $nodes[] = $doc-> entity_id;
+         }  
+         elseif(isset($doc-> item_id)) {
+           $nodes[] = $doc-> item_id;
+         }
        endforeach;
     return $nodes;   
     }
@@ -157,10 +173,22 @@ class Search {
       //$query->removeFilter('bundle');
       //$query->addParam('fq', "bundle:(article OR page)");
       //$query->addParam('fq', "field_date:[1970-12-31T23:59:59Z TO NOW]");
+      
+      
+      //utf8_encode($this -> term)
+      $resp = $this -> solr->search(); 
        
-      $resp = $this -> solr->search(utf8_encode($this -> term)); 
-      //dpm($resp); 
-       
+      /**
+       * SAMPLE Query
+       * webapp=/solr path=/select params={facet.missing=false
+       * &f.im_field_kamp_anlass.facet.limit=50
+       * &facet=true
+       * &sort=score+desc&
+       * facet.mincount=1&
+       * facet.limit=10
+       * &qf=tm_field_kamp_suche^1.0&f.is_field_kamp_preisnivau.facet.limit=50&f.im_field_kamp_format.facet.limit=50&f.im_field_kamp_kommunikationsziel.facet.limit=50&json.nl=map&wt=json&rows=10&fl=item_id,score&start=0&facet.sort=count&q="sommer"&facet.field=im_field_kamp_kommunikationsziel&facet.field=is_field_kamp_preisnivau&facet.field=im_field_kamp_format&facet.field=im_field_kamp_anlass&facet.field=im_field_kamp_themenbereiche&f.im_field_kamp_themenbereiche.facet.limit=50&fq=*:*+AND+-(is_author:"11")&fq=index_id:default_node_index} hits=32 status=0 QTime=13
+       */
+      
       return $resp -> response;
     }
 }

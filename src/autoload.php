@@ -8,7 +8,7 @@ require_once __DIR__ . "/LK/Log/functions.php";
 require_once __DIR__ . "/LK/User/UserManager.class.php";
 
 // Composer Autoload
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 /**
  * Autoloader function

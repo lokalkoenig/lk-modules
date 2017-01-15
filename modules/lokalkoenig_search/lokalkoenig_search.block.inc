@@ -43,6 +43,11 @@ function lokalkoenig_search_block_view($delta = NULL){
           return array();
         }
         
+        // Do not show when no results
+        if(lk_search_has_no_results()){
+          return [];
+        }
+        
         // Add to Database
         lk_save_current_search();
      
@@ -96,33 +101,56 @@ function lokalkoenig_search_block_view($delta = NULL){
 }
 
 
+/**
+ * 
+ * @todo Disables, as we need a replacement
+ * @global type $user
+ * @return boolean
+ */
 function _lk_generate_search_related_block(){
-global $user;
   
-  if(lk_is_agentur()) return ;
-   
+  if(lk_is_agentur()) {
+    return ;
+  } 
+  
   $view = views_get_page_view();
-  
-  //dpm($view);
-
- 
-
-  // 
-  if(!isset($_GET["f"])) return ;
-  
-  // Nur anzeigen wenn zwei Facetts ausgewählt wurden:
-  if(count($_GET["f"]) < 2){
-     return ;
+  if(!$view){
+    return ;
   }
-
-  $vars = $_GET["f"];
+  
+  $url = $_GET;
+  if(isset($url["q"])) {
+    unset($url["q"]);
+  }        
+  
+  if(!isset($url["f"]) || count($_GET["f"]) < 2) {
+    return ;
+  }
+  
+  // shuffle
+  $vars = $url["f"];
   shuffle($vars);
   unset($vars[0]);
-
-  $url = $_GET;
-  $url["f"] = $vars;
-  unset($url["uri"]);
   
+  $url["f"] = $vars;
+  
+  $search = new \LK\Solr\Search();
+  $search ->addFromQuery($url);
+
+  
+  $nodes_exclude = array();
+  foreach($view -> result as $entity){
+     if(is_int($entity -> entity)){
+       $search ->excludeNode($entity -> entity); 
+     }
+     else {
+      $search ->excludeNode($entity -> entity -> nid);
+     } 
+  }
+  
+  $search ->setLimit(4);
+ 
+  // Generate the Tags    
   $tags = array();
   $tags_display = array();
   while(list($key, $val) = each($vars)){
@@ -130,48 +158,33 @@ global $user;
      if(isset($explode[1])){
         if($term = taxonomy_term_load($explode[1])){
           $tags[] = $explode[1];
-          
-          if(isset($url["q"])) unset($url["q"]);
-          
-          $tags_display[] = l($term -> name, 'suche', array("query" => $url, "attributes" => array("class" => array("btn")))); 
+          $tags_display[] = l($term -> name, arg(0), array("query" => $url, "attributes" => array("class" => array("btn")))); 
         }
      }
   }
 
-  $nodes_exclude = array();
-
-  $view = views_get_page_view();
-  foreach($view -> result as $entity){
-     
-     if(is_int($entity -> entity)){
-        $nodes_exclude[] = $entity -> entity;
-     }
-     else {
-        $nodes_exclude[] = $entity -> entity -> nid;
-     } 
+  $nodes = $search ->getNodes();
+  
+  $output = [];
+  foreach($nodes as $nid){
+    $node = node_load($nid);
+    if(!$node){
+      continue;
+    }
+    
+    $node_view = node_view($node, 'teaser');
+    $output[] = render($node_view);
   }
   
-  
-
-  $view = views_get_view('related_kampagnen');
-  $view->get_total_rows = TRUE;
-  $view->set_display('attachment_1');
-  $view->set_arguments(array(implode(",", $tags), implode("+", $nodes_exclude), $user -> uid));
-  $view->pre_execute();
-  $view->execute();
-  $viewsout = $view->render();;
-  
-  if(!$viewsout) return ;
-  
-  $total_items = $view->query->pager->get_total_items(); 
-  
-  if($total_items == 0) return false;
-  
+  if(!$output){
+    return false;
+  }
+ 
   $theme = array();
-  $theme["total_items"] = $total_items;
+  $theme["total_items"] = $search ->getCount();
   $theme["tags_display"] = $tags_display;
-  $theme["viewsout"] = $viewsout;
-  $theme["url"] = $url;
+  $theme["viewsout"] = implode('', $output);
+  $theme["url"] = \LK\Solr\SearchQueryParser::buildLink($url);
 
   return theme('lk_search_other', $theme);
 }

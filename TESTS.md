@@ -1,3 +1,32 @@
+Test: User
+- Passwort vergessen (Mit E-Mail oder auch mit Benutzername)
+- Bekommt E-Mail mit Passwort
+
+--------------------------
+
+
+Test: Agentur
+- Kann Profil bearbeiten, aber nicht zwingend erforderlich
+- Kann Kampagnen erstellen und bearbeiten
+- Dashboard: Neuigkeiten, zuletzt bearbeitete Kampagnen
+- Kampagne erstellen und einreichen
+- Nach dem Einreichen wird eine PM an den LK gesendet
+- Kann die freigeschalteten Kampagnen sehen
+- Kann aber keine anderen Kampagnen sehen
+
+Todos:
+- im /user/%user/kampagnen, der Exposed block ist unter den Kampagnen
+- Workflow ueberarbeiten, huebscher machen
+- Moderatoren das anlegen von Agenturen gestatten
+- Kann keine Messages schreiben, Form wird aber angezeigt. Sollte zumindest an den Support schreiben koennen
+- Log-Meldungen koennen mehr informationen beinhalten (Titel)
+
+Moderation:
+- Kann Status veraendern und Kampagnen wieder zurueck zur Agentur senden.
+
+
+--------------------------
+
 Test: Verlags-Account
 
 * Verlagsdaten editieren
@@ -11,6 +40,11 @@ Test: Verlags-Account
 - Team editieren
 - Einstellung: Mitarbeiter-Protokoll
 - Dashboard: Standard: MA
+
+Todos:
+- Beim Anlegen wird das passwort nicht korrekt gesetzt
+- Wenn Verlag keine Ausgaben hat, sollte er keine MA anlegen koennen
+
 
 --------------------------
 
@@ -26,17 +60,6 @@ Todos:
 - Teams entfernen... (tbd)
 - Log-Messages bei Usern anpassen
 - Lizenzen subtrahieren in Stats, wenn geloescht
-
---------------------------
-
-Test: Agentur
-- Kann Kampagnen erstellen und bearbeiten
-- Dashboard: Neuigkeiten, zuletzt bearbeitete Kampagnen
-
-Todos:
-- Workflow ueberarbeiten, huebscher machen
-- Kann keine Messages schreiben, Form wird aber angezeigt. Sollte zumindest an den Support schreiben koennen
-
 
 --------------------------
 

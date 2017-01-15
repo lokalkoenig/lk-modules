@@ -8,12 +8,8 @@ function computed_field_field_kamp_medien_compute(&$entity_field, $entity_type, 
 }
 
 function computed_field_field_kamp_beliebtheit_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items){
-  $entity_field[0]["value"] = _lk_update_beliebtheitsindex($entity);
+  $entity_field[0]["value"] = 0;
 }
-
-
-
-
 
 function computed_field_field_medium_order_compute(&$entity_field, 
     $entity_type, 
@@ -37,9 +33,6 @@ function _lokalkoenig_change_media_count($nid){
   $node = node_load($nid);
   node_save($node);
 }
-
-
-
 
 function computed_field_field_kamp_status_display($field, $entity_field_item, $entity_lang, $langcode, $entity){
   
@@ -142,6 +135,19 @@ function computed_field_field_sid_compute(&$entity_field, $entity_type, $entity,
 }
 
 
+/**
+ * @todo Needs to be rewritten soon
+ * 
+ * @global int $totalpages
+ * @param type $entity_field
+ * @param type $entity_type
+ * @param type $entity
+ * @param type $field
+ * @param type $instance
+ * @param type $langcode
+ * @param type $items
+ * @return type
+ */
 function computed_field_field_kamp_pdf_pages_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items){
 global $totalpages;
     
@@ -164,11 +170,9 @@ global $totalpages;
        } 
     }
     
-    // Include PDF Script
-    require_once('sites/all/modules/lokalkoenig/vku/pdf_class.php');
+    $pdf = \LK\PDF\PDF_Loader::load();
     $module_dir = 'sites/all/modules/lokalkoenig/vku/pages/';
-    $pdf = new PDF('L');
-
+   
     require($module_dir.'b-medias.php');
     
     if($totalpages){

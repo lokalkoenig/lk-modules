@@ -8,9 +8,9 @@
 
 function vku_func_flush_deleted($account){
     
-  $current = LK\current()();
+  $current = LK\current();
 
-  if(!$current ->isModerator() OR $current -> getUid() != $account -> uid){
+  if(!$current ->isModerator() AND $current -> getUid() != $account -> uid){
     drupal_goto("user/" . $account -> uid . "/vku");
   }
    

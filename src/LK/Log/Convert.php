@@ -24,6 +24,7 @@ class Convert {
             if($all -> nid){
                 $log = new Kampagne($all -> nid, $all -> title);
                 $log ->set("request_time", $all -> createdate);
+                $log -> set("sub_category", 'Kampagne');
                 $log ->set("uid", $all -> uid);
                 $log ->context = [];
                 $log ->save();
@@ -40,8 +41,9 @@ class Convert {
                 continue;
             }
             
-            $log = new Debug($all -> log_category .': '. $all -> log_message);
+            $log = new Debug($all -> log_message);
             $log -> set("request_time", $all -> log_date);
+            $log -> set("sub_category", $all -> log_category);
             $log -> set("uid", $all -> uid);
             $log ->context = [];
             $log -> save();
@@ -55,7 +57,7 @@ class Convert {
             
             $log = new Debug($all -> log_message);
             $log -> set("category", 'verlag');
-            
+            $log -> set("sub_category", $all -> log_type);
             $log -> set("request_time", $all -> log_date);
             $log -> set("uid", $all -> log_uid);
             $log -> set("verlag_uid", $all -> log_verlag_uid);
