@@ -13,6 +13,8 @@ function _vku2_callback($vku_id){
     
     $obj = $_POST["save"];
     $vku = new VKUCreator($vku_id);
+    
+    
     $obj["msg"] = null;
     $obj["signature_error"] = false; 
     
@@ -22,52 +24,23 @@ function _vku2_callback($vku_id){
         exit;
     }
     
-    if($obj["signature"] != $vku -> get("vku_changed")){
-       $obj["signature_error"] = true; 
-       drupal_json_output($obj);
-       drupal_exit();  
-    }    
-    
+    $manager = new \LK\VKU\VKU2($vku, $_POST['save']);
+    $manager ->checkSignature();
     
     // VKU-Title & Template-Title
     if(isset($obj["vku_template_title"]) AND $vku -> getStatus() == 'template'){
-            $vku ->set('vku_title', $obj["vku_template_title"]);
-            $vku ->set('vku_template_title', $obj["vku_template_title"]);
-            
-            $obj["vku_title"] = $vku -> get('vku_title');
-            
-            if(empty($obj["vku_title"])){
-                $obj["vku_title"] = 'Ohne Titel';
-            }
+      $manager -> saveTemplateData();
     }
     
     // save Title
     if($obj["type"] == 'title'){
-        $vku->set('vku_title', $obj["vku_title"]);
-        $vku->set('vku_company', $obj["vku_company"]);
-        $vku->set('vku_untertitel', $obj["vku_untertitel"]);
-        
-        $status = $vku ->getStatus();
-        if($status == 'new'){
-            $vku ->setStatus('active');
-            $vku ->isCreated();
-        }
-        
-        if(!empty($obj["template"])){
-             $new_vku = vku2_generate_takeover_vorlage($vku, $obj["template"]);
-             $pages = vku2_generate_category_pages($new_vku);
-             $generated = theme("vku2_items", array("items" => $pages, 'vku' => $new_vku));
-             $obj["renew_items"] = $generated;
-        }
+      $manager->saveTitle();
     }
     
     $line = array();
     $new = null;
     $replace_sid = null;
-    
-    
-    
-    
+  
     // Save data
     if($obj["type"] == 'save'){
         
