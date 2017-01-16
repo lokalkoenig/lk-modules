@@ -141,6 +141,26 @@ class Search {
     
     
     /**
+     * Gets back a Result
+     * 
+     * @param type $nid
+     * @param type $count
+     * @return array Nodes
+     */
+    public function moreLikeThis($nid, $count = 5){
+      
+      $this ->solr ->addParam('mlt.minwl', "3");
+      $this ->solr ->addParam('mlt.fl', "tm_field_kamp_suche");
+      $this ->solr ->addParam('qt', "mlt");
+      $this ->solr ->addParam('mlt.boost', true);
+      $this ->solr ->addParam('q', 'item_id:"'. $nid .'"');
+      
+      $this->setLimit($count);
+      
+    return $this->getNodes();  
+    }
+    
+    /**
      * Adds an Sort parameter
      * 
      * @param String $name
@@ -192,3 +212,12 @@ class Search {
       return $resp -> response;
     }
 }
+
+/**
+webapp=/solr 
+ * path=/select params={mlt.minwl=3&mlt.fl=taxonomy_names&mlt.mintf=1&
+ * mlt.maxwl=15&mlt.maxqt=20&json.nl=map&wt=json&rows=4&mlt.mindf=1&
+ * fl=entity_id,entity_type,label,path,url&start=0&
+ * q=id:9js266/node/301&qt=mlt&fq=bundle:(kampagne)} status=0 QTime=60
+
+*/

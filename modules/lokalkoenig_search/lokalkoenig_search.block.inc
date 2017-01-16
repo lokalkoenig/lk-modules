@@ -43,14 +43,14 @@ function lokalkoenig_search_block_view($delta = NULL){
           return array();
         }
         
-        // Do not show when no results
+        // Add to Database
+        new \LK\Solr\UserSearch();
+        
+         // Do not show when no results
         if(lk_search_has_no_results()){
           return [];
         }
         
-        // Add to Database
-        lk_save_current_search();
-     
         $block = array(
           'subject' => 'Blubb',
           'content' => theme('lk_search', array()));

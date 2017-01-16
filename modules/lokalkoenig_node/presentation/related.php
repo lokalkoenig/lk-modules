@@ -16,9 +16,8 @@
           $term = taxonomy_term_load($tax["tid"]);
           $terms[] = $term;
        }
-       
-       
-          $config = array(
+          
+            $config = array(
               'vid' => 3,
               'exclude_tid' => NULL,
               'root_term' => 0,
@@ -44,45 +43,21 @@
             $show = array();
             foreach($term as $t){
                $show[] = '';
-                               //suche?f[0]=field_kamp_themenbereiche%3A5753
                $t["label"] = l($t["label"], 'suche', array("query" => array('f' => array(0 => 'field_kamp_themenbereiche:' . $t["value"]))));
-             
                if(count($show) == 1) $t["label"] = '<strong>' . $t["label"] . '</strong>'; 
-               
                print '<li>'. implode("-", $show) .' '. $t["label"] .'</li>';
-              
             }
-            
             print '<li>&nbsp;</li>';
-         
          } ?>
       </ul>
-      
-      
-      
    </div>
-     <div class="col-md-9">
-      <div class="kampa-related">
-        <h3 style="margin:0; font-weight: bold; font-size:1.6em">Diese Kampagnen könnten Sie ebenfalls interessieren ...</h3>
-         <hr />
-        <?php
-        $block = apachesolr_search_block_view('mlt-001');
-        
-        if(isset($block["content"]["#docs"])){
-          foreach($block["content"]["#docs"] as $res){
-            $node = node_load($res -> entity_id);
-            if(isset($node -> plzaccess) AND $node -> plzaccess){
-              $view = node_view($node, 'teaser');
-              print render($view);
-            }
-          }
-        }
-      ?>
-        
-        
-     </div>
-    
+   <div class="col-md-9">
+    <div class="kampa-related">
+      <h3 style="margin:0; font-weight: bold; font-size: 1.6em">Diese Kampagnen könnten Sie ebenfalls interessieren ...</h3>
+      <hr />
+     <?= $node -> mlt ?>
     </div>
+  </div>
     </div>
 </div>
 </div>

@@ -11,6 +11,7 @@ namespace LK\Kampagne;
 class LizenzManager {
  
   use \LK\Log\LogTrait;
+  use \LK\Stats\Action;
   
   var $LOG_CATEGORY = "Lizenzen";
   const ADMIN_URL = "logbuch/verlag-lizenzen";
@@ -48,7 +49,8 @@ class LizenzManager {
     $lizenz_id = db_insert('lk_vku_lizenzen')->fields($array)->execute();
     
     \LK\Stats::countPurchasedVKU($vku);
-    
+    $this->setAction('lizenz', $lizenz_id);
+            
     $days = self::getLizenzTime($obj);
     $dateplz = date('Y-m-d',strtotime(date("Y-m-d", time()) . " + ". $days ." day"));
     

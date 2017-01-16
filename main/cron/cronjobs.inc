@@ -68,6 +68,13 @@ function lokalkoenig_admin_cronapi($op, $job = NULL) {
     'arguments' => array('\\LK\\Stats\\Cron\\UserStats'),
   ); 
   
+  $items['lk_user_stats_daily'] = array(
+    'description' => 'LK: User-Stats',
+    'rule' => '30 23 * * *', // Every 50 minutes
+    'callback' => 'lokalkoenig_admin_cronapi_cb',  
+    'arguments' => array('\\LK\\Stats\\Cron\\DailyUserStats'),
+  ); 
+  
   return $items;
 }
 

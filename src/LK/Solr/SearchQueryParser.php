@@ -18,8 +18,9 @@ class SearchQueryParser {
         
       $search = array();
       if(isset($_GET["f"])){
-         $search['f'] = $_GET["f"]; 
+         $search['f'][] = $_GET["f"]; 
       }
+      
       if(isset($_GET["search_api_views_fulltext"]) AND !empty($_GET["search_api_views_fulltext"])){
           $search['search_api_views_fulltext'] = $_GET["search_api_views_fulltext"]; 
       }

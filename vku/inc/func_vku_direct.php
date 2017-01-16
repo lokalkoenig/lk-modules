@@ -49,7 +49,7 @@ function _vku_direct_generate($node){
   $vku_update = new VKUCreator($vku_id); 
   
   $manager = new \LK\Kampagne\LizenzManager();
-  $lizenz = $manager ->create($node -> nid, $vku_update);
+  $lizenz = $manager -> create($node -> nid, $vku_update);
   $lizenz -> generateZIP();
   
   $return["theme"] = theme('node_page_lizenz_purchased', 

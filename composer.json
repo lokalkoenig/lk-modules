@@ -12,6 +12,7 @@
     "require": {
         "phpoffice/phpexcel": "1.8.0",
         "phpoffice/phppresentation": "0.6.0",
-        "sybio/gif-frame-extractor": "1.0.0"
+        "sybio/gif-frame-extractor": "1.0.0",
+        "solarium/solarium": "3.0.0"
     }
 }

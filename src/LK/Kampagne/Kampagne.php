@@ -17,6 +17,8 @@ use LK\Kampagne\AccessInfo;
 class Kampagne {
     //put your code here
     
+  use \LK\Stats\Action;
+  
     var $version = 1;
     var $node = null;
     
@@ -31,6 +33,9 @@ class Kampagne {
          }
     }
     
+    function getNid(){
+      return $this -> node -> nid;
+    }
     
     function getNode(){
         return $this -> node;
@@ -302,9 +307,25 @@ class Kampagne {
       
       if($view_mode === 'full'){
         $this ->getFullViewAccessInformation();
+        $this->addMoreLikeThis();
+        $this->setAction('view-kampagne', $this->getNid());
       }
     }
     
+    
+    private function addMoreLikeThis(){
+      $node = &$this -> node;  
+      
+      $other = [];
+      $search = new \LK\Solr\Search();
+      $nodes = $search ->moreLikeThis($node -> nid, 4);
+      
+      foreach ($nodes as $nid){
+        $other[] = \LK\UI\Kampagne\Teaser::get($nid);
+      }
+      
+      $node -> mlt = implode("", $other);
+    }
     
     private function getFullViewAccessInformation(){
     global $user;

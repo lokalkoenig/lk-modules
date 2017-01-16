@@ -63,7 +63,6 @@ function lokalkoenig_search_preprocess_page(&$variables){
   if(lk_search_has_no_results()):
     unset($variables['page']['sidebar_first']);
     $variables['page']['content']['system_main']['#access'] = FALSE;
-  
   endif;  
 }
 
@@ -94,34 +93,6 @@ function lk_search_has_no_results(){
   
 return true;    
 }
-
-
-function lk_save_current_search(){
-global $user;
-
- if(isset($_GET["search_api_views_fulltext"]) AND strlen($_GET["search_api_views_fulltext"]) > 2 AND !lk_search_has_no_results()){
-              $search = _lk_get_search_options_array();
-              
-              $insert = array();
-              $insert["uid"] = $user -> uid;
-              $insert["created"] = time();
-              $insert["search_string"] = $_GET["search_api_views_fulltext"];
-              $insert["search_text"] = serialize($search);
-              $insert["search_count"] = $GLOBALS['pager_total_items'][0];
-            
-            //When the User searched 
-            if(isset($_SESSION["lksearch"][$_GET["search_api_views_fulltext"]])){
-              $id = $_SESSION["lksearch"][$_GET["search_api_views_fulltext"]];
-              db_update('lk_search_history')->fields($insert)->condition('id', $id)->execute();            
-            }
-            else {
-              $id = db_insert('lk_search_history')->fields($insert)->execute();            
-              $_SESSION["lksearch"][$_GET["search_api_views_fulltext"]] = $id;
-            }
-  } 
-}
-
-
 
 function form_lk_no_results($form, $form_state, $searchword){
   

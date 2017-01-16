@@ -1,11 +1,13 @@
 {
     "name": "Maikito",
     "cases": [{
-       "LK\\Tests\\TestSolr": "Solr Search Test",
        "LK\\Tests\\TestVKU": "VKU Test (Generieren von Test-VKU)",
-       "LK\\Alert\\Test\\AlertTest": "Alert Test",
        "LK\\Tests\\PPTTest": "VKU Test PPT",
        "LK\\Kampagne\\Tests\\GIFExtractorTest": "GIF Extractor Test",
-       "LK\\Admin\\Tests\\UserCheckup": "Check all Users"
+       "LK\\Admin\\Tests\\UserCheckup": "Check all Users",
+       "LK\\Tests\\TestSolr": "SOLR: Solr Search Test",
+       "LK\\Alert\\Test\\AlertTest": "SOLR: Alert Test",
+       "LK\\Solr\\Tests\\MLTTest": "SOLR: Check More like this",
+       "LK\\Stats\\Tests\\Actions": "ACTIONS"
     }]  
 }

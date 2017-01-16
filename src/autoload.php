@@ -2,6 +2,8 @@
 
 // Classes that are global and used everywhere
 require_once __DIR__ . '/LK/Log/LogTrait.php';
+require_once __DIR__ . '/LK/Stats/Action.php';
+
 require_once(__DIR__ . "/../vku/vkuCreator.class.inc");
 require_once __DIR__ . '/LK/Stats/Stats.php';
 require_once __DIR__ . "/LK/Log/functions.php";

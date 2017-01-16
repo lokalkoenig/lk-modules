@@ -43,7 +43,6 @@ abstract class TestCase {
     }
     
     function __toString() {
-        
         if($this -> lines){
              $this -> output .= theme('table', array('header' => array(), 'rows' => $this -> lines));
         }

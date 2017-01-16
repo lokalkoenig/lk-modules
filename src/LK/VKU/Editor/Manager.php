@@ -22,20 +22,21 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
    */
   function getEditorTemplate($variables = []){
     
+    $verlag = $this->getAccount();
+    
     $variables = [
-      'pxeditid' => 'verlag-' . $this->account->getUid() . '-' . time() 
+      'pxeditid' => 'verlag-' . $verlag->getUid() . '-' . time() 
     ];
     
-    $variables['footer_logos'] = array(
-      "/sites/default/files/styles/verlags-logos-klein/public/verlagslogo/ft.png",
-      '/sites/default/files/styles/verlags-logos-klein/public/verlagslogo/br.png?itok=cu0U17XP',
-      '/sites/default/files/styles/verlags-logos-klein/public/verlagslogo/ct.png?itok=F6FMOtnd',
-      '/sites/default/files/styles/verlags-logos-klein/public/verlagslogo/sa.png?itok=tQSG6389',
-      '/sites/default/files/styles/verlags-logos-klein/public/verlagslogo/kt.png?itok=aghT9tC9',
-      '/sites/default/files/styles/verlags-logos-klein/public/verlagslogo/franken-aktuell.png?itok=Ts6hLCyY'
-    );
-
-    $variables['header_logo'] = "/sites/default/files/styles/verlags-logos-klein/public/mgo_logo_quer.png?itok=C0S5IL9q";
+    $defaults = \LK\VKU\VKUManager::getVKU_RenderSettings($verlag);
+    $style = 'ppt_logos';
+    
+    $variables['footer_logos'] = [];
+    foreach ($defaults["logos_unten"] as $logo):
+      	$variables['footer_logos'][] = \image_style_url($style, $logo);
+    endforeach;
+    
+    $variables['header_logo'] = \image_style_url($style, $defaults["logo_oben"]);
     $variables['callback'] = url('vku_editor');
     
     return parent::getEditorTemplate($variables); 

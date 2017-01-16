@@ -8,8 +8,9 @@ if(!defined('LK_TEST_VERLAG_UID')){
 
 
 class VKUCreator {
-    
-  use \LK\Log\LogTrait; 
+  use \LK\Stats\Action;  
+  use \LK\Log\LogTrait;
+  
   var $LOG_CATEGORY = 'VKU';
   
   /**
@@ -114,6 +115,11 @@ class VKUCreator {
   function setStatus($status){
       if($this -> data){
           
+          // VKU is completed
+          if($status == 'ready'){
+            $this->setAction('vku-completed', $this ->getId());
+          }
+        
           if($status == 'deleted'){
               $this -> removePLZSperren();
           }
@@ -654,6 +660,8 @@ function setPageStatus($pid, $status = true){
          $category = $this -> setDefaultCategory('kampagne', 5);
          $this -> update();
          
+         $this->setAction('vku-add-node', $nid);
+         
          $log = new \LK\Log\Verlag("Kampagne wurde hinzuguefügt");
          $log ->setNid($nid);
          $log ->save();
@@ -754,8 +762,11 @@ function setPageStatus($pid, $status = true){
       $array["vku_title"] = $this -> get('vku_title');
       $array["vku_company"] = $this -> get('vku_company');
       $array["vku_untertitel"] = $this -> get('vku_untertitel');
-   
+      
+      
       $vku_id = db_insert('lk_vku')->fields($array)->execute();
+      $this->setAction('create-vku', $vku_id);
+      
       $new_data = new VkuData($vku_id);
       $new_data -> takeOver($this -> data);
       
@@ -878,6 +889,8 @@ function setPageStatus($pid, $status = true){
  */
 class VkuData {
 
+  use \LK\Stats\Action;
+  
   var $id;
   var $data;
   var $object_data = array();
@@ -914,6 +927,8 @@ class VkuData {
       else {
         $vku_id = db_insert('lk_vku')->fields($defaults)->execute(); 
         $this -> id = $vku_id;
+        
+        $this->setAction('vku-create', $this -> id);
       } 
 
   }

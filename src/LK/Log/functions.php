@@ -79,3 +79,14 @@ global $user;
    
 return $message;  
 }
+
+/**
+ * Logs an Action
+ * @deprecated 
+ * 
+ * @param type $action
+ * @param type $id
+ */
+function log_action($action, $id = 0){
+  new \LK\Stats\ActionManager($action, $id);
+}

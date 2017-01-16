@@ -130,7 +130,7 @@ function _vku_generate_final_vku_v2(VKUCreator $vku){
   
   $vku -> set("vku_ready_time", time()); 
   $vku -> set("vku_ready_filesize", filesize("sites/default/private/vku/" . $fn)); 
-  $vku -> set("vku_status", 'ready'); 
+  $vku ->setStatus('ready');
 
     return true; 
   }
