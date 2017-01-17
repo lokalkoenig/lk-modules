@@ -17,11 +17,14 @@ function vku2_generate_form(VKUCreator $vku){
    drupal_set_title("Verkaufsunterlage");
    lk_set_icon('tint');
    
+   $manager = new \LK\VKU\PageManager();
    $uid = $vku ->getAuthor();
-   $print = vku2_generate_get_print($uid);
-   $online = vku2_generate_get_online($uid);
-   $sonstiges = vku2_generate_get_other($uid);
-   $pages = vku2_generate_category_pages($vku);
+   $account = \LK\get_user($uid);
+    
+   $print = $manager ->getPossibilePages('print', $account);
+   $online = $manager ->getPossibilePages('online', $account);
+   $sonstiges = $manager ->getPossibilePages('sonstiges', $account);
+   $pages = $manager->generatePageConfiguration($vku);
    
    $status = $vku ->getStatus();
    $generated = theme("vku2_items", array("items" => $pages, 'vku' => $vku));
@@ -32,18 +35,17 @@ function vku2_generate_form(VKUCreator $vku){
    }
    
    lk_set_subtitle('<span class="vku-title">' . $title . '</span><span class="pull-right label label-primary label-vku-editor">VKU Editor 2.0</span>');
-   
    $array = array('items' => $generated, 'print' => $print, 'online' => $online, 'sonstiges' => $sonstiges, 'vku' => $vku, 'kampagnen' => array());
    
    if($status == 'template'){
-       drupal_set_title("Vorlage");
-       $array["dokumente"] = theme("vku2_documents", $array);
-       
-       return theme('vku2_template', $array);    
+    drupal_set_title("Vorlage");
+    $array["dokumente"] = theme("vku2_documents", $array);
+    return theme('vku2_template', $array);    
    }
    
+   $array["kampagnen"] = $manager ->getPossibilePages('kampagnen', $account); 
+   
    $array["templates"] = vkuconnection_get_user_templates($uid);
-   $array["kampagnen"] = vku2_generate_kampagnen_to_add($uid); 
    $array["ausgaben"] = vku2_get_ausgaben_hinweis($vku, $uid);
    
    $array["dokumente"] = theme("vku2_documents", $array);
@@ -93,33 +95,7 @@ return false;
 }
 
 
-function vku2_generate_get_print($uid){
-    
-    $items = array();
-    $items["default-tageszeitung"] = 'Medienargumentation Tageszeitungen';
-    $items["default-wochen"] = 'Medienargumentation Wochen-/Anzeigeblätter';
-    
-return $items;    
-}
-
-function vku2_generate_get_online($uid){
-    
-    $items = array();
-    $items["default-onlinewerbung"] = 'Online-Werbung (Display-Ads) ';
-
- return $items;    
-}
-
-function vku2_generate_get_other($uid){
-    
-    $items = array();
-    $items["default-kplanung"] = 'Kampagnenplanung';
-    $items["default-kontakt"] = 'Ihre Kontaktdaten';
- 
-    drupal_alter('vku2_add_sonstiges', $items);
-
- return $items;    
-}
+////////////////////////////////////////////////////
 
 
 function _vku2_generate_add_new_category_page($vku_id, $type, $page){
@@ -131,112 +107,6 @@ function _vku2_generate_add_new_category_page($vku_id, $type, $page){
 function _vku2_add_page_to_category($page, $category_id){
    db_query("UPDATE lk_vku_data SET data_category='". $category_id ."' WHERE id='". $page["id"]  ."'");    
 }
-
-
-function vku2_generate_kampagnen_to_add($uid){
-    
-    $kampagnen = array('last' => array());
-    
-    $dbq = db_query("SELECT nid FROM lk_lastviewed WHERE uid='". $uid ."' ORDER BY lastviewed_time DESC LIMIT 10");
-    while($all = $dbq -> fetchObject()){
-        $kampagnen["last"][] = $all -> nid;
-    }
-    
-    
-    $kampagnen["merkliste"] = array();
-    
-    $tags = _get_merklistenterms();
-    while(list($key, $val) = each($tags)){
-        $kampagnen["merkliste"][$key]["title"] = $val;
-        $kampagnen["merkliste"][$key]["nodes"] = array();
-        
-        $dbq = db_query("SELECT n.field_merkliste_node_nid as nid FROM field_data_field_merkliste_tags t, "
-                . "field_data_field_merkliste_node n "
-                . "WHERE n.entity_id=t.entity_id AND t.field_merkliste_tags_tid='". $key ."'");
-        foreach($dbq as $all){
-            $kampagnen["merkliste"][$key]["nodes"][] = $all -> nid;
-        }  
-        
-        if(count($kampagnen["merkliste"][$key]["nodes"]) == 0){
-            unset($kampagnen["merkliste"][$key]);
-        }    
-    }
-    
-return $kampagnen;    
-}
-
-
-
-
-
-/**
- * Returns back Children Information about a Kampagne
- * 
- * @param Object $node
- * @param Array $defaults
- * @return Array
- */
-function vku2_get_kampagnen_childs($node, $defaults){
-    $children = array();
-    
-    $children['desc'] = $defaults;
-    $children['desc']["title"] = 'Allgemeine Kampagnenbeschreibung';
-    
-    foreach($node -> medien as $media){
-        $tax = taxonomy_term_load($media->field_medium_typ['und'][0]['tid']);
-        if($tax->description){
-            $term_title = $tax->description;
-        }
-        else {
-            $term_title = $tax -> name;
-        }
-        
-     if(!$media->field_medium_main_reference){
-         
-        $filetype = _lk_get_medientyp_print_or_online($media->field_medium_typ['und'][0]['tid']);
-        
-        
-        if($filetype == 'print'){
-            $ext_title = 'Printanzeige';
-        }
-        else {
-            $ext_title = 'Online-Anzeige';
-        }
-        
-        $id = 'media_' . $media -> id . "_overview";
-        
-        $children[$id] = $defaults;
-        
-        $children[$id]["title"] = '<strong>Beschreibungstext ' . $ext_title . '</strong>';
-     }   
-     
-        $farben = array();
-        foreach($media->field_medium_varianten['und'] as $item){
-            $farben[] = ucfirst($item["title"]);
-        }
-     
-        $children['media_' . $media -> id] = $defaults;
-        if(isset($tax -> field_medientyp_vku_pages["und"][0]["value"])):
-           $children['media_' . $media -> id]["pages"] = $tax -> field_medientyp_vku_pages["und"][0]["value"]; ;        
-        endif;    
-        
-        $children['media_' . $media -> id]["title"] = ' - Farbvarianten: ' . $media -> title . " (". $term_title .")<small class='varianten'>". implode(", ", $farben) ."</small>";
-    }
-    
-    
-    while(list($key, $val) = each($children)){
-        $children[$key]["id"] = $key;
-        
-        if(!isset($children[$key]["pages"])){
-            $children[$key]["pages"] = 1;
-        }
-    }
-    
-    reset($children);
-    
- return $children;   
- }
- 
  
 /**
  * 
@@ -250,66 +120,6 @@ function vku2_generate_category_pages(VKUCreator $vku){
 }
 
 
-function vku2_get_doc_info_kampagne($vku, $item, $page){
-    
-    $default_kampagne = $item;
-    $default_kampagne["single_toggle"] = true;
-    $default_kampagne["deactivate"] = true;
-    $default_kampagne["active"] = 1;
-    
-    $item["has_children"] = true;
-    $item["delete"] = true;
-    $item["class"][] = 'entry-kampagne';
-    
-    $item["id"] = $page["id"];
-    $item["cid"] = $page["data_category"];
-    
-    $node = node_load($page["data_entity_id"]);
-    $sid = _lk_get_kampa_sid($node);
-    
-    $item["preview"] = true;
-    $item["kampagne"] = true;
-    $item["orig-id"] = 'kampagne-' . $node -> nid;
-    $item["title"] = '<span class="prodid">'. $sid .'</span><span class="hidden"> / </span><span calss="kampagne-title">' . $node -> title . '</span>';
-    
-    
-    if(!vku2_node_can_add($node -> nid, $vku -> getAuthor())){
-       $item["additional_title"] .= '<small class="error">Die Kampagne kann nicht lizenziert werden.</small>'; 
-    }
-    
-    $item["collapsed"] = true;
-    $item["children"] = vku2_get_kampagnen_childs($node, $default_kampagne);
-    
-    $settings = $page["data_serialized"];
-    
-    // if we have saved settings
-    if($settings):
-       $subpages = unserialize($settings);
-              
-       while(list($key, $val) = each($item["children"])){
-          if(isset($subpages[$key]) AND $subpages[$key] == 1){
-              $item["children"][$key]["active"] = 0;
-          }    
-          else {
-              $item["children"][$key]["active"] = 1;
-          }
-       }
-    endif;
-            
-    reset($item["children"]);
-           
-    $pages_count = 0;
-    // count pages
-    while(list($key, $val) = each($item["children"])){
-       if($val["active"]){
-           $pages_count += $val["pages"];
-       }
-    }
-            
-    $item["pages"] = $pages_count;
-
-return $item;            
-}
 
 /**
  * Gets back yes or no, if Node can be licenced

@@ -24,13 +24,16 @@ class Kampagne {
     
     
     function __construct(\stdClass $node) {
-         $this -> node = &$node;
-         $node -> online = $node -> status;
+      $this -> node = &$node;
+      $node -> online = $node -> status;
          
-         if(!isset($this -> node -> loadedmedias)){
-             //dpm($this -> node -> nid); 
-             $this -> initMedias();
-         }
+      if(!isset($this -> node -> loadedmedias)){
+        $this -> initMedias();
+      }
+    }
+    
+    function getSID(){
+      return $this -> node -> sid;
     }
     
     function getNid(){
@@ -41,6 +44,15 @@ class Kampagne {
         return $this -> node;
     }
     
+    /**
+     * User has Access
+     * 
+     * @param int $uid
+     * @return boolean
+     */
+    function canPurchase($uid){
+      return (bool)$this -> node -> plzaccess;    
+    }
     
     /**
      * Initialize Kampagne by loading Medias

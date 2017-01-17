@@ -27,6 +27,105 @@ class PageManager {
    'drop-zone' => false   
   ];
   
+  var $modules = [
+      'default' => '\\LK\\VKU\\Pages\\PageDefault',
+      'node' => '\\LK\\VKU\\Pages\\PageKampagne',
+  ];
+  
+  
+  /**
+   * Calls a Hook to Modules to get Invokes
+   */
+  function __construct() {
+    foreach (module_implements('vku2_add_module') as $module) {
+      $function = $module . '_vku2_add_module';
+      $addition = $function();
+      
+      if($addition){
+        $this->modules += $addition;
+      }
+    }
+  }
+  
+  /**
+   * Removes the current Page
+   * 
+   * @param \VKUCreator $vku
+   * @param type $module
+   * @param type $id
+   * @param type $item
+   * @return boolean
+   */
+  function removePage(\VKUCreator $vku, $id, $item){
+    
+    $data = $vku->getPage($id);
+    
+    $obj = $this->getModule($data['data_module']);
+    if(!$obj){
+      return false;
+    }
+    
+    $obj ->removeItem($vku, $id);
+    $vku->removePage($id);
+  }
+  
+  
+  function updatePage(\VKUCreator $vku, $id, $item){
+    
+    $data = $vku->getPage($id);
+    $obj = $this->getModule($data['data_module']);
+    if(!$obj){
+      return false;
+    }
+    
+    $obj ->updateItem($vku, $id, $item);
+  }
+  
+  
+  function addNewPage(\VKUCreator $vku, $cid, $module, $id, $children){
+    
+    $insert = [];
+    $insert['vku_id'] = $vku ->getId();
+    $insert['data_module'] = $module;
+    $insert['data_class'] = $id;
+    $insert['data_created'] = time();
+    $insert['data_entity_id'] = 0;
+    $insert['data_serialized'] = null;
+    $insert['data_delta'] = 0;
+    $insert['data_active'] = 1;
+    $insert['data_category'] = $cid;
+    $obj = $this->getModule($module);
+    
+    if(!$obj){
+      return false;
+    }
+    
+    return $obj ->saveNewItem($insert);
+  }
+  
+  /**
+   * Gets back the items for the Categories
+   * 
+   * @param string $category
+   * @param \LK\User $account
+   * @return arrar Items
+   */
+  function getPossibilePages($category, \LK\User $account){
+    
+    $items = [];
+    $callables = $this->modules;
+    
+    while(list($module, $val) = each($callables)){
+      $obj = $this->getModule($module);
+      
+      if(!$obj){
+        continue;
+      }
+      $items += $obj ->getPossibilePages($category, $account);
+    }
+    
+    return $items;  
+  }
   
   /**
    * Gets the default options
@@ -156,7 +255,17 @@ class PageManager {
    * @return boolean|\LK\VKU\PageInterface
    */
   protected function getModule($module){
-    $class_name = '\\LK\\VKU\\Pages\\Page' . ucfirst($module);
+    
+    if($module === 'kampagne'){
+      $module = 'node';
+    }
+    
+    // Module must be propagated
+    if(!isset($this->modules[$module])){
+      return FALSE;
+    }
+    
+    $class_name = $this->modules[$module];
     lokalkoenig_Autoload($class_name);
     
     if(!class_exists($class_name)){
@@ -225,8 +334,6 @@ class PageManager {
         $structure[$all -> id] = $return;
       } 
     }
-    
-    dpm($structure);
     
     return $structure;
   }

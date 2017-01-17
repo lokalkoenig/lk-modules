@@ -25,7 +25,7 @@ class DailyUserStats {
    */
   function logKeywordSearches(){
     
-    $time = time() - 3600;
+    $time = time() - (60 * 60 * 24);
     $dbq = db_query("SELECT count(*) as count FROM lk_search_history WHERE created >='". $time ."'");
     $all = $dbq -> fetchObject();
     
@@ -48,7 +48,7 @@ class DailyUserStats {
    */
   function logUsersPerDay(){
     
-    $time = time() - 3600;
+    $time = time() - (60 * 60 * 24);
     $dbq = db_query("SELECT count(*) as count FROM users WHERE access>='". $time ."' AND status='1'");
     $all = $dbq -> fetchObject();
     

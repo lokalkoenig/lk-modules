@@ -19,6 +19,16 @@ class PageDefault extends PageInterface {
       'title' => 'Titelseite',
   ];
   
+  /**
+   * Adds an Item to the VKU
+   */
+  function saveNewItem(array $item){
+    return $item;
+  }
+  
+  function updateItem(\VKUCreator $vku, $pid, array $item){ }
+  function removeItem(\VKUCreator $vku, $pid){ }
+  
   function getImplementation(\VKUCreator $vku, $item, $page){
  
     if(!isset($this -> titles[$page["data_class"]])){
@@ -43,6 +53,35 @@ class PageDefault extends PageInterface {
     
     return $item;  
   }
+  
+  
+  /**
+   * Gets the possibile Pages
+   * 
+   * @param string $category
+   * @return array
+   */
+  function getPossibilePages($category, \LK\User $account){
+    
+    $items = [];
+    
+    if($category === 'print'){
+      $items["default-tageszeitung"] = 'Medienargumentation Tageszeitungen';
+      $items["default-wochen"] = 'Medienargumentation Wochen-/Anzeigeblätter';
+    }
+  
+    if($category === 'online'){
+      $items["default-onlinewerbung"] = 'Online-Werbung (Display-Ads) ';
+    }
+    
+    if($category === 'sonstiges'){
+      $items["default-kplanung"] = 'Kampagnenplanung';
+      $items["default-kontakt"] = 'Ihre Kontaktdaten';
+    }
+    
+    return $items;
+  }
+  
   
   function getOutputPDF(){
     

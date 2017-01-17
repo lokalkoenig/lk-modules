@@ -18,7 +18,7 @@ class RemoveOrphanedFiles {
   public static function executeCron(){
     
     // Delete unused preview files
-    $dirname = 'sites/default/private/vkutest/';
+    $dirname = 'sites/default/files/test/';
   
     $time = time() - (60*10); 
     $dir = opendir($dirname);
