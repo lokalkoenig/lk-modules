@@ -23,6 +23,9 @@ class TestController {
           \LK\Log\Convert::verlagLog();
         */
         
+      $c = new \LK\Merkliste\Convert();
+      $c ->letsdoit();
+      
         
         $file = file_get_contents(__DIR__ . '/../../../../tests.json');
         $array = json_decode($file, TRUE);

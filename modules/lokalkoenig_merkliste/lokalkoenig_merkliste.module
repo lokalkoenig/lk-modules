@@ -1,10 +1,27 @@
 <?php
 
+require_once __DIR__ . "/lokalkoenig_merkliste.blocks.inc";
+require_once __DIR__ . "/views/views_data.inc";
+
 define("MERKLISTE_STR", "Merkliste");
 define("MERKLISTE_STR_ON", "Merkliste");
 define("MERKLISTE_HELP", "Klicken Sie hier um eine Kampagne Ihrer Merkliste hinzuzufügen");
 define("MERKLISTE_URI", "merkliste");
 
+/**
+ * @implements HOOK_init
+ */
+function lokalkoenig_merkliste_init(){
+  
+  $current = \LK\current();
+  if(!$current || $current ->isAgentur()){
+    return ;
+  }
+  
+  //drupal_add_library('system', 'ui.autocomplete');
+  drupal_add_js("var ml_save_path ='". url("merkliste/save") ."'; var ml_search_path ='". url("merkliste/search") ."';", 'inline');
+  drupal_add_js(drupal_get_path('module', 'lokalkoenig_merkliste') .'/js/merkliste.js', 'file');
+}
   
 function lokalkoenig_merkliste_search_api_solr_query_alter($query, $snd) {
 global $user, $preserv_fs;
@@ -27,139 +44,62 @@ global $user, $preserv_fs;
   } 
 }
 
-
-function lokalkoenig_merkliste_node_view($node, $view_mode, $langcode){
-global $user;
-
-  // Merkliste App
-  if($view_mode == 'teaser' AND $node -> type == 'kampagne'){
-    if(lk_vku_access() AND $node->status){
-        $node -> online = true;
-    }
-  }
-  
-   // Merkliste App
-  if($view_mode == 'grid' AND $node -> type == 'kampagne'){
-    if(lk_vku_access() AND $node->status){
-        $node -> online = true;
-    }
-  }
-  
-  // Add History Item  
-  if($view_mode == 'full' AND $node -> type == 'kampagne'){
-    if(lk_vku_access()){
-        db_query("DELETE FROM lk_lastviewed WHERE uid='". $user -> uid ."' AND nid='". $node -> nid ."'");
-        db_query("INSERT INTO lk_lastviewed SET uid='". $user -> uid ."', nid='". $node -> nid ."', lastviewed_time='". time() ."'");
-    }
-  }      
-}
-
-
-function lokalkoenig_merkliste_block_info(){
-
- $blocks = array();
-
-  $blocks['lk_merkliste_nav'] = array(
-    // info: The name of the block.
-    'info' => 'Block: LK-Merkliste Navigation',
-    // Block caching options (per role, per user, etc.)
-  ); 
-
-  $blocks['lk_history'] = array(
-    // info: The name of the block.
-    'info' => 'Block: LK-History Info',
-    // Block caching options (per role, per user, etc.)
-  ); 
-
-
-return $blocks;
-}
-
-
-
-
-
 function lokalkoenig_merkliste_theme(){
    $themes = array();
    
     $themes["lk_merkliste_block_nav"] = array(
-            'template' => 'lk_merkliste_block_nav', // your template file called custompage.tpl.phü
+            'template' => 'templates/lk_merkliste_block_nav', // your template file called custompage.tpl.phü
             'variables'=> array('count_ml' => 0, 'count_lv' => 0));  
                   
     $themes["lk_merkliste_history"] = array(
-            'template' => 'lk_merkliste_history', // your template file called custompage.tpl.phü
+            'template' => 'templates/lk_merkliste_history', // your template file called custompage.tpl.phü
             'variables'=> array());     
   
   $themes["lk_merkliste_actions"] = array(
-            'template' => 'lk_merkliste_actions', // your template file called custompage.tpl.phü
+            'template' => 'templates/lk_merkliste_actions', // your template file called custompage.tpl.phü
             'variables'=> array('term' => NULL));     
             
    $themes["lk_merkliste_terms"] = array(
-            'template' => 'lk_merkliste_terms', // your template file called custompage.tpl.phü
+            'template' => 'templates/lk_merkliste_terms', // your template file called custompage.tpl.phü
             'variables'=> array('select' => NULL));               
   
+    $themes["lk_merkliste_navigation"] = [
+      'template' => 'templates/lk_merkliste_navigation', // your template file called custompage.tpl.phü
+      'variables'=> array('links' => [])
+    ];       
+   
 return $themes;
 }            
 
 
 
-function lokalkoenig_merkliste_block_view($delta = NULL){
-global $user; 
 
-  $block = array();
-    switch($delta){
-    
-      case 'lk_history':
-         if(arg(0) == 'history'){
-          if(_lk_get_history_count($user) > 0){
-            $block["content"] = theme('lk_merkliste_history');     
-          }
-         }
-      
-        break;  
-    
-      case 'lk_merkliste_nav':
-        $block = array(
-          'subject' => 'Merkliste',
-          'content' => theme('lk_merkliste_block_nav', 
-          array(
-            'count_ml' => lokalkoenig_merkliste_usercountml($user -> uid),
-            'count_lv' => lokalkoenig_merkliste_usercountml($user -> uid)
-          )));
-      
-        break;
-     
-        
+
+/**
+ * Loads ML to the Kampagne
+ * 
+ * @param \stdClass $node
+ */
+function lokalkoenig_merkliste_kampagne_load($node){
+  
+  $current = \LK\current();
+  $node -> merkliste = false;   
+  
+  if(!$current || $current ->isAgentur()){
+    return ;
   }
-
-  return $block;
-}
-
-/** Erweitert das Node-Objekt um weitere Informationen */
-function lokalkoenig_merkliste_node_load($nodes, $types) {
-global $user;
   
-  $types_we_want_to_process = array('kampagne');
-  
-  // Decide whether any of $types are relevant to our purposes.
-  if (count(array_intersect($types_we_want_to_process, $types))) {
-     while(list($nid, $node) = each($nodes)){
-        $nodes[$nid] -> merkliste = false;   
-      }
-      
-      reset($nodes);  
-  
-    $result = db_query('SELECT m.id, m.created, n.field_merkliste_node_nid as nid  FROM eck_merkliste m, field_data_field_merkliste_node n 
-      WHERE m.id=n.entity_id AND n.field_merkliste_node_nid IN(:nids) AND m.uid=\''. $user -> uid .'\'', array(':nids' => array_keys($nodes)));
+  $uid = $current ->getUid();
+  $result = db_query('SELECT m.id, m.created, n.field_merkliste_node_nid as nid  FROM eck_merkliste m, field_data_field_merkliste_node n 
+      WHERE m.id=n.entity_id AND n.field_merkliste_node_nid =:nid AND uid=\''. $uid .'\'', array(':nid' => $node -> nid));
     foreach ($result as $record) {
-       $nodes[$record -> nid] -> merkliste = true;
-       $nodes[$record -> nid] -> merkliste_id = $record -> id;
-       $nodes[$record -> nid] -> merkliste_date = $record -> created;
-       $nodes[$record -> nid] -> merkliste_terms = lokalkoenig_merkliste_get_terms_items($record -> id);
-       $nodes[$record -> nid] -> merkliste_title = lokalkoenig_merkliste_get_terms($record -> id);
+       $node -> merkliste = true;
+       $node -> merkliste_id = $record -> id;
+       $node -> merkliste_date = $record -> created;
+       $node -> merkliste_terms = lokalkoenig_merkliste_get_terms_items($record -> id);
+       $node -> merkliste_title = lokalkoenig_merkliste_get_terms($record -> id);
     }
-  }
-}    
+}
 
 
 /** Lädt die Taxonomy Terms zu einem Merkliste-Eintrag */
@@ -194,12 +134,6 @@ function lokalkoenig_merkliste_get_terms($entity_id){
 
 
 
-function lokalkoenig_merkliste_init(){
-  drupal_add_library('system', 'ui.autocomplete');
-  drupal_add_js("var ml_save_path ='". url("merkliste/save") ."'; var ml_search_path ='". url("merkliste/search") ."';", 'inline');
-  drupal_add_js(drupal_get_path('module', 'lokalkoenig_merkliste') .'/merkliste.js', 'file');
-}
-
 
 function lokalkoenig_merkliste_views_query_alter(&$view, &$query)   {
 global $user; 
@@ -221,9 +155,10 @@ global $user;
                 }        
             }
       }
-    }
-     
-    $query->where[1]['conditions'][1]['value'] = $user -> uid;  
+    
+      
+   $query->where[1]['conditions'][1]['value'] = $user -> uid;      
+  }
   }
 }
 
@@ -367,14 +302,8 @@ global $user;
   drupal_exit();
 }
 
-function lokalkoenig_merkliste_node_delete($node){
-  if($node -> type == 'kampagne'){
-     lokalkoenig_merkliste_change_kampagnen_status_unpublished($node);
-  }
-}
-
 // Kampagne wurde herausgenommen, wir löschen alle Einträge auf der Merkliste
-function lokalkoenig_merkliste_change_kampagnen_status_unpublished($node){
+function lokalkoenig_merkliste_node_delete($node){
 global $user;
    
    // Delete from lastviewed 
@@ -402,12 +331,6 @@ function lokalkoenig_merkliste_menu(){
       'title' => 'Merkliste Ajax Callback',
       'type' => MENU_CONTEXT_NONE);
       
-   $items['merkliste/search'] = array(
-      'access callback' => 'lk_vku_access',
-      'page callback' => 'lokalkoenig_merkliste_ajax_callback_search',
-      'title' => 'Merkliste Ajax Callback Suche',
-      'type' => MENU_CONTEXT_NONE);    
-  
    
   $items['history/flush'] = array(
       'access callback' => 'lk_vku_access',
@@ -445,32 +368,10 @@ function lokalkoenig_merkliste_menu(){
       'access callback' => 'lk_vku_access',
       'page callback' => 'lokalkoenig_merkliste_ajax_callback_send',
       'title' => 'Merkliste versenden',
-      'page arguments' => array(2),
       'file' => 'merkliste2message.inc', 
       'type' => MENU_CONTEXT_NONE);     
-      
-            
-
-    //
-
+ 
 return $items;
-}
-
-function lokalkoenig_merkliste_ajax_callback_search(){
-global $user;
-
-  $term =  $_GET["term"];
-  $results = array();
-  
-  $result = db_query("SELECT term_name FROM lk_merklisten_terms WHERE uid='". $user -> uid ."' AND term_name LIKE :pattern", array(':pattern' => db_like($term) . '%'));
-  foreach($result as $all){
-    $results[] = array('id' => $all -> term_name, 'label' => $all -> term_name);
-  }
-  
-  if(!$results) $results[] = array('id' => $term, 'label' => $term);
-  
-  drupal_json_output($results); 
-  drupal_exit();
 }
 
 
@@ -554,80 +455,7 @@ function lokalkoenig_merkliste_form_alter(&$form, &$form_state, $form_id){
 
 
 
-function lokalkoenig_merkliste_views_data() {
-  $data['lk_lastviewed']['table']['group'] = ('Last Viewed');
 
-  $data['lk_lastviewed']['table']['base'] = array(
-    'field' => 'id',
-    'title' => ('Last Viewed'), 
-    'help' => ('LK LaViewed speichert die Nodes in einer Tabelle'), 
-    'weight' => -10,
-  );
-
-  $data['lk_lastviewed']['table']['join'] = array(
-    'node' => array(
-      'left_field' => 'nid', 
-      'field' => 'nid',
-    ),
-    'users' => array(
-      'left_field' => 'uid', 
-      'field' => 'uid',
-    ),
-  );
-
-  $data['lk_lastviewed']['lastviewed_id'] = array(
-    'title' => ('LVID ID'), 
-    'help' => ('Die ID des Merkliste-Eintrages'),
-    'field' => array(
-      'handler' => 'views_handler_field', 
-      'click sortable' => true,
-    ), 
-  );
-
-
-  $data['lk_lastviewed']['nid'] = array(
-    'title' => ('NID'), 
-    'help' => ('Die NODE-ID des Eintrags'),
-    'relationship' => array(
-      'base' => 'node',
-      'field' => 'nid',
-      'handler' => 'views_handler_relationship', 
-      'label' => ('NID'),
-    ),
-  );
-  
-  
-  $data['lk_lastviewed']['uid'] = array(
-    'title' => ('User-ID'), 
-    'help' => ('Some example content that references a User-ID.'),
-    'relationship' => array(
-      'base' => 'users',
-      'field' => 'uid',
-      'handler' => 'views_handler_relationship', 
-      'label' => ('User ID'),
-    ),
-  );
-  
-
-  
-
-  $data['lk_lastviewed']['lastviewed_time'] = array(
-    'title' => ('Datum des Eintrags'), 
-    'help' => ('Datum des Eintrags'), 
-    'field' => array(
-      'handler' => 'views_handler_field_date', 
-      'click sortable' => TRUE,
-    ), 
-    'sort' => array(
-      'handler' => 'views_handler_sort_date',
-    ), 
-    'filter' => array(
-      'handler' => 'views_handler_filter_date',
-    ),
-  );
-
-  return $data;
-}
 
 
 ?>

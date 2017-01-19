@@ -201,13 +201,6 @@ class UserManagerMaintanance {
     private function _removeSimpleData(){
        $uid = $this -> uid;
        
-       $dbq = db_query("DELETE FROM lk_merklisten_terms WHERE uid='". $uid ."'");
-       $count = $dbq -> rowCount();
-       if($count){
-           $this -> log("Lösche Merklisten Begriffe (". $count  .")");
-       }
-       
-        
        $dbq = db_query("DELETE FROM lk_vku_plz_sperre WHERE uid='". $uid ."'");
        $count = $dbq -> rowCount();
        if($count){
@@ -232,16 +225,8 @@ class UserManagerMaintanance {
            $this -> log("Neuigkeiten-Statistiken (". $count  .")");
        }
        
-       
-       // delete merklisten
-       $dbq = db_query("SELECT id FROM eck_merkliste WHERE uid='". $uid ."'");
-       foreach($dbq as $all){
-            $entity = entity_load_single('merkliste', $entity_id);
-            if($entity){
-               $this -> log("Lösche Neuigkeit (". $entity -> title  .")");
-               entity_delete("merkliste", $entity -> id);
-            }
-       }
+       $manager = new \LK\Merkliste\AdminMerkliste();
+       $manager ->removeMerklisteByUser($uid);
    }
    
    /**
@@ -408,7 +393,7 @@ class UserManagerMaintanance {
               'id' => 'merklisten',
               'important' => false,
               'title' => "Angelegte Merklisten-Einträge",
-              'count' => $this ->getTableData('eck_merkliste')
+              'count' => $this ->getTableData('lk_merklisten')
           );
           
           $array[] = array(

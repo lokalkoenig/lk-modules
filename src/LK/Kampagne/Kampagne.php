@@ -29,6 +29,11 @@ class Kampagne {
          
       if(!isset($this -> node -> loadedmedias)){
         $this -> initMedias();
+        
+        foreach (module_implements('kampagne_load') as $module) {
+          $function = $module . '_kampagne_load';
+          $addition = $function($node);
+        }
       }
     }
     
@@ -320,7 +325,10 @@ class Kampagne {
       if($view_mode === 'full'){
         $this ->getFullViewAccessInformation();
         $this->addMoreLikeThis();
-        $this->setAction('view-kampagne', $this->getNid());
+        
+        if(\lk_vku_access()){
+          $this->trackNodeView();
+        }
       }
     }
     
@@ -339,6 +347,23 @@ class Kampagne {
       $node -> mlt = implode("", $other);
     }
     
+    
+    /**
+     * Tracks the Node view for the current user
+     * 
+     * @global type $user
+     */
+    private function trackNodeView(){
+    global $user;
+      
+      $nid = $this->getNid();
+      $this->setAction('view-kampagne', $nid);
+      
+      db_query("DELETE FROM lk_lastviewed WHERE uid='". $user -> uid ."' AND nid='". $nid ."'");
+      db_query("INSERT INTO lk_lastviewed SET uid='". $user -> uid ."', nid='". $nid ."', lastviewed_time='". time() ."'");
+    }
+
+
     private function getFullViewAccessInformation(){
     global $user;
         

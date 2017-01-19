@@ -243,6 +243,10 @@ class PageKampagne extends PageInterface {
     }
     
     $kampagnen["merkliste"] = array();
+    
+    $mlm = new \LK\Merkliste\Manager();
+    
+    
     $tags = \_get_merklistenterms();
     while(list($key, $val) = each($tags)){
         $kampagnen["merkliste"][$key]["title"] = $val;
