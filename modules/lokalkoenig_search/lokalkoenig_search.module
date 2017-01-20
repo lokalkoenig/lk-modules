@@ -32,7 +32,7 @@ function _lk_get_recomend_count(){
 }
 
 function lokalkoenig_search_init(){
-  if(in_array(arg(0), array("suche",'suche-grid', 'merkliste'))){
+  if(in_array(arg(0), array("suche",'suche-grid'))){
       pathtitle('search');
       $path = drupal_get_path('module', 'lokalkoenig_search');
       drupal_add_css($path . '/css/lk_search.css');

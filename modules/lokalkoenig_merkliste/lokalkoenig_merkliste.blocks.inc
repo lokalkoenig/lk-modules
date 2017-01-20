@@ -32,17 +32,21 @@ function lokalkoenig_merkliste_block_view($delta = NULL){
 global $user; 
 
   $block = array();
-    switch($delta){
+  switch($delta){
       
-      case 'lk_merkliste_navigation':
-        $manager = new \LK\Merkliste\Manager();
+    case 'lk_merkliste_navigation':
+        $manager = new \LK\Merkliste\UserMerkliste();
         $terms = $manager ->getTerms();
+       
+        if(!$terms){
+          return $block;
+        }
         
         $links = [];
         while(list($key, $val) = each($terms)){
           $links[] = [
             'title' => $val -> term_name,
-            'id' => $key,
+            'id' => $val -> merklisten_id,
             'url' => url('merkliste/' . $key),
             'kampagnen' => $val->kampagnen,
           ];
@@ -52,27 +56,32 @@ global $user;
       break;
       
       
-      case 'lk_history':
+     case 'lk_history':
          if(arg(0) == 'history'){
           if(_lk_get_history_count($user) > 0){
             $block["content"] = theme('lk_merkliste_history');     
           }
          }
-      
         break;  
     
-      case 'lk_merkliste_nav':
+     case 'lk_merkliste_nav':
+        $count = _lk_get_recomend_count($user);
+        $count_history = _lk_get_history_count($user);
+        $countvku = vku_get_active_id();
+        $count_ml = \LK\Merkliste\UserMerkliste::getCount();
+        
         $block = array(
           'subject' => 'Merkliste',
-          'content' => theme('lk_merkliste_block_nav', 
-          array(
-            'count_ml' => lokalkoenig_merkliste_usercountml($user -> uid),
-            'count_lv' => lokalkoenig_merkliste_usercountml($user -> uid)
-          )));
+          'content' => theme('lk_merkliste_block_nav',[
+              'count_history' => $count_history,  
+              'count' => $count,  
+              'count_ml' => $count_ml,
+              'countvku' => $countvku,
+            ]
+          )
+        );
       
         break;
-     
-        
   }
 
   return $block;

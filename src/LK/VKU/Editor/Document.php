@@ -65,6 +65,15 @@ class Document {
    return $this -> data['document_preset']; 
   }
   
+  /**
+   * Gets the Layout
+   * 
+   * @return $this
+   */
+  function getLayout(){
+    return $this -> data['document_layout']; 
+  }
+  
   function  getCategory(){
     return $this -> data['document_category']; 
   }

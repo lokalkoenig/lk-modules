@@ -1,40 +1,26 @@
 <?php
 
-namespace LK\Merkliste;
+namespace LK\Merkliste\Manager;
 
 /**
  * Description of Merkliste
  *
  * @author Maikito
  */
-class Manager {
+abstract class MerklistenManager {
   
   var $uid = 0;
   
-  protected $SESSION_VARS = [
-      'ML_TAGS',
-      'ML_COUNT',
-  ];
-  
-  function __construct($uid = 0) {
-    
-    
-    $this -> uid = 0;
+  function setUserId($uid){
+    $this->uid = $uid;
   }
   
   /**
-   * Removes all Sessions for the ML
+   * 
    */
-  protected function removeSessions(){
-    
-    $vars = $this->SESSION_VARS;
-    foreach ($vars as $key){
-      if(isset($_SESSION[$key])){
-        unset($_SESSION[$key]);
-      }  
-    }
-  }
-
+  abstract function performedUpdate();
+  
+  
   /**
    * Gets the User-Terms
    * 
@@ -42,10 +28,6 @@ class Manager {
    * @return array
    */
   function getTerms(){
-    if(isset($_SESSION['ML_TAGS'])){
-      return $_SESSION['ML_TAGS'];
-    }
-  
     $array = [];
     $simple = [];
     $dbq = db_query("SELECT * FROM lk_merklisten_terms WHERE uid='". $this -> uid ."' ORDER BY kampagnen DESC");
@@ -54,15 +36,31 @@ class Manager {
       $simple[$all -> merklisten_id] = $all -> term_name;
     }
     
-    $_SESSION['ML_TAGS'] = $array;
-    
     return $array;  
   }
   
+  /**
+   * Gets ML-Nodes from the User
+   * 
+   * @return array
+   */
+  function getUserKampagnen(){
+    $nodes = [];
+    $dbq = db_query("SELECT DISTINCT nid FROM lk_merklisten WHERE uid='". $this -> uid ."' ORDER BY created DESC");
+    while($all = $dbq -> fetchObject()){
+       $nodes[] = $all -> nid; 
+    }
+    return $nodes;
+  }
+  
+  
+  /**
+   * 
+   * @param type $tid
+   * @return array|boolean
+   */
   function loadMerklistenTerm($tid){
-  global $user;  
-    
-    $dbq = db_query("SELECT * FROM lk_merklisten_terms WHERE merklisten_id='". $tid ."' AND uid='". $this -> uid ."'");
+    $dbq = db_query("SELECT * FROM lk_merklisten_terms WHERE merklisten_id='". (int)$tid ."' AND uid='". $this -> uid ."'");
     $all = $dbq->fetchObject();
     
     if(!$all){
@@ -79,7 +77,7 @@ class Manager {
    * @param string $name
    * @return int
    */
-  protected function createMerkliste($name){
+  private function createMerkliste($name){
   global $user;
     
     $save = [];
@@ -107,6 +105,7 @@ class Manager {
       return false;
     }
     
+    
     $merkliste = $all;
     $merkliste->nodes = [];
     $dbq = db_query("SELECT nid FROM lk_merklisten WHERE term_id='". $all -> merklisten_id ."' ORDER BY created DESC");
@@ -114,7 +113,7 @@ class Manager {
       $merkliste->nodes[] = $all -> nid;
     }
   
-    return $merkliste;  
+    return new Entity($this, $merkliste);
   }
   
   /**
@@ -178,12 +177,16 @@ class Manager {
     
     $test = $this ->getSimilarTerms($newname);
     if(!$test){
-      db_query('UPDATE lk_merklisten_terms SET term_name=:name WHERE merklisten_id=:id', [':name' => trim($newname), ':id' => $tid]);
+      db_query('UPDATE lk_merklisten_terms SET term_name=:name WHERE merklisten_id=:id', [':name' => trim($newname), ':id' => (int)$tid]);
+      $this->performedUpdate();
+    
       return $tid;
     }
     
     $merkliste = $this->loadMerkliste($tid);
-    foreach($merkliste['nodes'] as $nid){
+    $nodes = $merkliste->getKampagnen();
+    
+    foreach($nodes as $nid){
       $this ->addKampagne($test, $nid);
     }
     
@@ -200,16 +203,16 @@ class Manager {
    */
   function removeMerkliste($tid){
     
-    $all = $this->loadMerkliste($tid);
-    if(!$all){
+    $merkliste = $this->loadMerkliste($tid);
+    if(!$merkliste){
       return false;
     }
     
-    $id = $all['merklisten_id'];
+    $id = $merkliste->getId();
     db_query('DELETE FROM lk_merklisten WHERE term_id=:tid', [':tid' => $id]);
     db_query('DELETE FROM lk_merklisten_terms WHERE merklisten_id=:tid', [':tid' => $id]);
     
-    $this->removeSessions();
+    $this->performedUpdate();
     return true;
   }
   
@@ -227,19 +230,22 @@ class Manager {
       return false;
     }
     
-    if(!in_array($nid, $merkliste['nodes'])){
+    $kampagnen = $merkliste->getKampagnen();
+    $id = $merkliste->getId();
+    
+    if(!in_array($nid, $kampagnen)){
       return false;
     }
     
-    if(count($merkliste['nodes']) == 1){
-      $this -> removeMerkliste($tid);
+    if(count($kampagnen) == 1){
+      $this -> removeMerkliste($id);
       return true;
     }
     
    db_query('DELETE FROM lk_merklisten WHERE term_id=:tid AND nid=:nid', [':tid' => $id, ':nid' => $nid]);
    db_query('UPDATE lk_merklisten_terms SET kampagnen=kampagnen-1, changed=:changed WHERE merklisten_id=:mlid',[':mlid' => 'merklisten_id', ':changed' => time()]);
-   $this->removeSessions();
-    
+   $this->performedUpdate();
+     
   return true;  
   }
   
@@ -257,19 +263,22 @@ class Manager {
       return false;
     }
     
-    if(in_array($nid, $merkliste['nodes'])){
+    $kampagnen = $merkliste ->getKampagnen();
+    
+    if(in_array($nid, $kampagnen)){
       return false;
     }
     
     $insert = [
-      'uid' => $merkliste['uid'],
-      'term_id' => $merkliste['merklisten_id'],
+      'uid' => $this -> uid,
+      'term_id' => $merkliste ->getId(),
       'created' => time(),
       'nid' => $nid
     ];
     
     db_insert('lk_merklisten')->fields($insert)->execute();
     db_query('UPDATE lk_merklisten_terms SET kampagnen=kampagnen+1, changed=:changed WHERE merklisten_id=:mlid',[':mlid' => 'merklisten_id', ':changed' => time()]);
+    $this->performedUpdate();
   }
   
   /**
@@ -279,14 +288,9 @@ class Manager {
    * @return int
    */
   function getTermsCount(){
+    $dbq = db_query("SELECT count(*) as count FROM lk_merklisten_terms WHERE uid='". $this -> uid ."'");
+    $all = $dbq -> fetchObject();
     
-    // Build a cache
-    if(!isset($_SESSION['ML_COUNT'])){
-      $dbq = db_query("SELECT count(*) as count FROM lk_merklisten_terms WHERE uid='". $this -> uid ."'");
-      $all = $dbq -> fetchObject();
-      $_SESSION['ML_COUNT'] = $all -> count;
-    }
-  
-    return $_SESSION['ML_COUNT'];
+    return $all -> count;  
   }
 }

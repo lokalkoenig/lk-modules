@@ -55,7 +55,7 @@ class Kampagne {
      * @param int $uid
      * @return boolean
      */
-    function canPurchase($uid){
+    function canPurchase(){
       return (bool)$this -> node -> plzaccess;    
     }
     

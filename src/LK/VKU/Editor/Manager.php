@@ -107,13 +107,16 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     
     $callback['values'] = $preset -> getDefaultValues();
     $callback['options'] = $preset -> getOptions();
+   
     $callback['options']['category'] = $document ->getCategory();  
     $callback['options']['status'] = $document ->getStatus();  
     $callback['options']['action'] = 'load-document';
+    $callback['options']['layout'] = $document->getLayout();
     $callback['options']['image_presets'] = $this->getImagePresets();  
     $callback['options']['title'] = $document ->getTitle();
     $callback['options']['id'] = $document ->getId();
     $callback['inputs'] = $preset -> getManagedInputs();
+    $callback['values']-> layout = $document -> getLayout();  
     $callback['values']-> preset = $document -> getPreset();  
     $callback['values']-> content = $document -> getContent();
     

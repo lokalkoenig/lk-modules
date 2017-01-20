@@ -244,26 +244,18 @@ class PageKampagne extends PageInterface {
     
     $kampagnen["merkliste"] = array();
     
-    $mlm = new \LK\Merkliste\Manager();
+    $mlm = new \LK\Merkliste\UserMerkliste();
+    $listen = $mlm ->getTerms();
     
-    
-    $tags = \_get_merklistenterms();
-    while(list($key, $val) = each($tags)){
-        $kampagnen["merkliste"][$key]["title"] = $val;
-        $kampagnen["merkliste"][$key]["nodes"] = array();
-        
-        $dbq = db_query("SELECT n.field_merkliste_node_nid as nid FROM field_data_field_merkliste_tags t, "
-                . "field_data_field_merkliste_node n "
-                . "WHERE n.entity_id=t.entity_id AND t.field_merkliste_tags_tid='". $key ."'");
-        foreach($dbq as $all){
-            $kampagnen["merkliste"][$key]["nodes"][] = $all -> nid;
-        }  
-        
-        if(count($kampagnen["merkliste"][$key]["nodes"]) == 0){
-            unset($kampagnen["merkliste"][$key]);
-        }    
+    while(list($key, $val) = each($listen)){
+      $merkliste = $mlm ->loadMerkliste($key);
+      $kampagnen["merkliste"][$key]["title"] = $merkliste ->getName();
+      $nodes = $merkliste ->getKampagnen();
+      foreach($nodes as $nid){
+        $kampagnen["merkliste"][$key]["nodes"][] = $nid;
+      }  
     }
-    
+
     return $kampagnen;  
   }
   
