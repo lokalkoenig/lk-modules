@@ -14,7 +14,8 @@ function lokalkoenig_merkliste_init(){
     return ;
   }
   
-  drupal_add_js("var ml_save_path ='". url("merkliste/save") ."';", 'inline');
+  $categories = \LK\Merkliste\UserMerkliste::getMerklisten();
+  drupal_add_js(array('merkliste' => array('categories' => $categories)), array('type' => 'setting'));
   drupal_add_js(drupal_get_path('module', 'lokalkoenig_merkliste') .'/js/merkliste.js', 'file');
 }
 
@@ -33,11 +34,7 @@ function lokalkoenig_merkliste_theme(){
   $themes["lk_merkliste_actions"] = array(
             'template' => 'templates/lk_merkliste_actions', // your template file called custompage.tpl.phü
             'variables'=> array('term' => NULL));     
-            
-   $themes["lk_merkliste_terms"] = array(
-            'template' => 'templates/lk_merkliste_terms', // your template file called custompage.tpl.phü
-            'variables'=> array('select' => NULL));               
-  
+   
     $themes["lk_merkliste_navigation"] = [
       'template' => 'templates/lk_merkliste_navigation', // your template file called custompage.tpl.phü
       'variables'=> array('links' => [])
@@ -131,4 +128,3 @@ function lokalkoenig_merkliste_form_alter(&$form, &$form_state, $form_id){
     }
   }  
 }
-

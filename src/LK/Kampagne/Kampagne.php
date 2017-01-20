@@ -190,15 +190,10 @@ class Kampagne {
           $ml["href"] = 'node/' . $node -> nid;
           $ml["title"] = 'Merkliste';
           $ml["attributes"]["class"] = array('merklistejs merkliste');
-          $ml["attributes"]["mlid"] = '';
-          $ml["attributes"]["onclick"] = 'return false;';
-          $ml["attributes"]["items"] = '';
-          $ml["attributes"]["nid"] = $node -> nid;
+          $ml["attributes"]["data-nid"] = $node -> nid;
 
           if($node -> merkliste) {
               $ml["attributes"]["class"][] = 'on';
-              $ml["attributes"]["mlid"] = $node -> merkliste_id;
-              $ml["attributes"]["items"] = $node -> merkliste_title;
           }
       }
       else {

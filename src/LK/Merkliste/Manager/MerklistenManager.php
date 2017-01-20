@@ -28,15 +28,13 @@ abstract class MerklistenManager {
    * @return array
    */
   function getTerms(){
-    $array = [];
     $simple = [];
     $dbq = db_query("SELECT * FROM lk_merklisten_terms WHERE uid='". $this -> uid ."' ORDER BY kampagnen DESC");
     while($all = $dbq -> fetchObject()){
-      $array[$all -> merklisten_id] = $all;
       $simple[$all -> merklisten_id] = $all -> term_name;
     }
     
-    return $array;  
+    return $simple;  
   }
   
   /**
@@ -78,10 +76,8 @@ abstract class MerklistenManager {
    * @return int
    */
   private function createMerkliste($name){
-  global $user;
-    
     $save = [];
-    $save['uid'] = $user->uid;
+    $save['uid'] = $this->uid;
     $save['term_name'] = $name;
     $save['kampagnen'] = 0;
     $save['created'] = $save['changed'] = time();
@@ -125,6 +121,10 @@ abstract class MerklistenManager {
    */
   function addNewTerm($term, $nid){
     
+    if(empty($term)){
+      return false;
+    }
+    
     $test = $this ->getSimilarTerms($term);
     
     if(!$test){
@@ -135,9 +135,27 @@ abstract class MerklistenManager {
     }
     
     $this->addKampagne($test, $nid);
+    
     return $test;
   }
   
+  /**
+   * Gets all Terms for the Kampagne
+   * 
+   * @param type $nid
+   * @return array
+   */
+  function getTermsFromKampagne($nid){
+    
+    $terms = [];
+    
+    $dbq = db_query('SELECT term_id FROM lk_merklisten WHERE uid=:uid AND nid=:nid', [':nid' => $nid, ':uid' => $this->uid]);
+    while($all = $dbq -> fetchObject()){
+      $terms[] = $all -> term_id;
+    }
+    
+    return $terms;
+  }
   
   /**
    * Gets similar Terms
@@ -151,7 +169,7 @@ abstract class MerklistenManager {
     $other = $this -> getTerms();
     
     while(list($key, $val) = each($other)){
-        $sanitized2 = strtolower(trim($val -> term_name));
+        $sanitized2 = strtolower(trim($val));
         
         if($sanitized2 === $sanitized){
           return $key;

@@ -1,207 +1,179 @@
-
-var last_ml_nid = null;
-
-function delete_nid_merkliste(){
-   values = 'delete=1&nid=' + last_ml_nid;
-
-   jQuery('.btn-ml-delete').button('loading');
-
-    jQuery.ajax({
-      url : ml_save_path,
-      type: "post",
-      data : values,
-      success: function(data, textStatus, jqXHR){
-         
-          if(data.error == 1){
-             alert('Ein Fehler ist aufgetreten'); 
-             return ;
-          }
-         
-         jQuery('#dynamicmodal .modal-body p').html('<div class="well">Die Kampagne wurde von Ihrer Merkliste gelöscht.</div>');
-         jQuery('#mlcount').html(data.total);
-         
-         if(data.total == 0) jQuery('#merklistenav').hide();
-         else {
-            jQuery('#merklistenav').show();
-         }
-         
-         jQuery('a.merklistejs[nid='+ data.nid  +']').removeClass('on'); 
-         jQuery('a.merklistejs[nid='+ data.nid  +'] span').html('Zu Merkliste hinzufügen');
-         jQuery('a.merklistejs[nid='+ data.nid  +']').attr('items', '');
-         jQuery('a.merklistejs[nid='+ data.nid  +']').attr('mlid', '');
-         jQuery('a.merklistejs[nid='+ data.nid  +']').parent('li').removeClass('hover');
-         
-         setTimeout("jQuery('#dynamicmodal').modal('hide');", 1500);
-      },
-      error: function (jqXHR, textStatus, errorThrown){
-         alert('Ein Fehler ist aufgetreten'); 
-      }
-    });
+function track(eventCategory, eventAction, eventLabel){
+  if(typeof ga === 'undefined'){
+    console.log('Track ['+ eventCategory +'/' + eventAction +' ('+ eventLabel +')]');
+  }
+  else {
+    ga('send', 'event', eventCategory, eventAction, eventLabel);
+  }
 }
 
-function save_nid_merkliste(){
-    values = jQuery('#selectpickerform select').serialize() + '&nid=' + last_ml_nid + '&new=' +  jQuery('#newitem').val();
-    jQuery('.btn-ml-save').button('loading');
-    // business logic...
-    //$btn.button('reset') 
+(function ($) {
+    "use strict";
     
-    
-    jQuery.ajax({
-      url : ml_save_path,
-      type: "post",
-      data : values,
-      success: function(data, textStatus, jqXHR){
-         
-         container = jQuery('#dynamicmodal .modal-body p');
-             
-          if(data.error == 1){
-             jQuery(container).html('<div class="well">' + data.msg + '</div>');
-             setTimeout("jQuery('#dynamicmodal').modal('hide');", 1500);
-             return ;
+    window.Merkliste = {
+      url: '/merkliste/save',
+      nid: 0,
+      
+      getEditForm: function(selected){
+        var select = '<select name="items[]" class="items show-tick" multiple="multiple" title="Ihre bestehenden Merklisten">';
+        if(Drupal.settings.merkliste.categories.length === 0){
+          select +='<option disabled="disabled">Bisher keine Merkliste vorhanden.</option>'
+        }
+        
+        for(var index in Drupal.settings.merkliste.categories) { 
+          var name = Drupal.settings.merkliste.categories[index]; 
+          
+          if(typeof selected[index] === 'undefined'){
+            select +='<option value="'+ index +'">'+ name +'</option>';
           }
-          
-          if(data.delete == 1){
-              jQuery(container).html('<div class="well">' + data.msg + '</div>');
-               jQuery('a.merklistejs[nid='+ data.nid  +']').removeClass('on'); 
-               jQuery('a.merklistejs[nid='+ data.nid  +'] span').html('Zu Merkliste hinzufügen');
-               jQuery('a.merklistejs[nid='+ data.nid  +']').attr('items', '');
-               jQuery('a.merklistejs[nid='+ data.nid  +']').attr('mlid', '');
-               jQuery('a.merklistejs[nid='+ data.nid  +']').parent('li').removeClass('hover');
-               setTimeout("jQuery('#dynamicmodal').modal('hide');", 1500);
-               return ;
-          }
-          
-          if(data.nothing){
-             jQuery(container).html('<div class="well">' + data.msg + '</div>');
-             setTimeout("jQuery('#dynamicmodal').modal('hide');", 1500);
-             return ;
-          }
-          
-          
-          if(data.new == 0){
-            jQuery('a.merklistejs[nid='+ data.nid  +']').attr('items', data.tags);
-            jQuery(container).html('<div class="well">'+ data.msg +'</div>');
-          } 
           else {
-            jQuery('a.merklistejs[nid='+ data.nid  +']').addClass('on'); 
-            jQuery('a.merklistejs[nid='+ data.nid  +'] span').html('Auf Ihrer Merkliste');
-            jQuery('a.merklistejs[nid='+ data.nid  +']').attr('items', data.tags);
-            jQuery('a.merklistejs[nid='+ data.nid  +']').attr('mlid', data.mlid);
-            jQuery(container).html('<div class="well">'+ data.msg +'</div>');
-            jQuery('a.merklistejs[nid='+ data.nid  +']').parent('li').addClass('hover');
+            select +='<option selected="selected" value="'+ index +'">'+ name +'</option>';
           }
-          
-          jQuery('#mlcount').html(data.total);
-          jQuery('#merklistecontent').html(data.select);
-          
-          
-          if(data.total == 0) jQuery('#merklistenav').hide();
-          else {
-            jQuery('#merklistenav').show();
-          }
-          
-          setTimeout("jQuery('#dynamicmodal').modal('hide');", 1500);
-         
-          
+        }
+        
+        select += '</select>';
+        var input =  '<div class="row mlinputform clearfix"><div class="col-xs-6" id="selectpickerform">' + select + '</div>'; 
+        input += '<div class="col-xs-6"><input class="form-control form-text" type="text" placeholder="Neue Merkliste anlegen" name="newitem" id="newitem" /></div></div>';
+        input += '<hr /><button class="btn btn-success btn-merkliste-save" data-loading-text="Speichern...">Speichern</button>';
+        
+        if(Object.keys(selected).length){
+          input += ' <button class="btn btn-danger btn-merkliste-remove">Löschen</button>';
+        }
+        
+        return input;  
       },
-      error: function (jqXHR, textStatus, errorThrown){
-         alert('Ein Fehler ist aufgetreten'); 
-      }
-    });
-
-}
-
-function timmaya(el){
-     
-     jQuery(el).click();  
-}
-
-
-function deleteFromCart(link){
-     values = 'ajax=1'; 
-     url = jQuery(link).attr('href'); 
-  
-     jQuery.ajax({
-      url : url,
-      type: "post",
-      data : values,
-      success: function(data, textStatus, jqXHR){
-          if(data.error == 0){
-            jQuery('#vku_cart .count').html(data.total);
-            jQuery('a.addvkujs[nid=' +  data.nid +']').parent("li").addClass('hover');
-            jQuery('div.node-in-cart.node_' + data.nid).remove();
-          }
+      registerListeners: function(){
+      var reference = this;
+        
+        $('a.merklistejs').click(function(){
+          reference.nid = $(this).attr('data-nid');
           
-          if(data.total == 0){
-               jQuery('#vku_cart').hide();
-               jQuery('#vkuload').html('');
-                
-               lk_add_js_modal_optin('Ihre Verkaufsunterlagen', data.msg + '<br /><br /><a href="#" class="btn btn-primary pull-right close" data-dismiss="modal"><span class="glyphicon glyphicon-search"></span> Weitersuchen</a>', '', '');
-       
-                
+          if($(this).hasClass('on')){
+            track('merkliste', 'edit', reference.nid);
+            reference.showCurrentKeywords();
           }
           else {
-            lk_add_js_modal_optin('Ihre Verkaufsunterlagen', data.msg + '<br /><br /><a href="/vku" class="btn btn-success">Verkaufsunterlagen jetzt generieren</a> <a href="#" class="btn btn-primary pull-right close" data-dismiss="modal"><span class="glyphicon glyphicon-search"></span> Weitersuchen</a>', '', '');
+            track('merkliste', 'add', reference.nid);
+            reference.showAvailableKeyWords();
           }
-     },
-      error: function (jqXHR, textStatus, errorThrown){
-         alert('Ein Fehler ist aufgetreten'); 
-      }
-      });
-      
-      return false; 
-}  
-
-
-jQuery(document).ready(function(){
-  jQuery('a.merklistejs').click(function(){
-     last_ml_nid = jQuery(this).attr('nid'); 
-     terms = jQuery(this).attr('items');
-     
-    select = jQuery('#merklistecontent').html(); 
-     
-    input =  '<div class="row mlinputform clearfix"><div class="col-xs-6" id="selectpickerform">' + select + '</div>'; // '<div class="input-group"><input class="form-control form-text" type="text" id="mltags" name="mltags" value="'+ jQuery(this).attr('items') +'" size="60" maxlength="1024" autocomplete="OFF" aria-autocomplete="list"><span class="element-invisible" aria-live="assertive" id="edit-field-merkliste-tags-und-autocomplete-aria-live"></span><span class="input-group-addon"><i class="icon glyphicon glyphicon-refresh" aria-hidden="true"></i></span></div>';
-     
-    input += '<div class="col-xs-6"><input class="form-control form-text" type="text" placeholder="Neue Merkliste anlegen" name="newitem" id="newitem" /></div></div>';
-    input += '<div class="input-group"><br /><button onclick="save_nid_merkliste()" class="btn btn-success btn-ml-save" data-loading-text="Speichern...">Speichern</button>';
-    if(jQuery(this).attr('nid')){
-        if(jQuery(this).attr('mlid')) input += '&nbsp;&nbsp; <button class="btn btn-danger btn-ml-delete" data-loading-text="Löschen..." onclick="delete_nid_merkliste()">Von Merkliste löschen</button>'; 
-     }
-      
-    input += '</div>'; 
-       
-    lk_add_js_modal_optin('Merkliste', '<div class="ml-edit"><p>Sie können Begriffe verwenden, wie z.B. Kunde XY oder auch allgemeine Begriffe.<br /></p>' + input + '</div>', '#', '');
-           
-     // Add Autocomplete 
-      function split( val ) {
-        return val.split( /,\s*/ );
-      }
-     
-      // Set the predefined Items
-      arr = split(terms);
-     
-      jQuery.each( arr, function( i, l ){
-        jQuery('#selectpickerform select option[value='+ l +']').attr('selected', 'selected');
-      });
-     
-     jQuery('#selectpickerform select').selectpicker(); 
-     
-     // if there are Terms, then Link them
-     if(terms){
-        jQuery('.ml-edit').hide();
-        
-        content = '<div class="term-show">';
-        
-        jQuery.each( arr, function( i, l ){
-          termname = jQuery('#selectpickerform select option[value='+ l +']').text(); 
-          content += '<a href="/merkliste/'+ l +'" class="btn btn-success"><span class="glyphicon glyphicon-tag"></span> ' + termname + '</a> ';
+          
+          return false;
         });
         
-        content += '<hr />';
-        content += '<a href="#" class="btn btn-primary" onclick="jQuery(\'.term-show\').hide(); jQuery(\'.ml-edit\').show();"><span class="glyphicon glyphicon-pencil"></span> Bearbeiten</a> ';
+        $('body').on('click', '.btn-merkliste-edit', function(){
+          $('.merkliste-show').fadeOut();
+          $('.merkliste-edit').fadeIn();
+          return false;  
+        });
         
-        jQuery(content).insertAfter('.ml-edit');                                                        
-     }
-  });
-});
+        $('body').on('click', '.btn-merkliste-remove', function(){
+          reference.removeKampagne();
+          return false;
+        });
+        
+        $('body').on('click', '.btn-merkliste-save', function(){
+          reference.saveCurrentKeywords();
+          return false;
+        });
+      },
+      removeKampagne: function(){
+        var reference = this;
+        this.performAjax({'action': 'remove', 'nid': this.nid}, function(response){
+          reference.merklisteDeMark();
+          track('merkliste', 'remove', reference.nid);
+          reference.setMessage(response);
+        });
+      },
+      showCurrentKeywords: function(nid){
+        var reference = this;
+        this.performAjax({'action': 'load', 'nid': this.nid}, function(data){
+          
+          var content = '<div class="merkliste-show"><p>';
+          for(var index in data.load_terms) { 
+            content += '<a href="/merkliste/'+ index +'" class="btn btn-success"><span class="glyphicon glyphicon-tag"></span> ' + data.load_terms[index] + '</a> ';
+          }
+          content += '</p><hr />';
+          content += '</p><a href="#" class="btn btn-primary btn-sm btn-merkliste-edit"><span class="glyphicon glyphicon-pencil"></span> Bearbeiten</a></div>';
+          content += '<div class="merkliste-edit" style="display:none;">\n\
+        <p>Sie können Begriffe verwenden, wie z.B. Kunde XY oder auch allgemeine Begriffe.</p>' + reference.getEditForm(data.load_terms) + '</div>'
+          
+          lk_add_js_modal_optin('Merkliste', content, '#', '');
+       
+          $('#selectpickerform select').selectpicker(); 
+        });
+      },
+      setMessage: function(response){
+        // save the Terms in the global scope 
+        if(typeof response.terms !== 'undefined'){
+          Drupal.settings.merkliste.categories = response.terms;
+        } 
+        
+        $('#mlcount').html(response.total);
+        $('#dynamicmodal .modal-body').html('<p>' + response.message + '</p>');
+        setTimeout("jQuery('#dynamicmodal').modal('hide');", 1500);
+      },
+      performAjax(data, cb){
+        $('#dynamicmodal btn').attr('disabled', 'disabled');
 
+        jQuery.ajax({
+          url : this.url,
+          type: "post",
+          data : data,
+          success: function(data, textStatus, jqXHR){
+            $('#dynamicmodal btn').removeAttr('disabled');
+            cb(data);
+          },
+          error: function (){
+            alert('Ein Fehler ist aufgetreten'); 
+          }
+        });  
+      },
+      merklisteMark: function(){
+        $('a.merklistejs[data-nid="'+ this.nid  +'"]').addClass('on'); 
+        $('a.merklistejs[data-nid="'+ this.nid  +'"]').parent('li').addClass('hover');
+      },
+      merklisteDeMark: function(){
+        $('a.merklistejs[data-nid="'+ this.nid  +'"]').removeClass('on'); 
+        $('a.merklistejs[data-nid="'+ this.nid  +'"]').parent('li').removeClass('hover');
+      },
+      saveCurrentKeywords: function(){
+        
+        var selected_terms = [];
+        $('#selectpickerform select option:selected').each(function(){
+          selected_terms.push($(this).val());
+        });
+        
+        var data = {
+          'action': 'save',
+          'terms': selected_terms,
+          'nid': this.nid,
+          'new': $('#newitem').val()
+        };
+        
+        if(data.new === '' && data.terms.length === 0){
+          $('#newitem').focus();
+          return ;
+        }
+        
+        var reference = this;
+        this.performAjax(data, function(response){
+            reference.merklisteMark();
+            track('merkliste', 'edit', reference.nid);
+            reference.setMessage(response);
+        });
+      },
+      showAvailableKeyWords: function (){
+        
+        lk_add_js_modal_optin('Merkliste', '<div class="ml-edit">\n\
+        <p>Sie können Begriffe verwenden, wie z.B. Kunde XY oder auch allgemeine Begriffe.<br />\n\
+        </p>' + this.getEditForm({}) + '</div>', '#', '');
+        
+        $('#selectpickerform select').selectpicker(); 
+      }
+    };    
+}( jQuery ));       
+
+// Autoload
+jQuery(document).ready(function(){
+  window.Merkliste.registerListeners();
+});

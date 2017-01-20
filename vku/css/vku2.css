@@ -175,17 +175,17 @@ ul.dropdown-menu-vku .item.active .hide-active {
 }
 
 /** New Modal Header style */
-.modal-lk .modal-header  {
+.modal-header  {
     color: White;
     background: #3276b1;
 }
 
-.modal-lk .close {
+.modal-header .close {
     color: White;
     
 }
 
-.modal-lk .close:hover {
+.modal-header .close:hover {
      color: White;
 }
 

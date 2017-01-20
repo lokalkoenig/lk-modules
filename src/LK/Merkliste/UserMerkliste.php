@@ -73,7 +73,7 @@ class UserMerkliste extends \LK\Merkliste\Manager\MerklistenManager {
    * @return array
    */
   public static function getMerklisten(){
-    $manager = new LK\Merkliste\UserMerkliste();
+    $manager = new \LK\Merkliste\UserMerkliste();
     return $manager->getTerms();
   }
 

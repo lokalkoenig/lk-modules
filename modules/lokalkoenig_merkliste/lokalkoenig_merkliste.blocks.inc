@@ -33,28 +33,26 @@ global $user;
 
   $block = array();
   switch($delta){
-      
     case 'lk_merkliste_navigation':
-        $manager = new \LK\Merkliste\UserMerkliste();
-        $terms = $manager ->getTerms();
-       
-        if(!$terms){
-          return $block;
-        }
-        
-        $links = [];
-        while(list($key, $val) = each($terms)){
-          $links[] = [
-            'title' => $val -> term_name,
-            'id' => $val -> merklisten_id,
-            'url' => url('merkliste/' . $key),
-            'kampagnen' => $val->kampagnen,
-          ];
-        }
-        
-        $block["content"] = theme('lk_merkliste_navigation', ['links' => $links]); 
+      $manager = new \LK\Merkliste\UserMerkliste();
+      $terms = $manager ->getTerms();
+
+      if(!$terms){
+        return $block;
+      }
+
+      $links = [];
+      while(list($key, $val) = each($terms)){
+        $merkliste = $manager->loadMerkliste($key);
+        $links[] = [
+          'title' => $merkliste->getName(),
+          'id' => $merkliste->getId(),
+          'url' => url($merkliste ->getUrl()),
+          'kampagnen' => $merkliste->getKampagnenCount(),
+        ];
+      }
+      $block["content"] = theme('lk_merkliste_navigation', ['links' => $links]); 
       break;
-      
       
      case 'lk_history':
          if(arg(0) == 'history'){
