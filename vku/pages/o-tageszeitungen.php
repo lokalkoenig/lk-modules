@@ -15,7 +15,7 @@ $pdf -> Ln(15);
 $pdf->SetFont(VKU_FONT,'',24);
 $pdf->MultiCell(0, 10, "Tageszeitungen", 0, 'L', 0); 
 
-$pdf->Image($module_dir .'shutterstock_64607632_small.jpg', 180, 30.2, 130);   
+$pdf->Image($module_dir .'/shutterstock_64607632_small.jpg', 180, 30.2, 130);   
 
 $pdf -> Ln(5); 
 
