@@ -27,7 +27,7 @@ function lokalkoenig_merkliste_ajax_callback_vku($tid){
   foreach ($kampagnen as $nid){
     $node = node_load($nid);
     $ka = new \LK\Kampagne\Kampagne($node);
-    if(!$ka->canPurchase($uid)){
+    if(!$ka->canPurchase()){
       drupal_set_message('Die Kampagne "'. $node -> title .'" ist im Moment für Sie nicht verfügbar und wurde deswegen der Verkaufsunterlage nicht hinzugefügt.', 'error');  
     }
     

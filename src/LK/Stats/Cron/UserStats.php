@@ -24,24 +24,9 @@ class UserStats {
 
       $dbq = db_query("SELECT uid FROM users WHERE access >= '". $time_from ."'");
       foreach($dbq as $all):
-
-           $query = new \EntityFieldQuery();
-           $query->entityCondition('entity_type', 'merkliste');
-           $query -> entityCondition('bundle', 'merkliste');
-
-           $query -> propertyCondition('created', $time_from, ">=");
-           $query -> propertyCondition('created', $time_until, "<=");
-
-           $query -> propertyCondition('uid', $all -> uid);
-           $query -> count(); 
-           $result = $query->execute();
-
-           \LK\Stats::logUserMerklisten($all -> uid, (int)$result);
-
            $dbq2 = db_query("SELECT count(*) as count FROM lk_search_history WHERE uid='". $all -> uid ."' AND created	>= '". $time_from ."' AND created	<= '". $time_until ."'");
            $all2 = $dbq2 -> fetchObject();
            \LK\Stats::logUserSearches($all -> uid, (int)$all2 -> count);
-
 
            // Kampagnen
            $dbq3 = db_query("SELECT count(*) as count FROM lk_lastviewed WHERE uid='". $all -> uid ."' AND lastviewed_time >= '". $time_from ."' AND lastviewed_time <= '". $time_until ."'");

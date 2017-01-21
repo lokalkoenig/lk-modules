@@ -42,9 +42,9 @@ class KampagnenPopularity {
     $points += $count * 3;
   
     // 2 Punkte in Merkliste
-    $dbq = db_query("SELECT count(*) as count FROM field_data_field_merkliste_node WHERE field_merkliste_node_nid='". $node -> nid ."'");
-    $res = $dbq -> fetchObject();
-    $points += $res -> count * 2; 
+    $manager = new \LK\Merkliste\AdminMerkliste(0);
+    $count = $manager->getGeneralKampagnenCount($node -> nid);
+    $points += $count * 2; 
   
     // 10 Punkte Lizenz gekauft
     $dbq = db_query("SELECT count(*) as count FROM lk_vku_lizenzen WHERE nid='". $node -> nid ."'");

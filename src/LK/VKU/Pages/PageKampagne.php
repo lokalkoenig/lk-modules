@@ -22,7 +22,7 @@ class PageKampagne extends PageInterface {
    * @return type
    */
   function getImplementation(\VKUCreator $vku, $item, $page){
-   
+    
     $default_kampagne = $item;
     $default_kampagne["single_toggle"] = true;
     $default_kampagne["deactivate"] = true;

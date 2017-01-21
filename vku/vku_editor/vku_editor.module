@@ -12,7 +12,7 @@ require_once __DIR__ . '/vku_editor.field_widget.php';
  * 
  * @param array $modules
  */
-function vku_editor_vku2_add_module(&$modules){
+function vku_editor_vku2_add_module(){
   return [
     'vku_documents' => '\\LK\\VKU\\Editor\\VKU2Handler',  
   ]; 

@@ -67,6 +67,7 @@ function lokalkoenig_merkliste_menu(){
       
      $items['merkliste/send/%'] = array(
       'access callback' => 'lk_vku_access',
+      'page arguments' => array(2),
       'page callback' => 'lokalkoenig_merkliste_ajax_callback_send',
       'file' => 'callbacks/merkliste2message', 
       'title' => 'Merkliste versenden',

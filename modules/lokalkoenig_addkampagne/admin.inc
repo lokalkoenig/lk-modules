@@ -281,13 +281,8 @@ function _show_remove_stats($nid){
  
  $table["Kampagnen History"] = $all -> count;
  
- $query = new EntityFieldQuery();
- $query->entityCondition('entity_type', 'merkliste');
- $query -> entityCondition('bundle', 'merkliste');
- $query -> fieldCondition('field_merkliste_node', 'nid', $nid); 
- $result = $query->count();
- 
- $table["Merkliste"] = $result -> count;
+ $manager = new \LK\Merkliste\AdminMerkliste($user -> uid);
+ $table["Merkliste"] = $manager->getGeneralKampagnenCount($nid);
   
  $vku_count = get_nid_in_vku_count($nid); 
  $table["VKU-Einträge"] = $vku_count . " (Teilweise betroffen)";
@@ -296,11 +291,6 @@ function _show_remove_stats($nid){
  $all = $dbq -> fetchObject();
  
  $table["Lizenzen"] = $all -> count . " (Nicht betroffen))";
- 
-  
-  
-  
-  
  $return = '<ul>';
  
  while(list($key, $val) = each($table)){
@@ -311,7 +301,3 @@ function _show_remove_stats($nid){
  
 return $return; 
 }
-
-
-
-?>

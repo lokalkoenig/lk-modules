@@ -84,6 +84,28 @@ class UserMerkliste extends \LK\Merkliste\Manager\MerklistenManager {
     $this->removeSessions();
   }
   
+ /**
+   * Is triggered once the Kampagne gets int the ML
+   * 
+   * @param \LK\Merkliste\Manager\Entity $merkliste
+   * @param int $nid
+   */
+  function newKampagneAdded($merkliste, $nid){
+    $this->logVerlag("Kampagne zur Merkliste " . $merkliste ->getName() . " hinzugefügt.", ['nid' => $nid]);
+  }
+  
+  /**
+   * Creates a new Merkliste
+   * 
+   * @param string $name
+   * @return int
+   */
+  protected function createMerkliste($name) {
+    $this->logVerlag("Neue Merkliste erstellt: " . $name);    
+    \LK\Stats::logUserMerklisteAdded($this -> uid);
+    return parent::createMerkliste($name);
+  }
+  
   /**
    * Removes all Sessions for the ML
    */

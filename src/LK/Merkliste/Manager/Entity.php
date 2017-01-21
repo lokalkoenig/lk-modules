@@ -18,7 +18,7 @@ class Entity {
   }
   
   function getUrl(){
-    return url(\LK\Merkliste\UserMerkliste::URL . "/" . $this->getId());
+    return url(\LK\Merkliste\UserMerkliste::URL . "/" . $this->getId(), ['absolute' => true]);
   }
   
   function getData(){

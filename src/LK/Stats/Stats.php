@@ -60,8 +60,8 @@ class Stats {
         self::log('user', $user_id, 'searches', $value); 
     }
     
-    public static function logUserMerklisten($user_id, $value){
-        self::log('user', $user_id, 'merklisten', $value); 
+    public static function logUserMerklisteAdded($user_id){
+      self::log('user', $user_id, 'merklisten');
     }
     
     public static function logUserAccessedKampagnen($user_id, $value){

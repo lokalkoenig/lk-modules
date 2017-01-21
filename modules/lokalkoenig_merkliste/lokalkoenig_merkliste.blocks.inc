@@ -47,7 +47,7 @@ global $user;
         $links[] = [
           'title' => $merkliste->getName(),
           'id' => $merkliste->getId(),
-          'url' => url($merkliste ->getUrl()),
+          'url' => ($merkliste ->getUrl()),
           'kampagnen' => $merkliste->getKampagnenCount(),
         ];
       }

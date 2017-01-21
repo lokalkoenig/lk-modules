@@ -224,7 +224,7 @@ class PageManager {
    * @param type $items
    * @return boolean
    */
-  function getModuleConfiguration($cid, $vku, &$items){
+  function getModuleConfiguration($cid, $vku, $items){
     $seite = null;
     
     $pages = $vku->getPages();
@@ -244,7 +244,7 @@ class PageManager {
       return false;
     }
     
-    return $document ->getImplementation($vku, $item, $seite);
+    return $document ->getImplementation($vku, $items, $seite);
   }
   
   

@@ -9,6 +9,10 @@ namespace LK\Merkliste\Manager;
  */
 abstract class MerklistenManager {
   
+  use \LK\Log\LogTrait;
+  use \LK\Stats\Action;
+  
+  var $LOG_CATEGORY = "Merkliste";
   var $uid = 0;
   
   function setUserId($uid){
@@ -75,7 +79,7 @@ abstract class MerklistenManager {
    * @param string $name
    * @return int
    */
-  private function createMerkliste($name){
+  protected function createMerkliste($name){
     $save = [];
     $save['uid'] = $this->uid;
     $save['term_name'] = $name;
@@ -83,8 +87,9 @@ abstract class MerklistenManager {
     $save['created'] = $save['changed'] = time();
     
     $id = db_insert('lk_merklisten_terms')->fields($save)->execute();
-  
-  return $id;  
+    $this->setAction('merkliste-create', $id);
+    
+    return $id;  
   }
   
   /**
@@ -100,7 +105,6 @@ abstract class MerklistenManager {
     if(!$all){
       return false;
     }
-    
     
     $merkliste = $all;
     $merkliste->nodes = [];
@@ -229,6 +233,7 @@ abstract class MerklistenManager {
     $id = $merkliste->getId();
     db_query('DELETE FROM lk_merklisten WHERE term_id=:tid', [':tid' => $id]);
     db_query('DELETE FROM lk_merklisten_terms WHERE merklisten_id=:tid', [':tid' => $id]);
+    $this->setAction('merkliste-remove', $id);
     
     $this->performedUpdate();
     return true;
@@ -262,6 +267,7 @@ abstract class MerklistenManager {
     
    db_query('DELETE FROM lk_merklisten WHERE term_id=:tid AND nid=:nid', [':tid' => $id, ':nid' => $nid]);
    db_query('UPDATE lk_merklisten_terms SET kampagnen=kampagnen-1, changed=:changed WHERE merklisten_id=:mlid',[':mlid' => 'merklisten_id', ':changed' => time()]);
+   
    $this->performedUpdate();
      
   return true;  
@@ -294,10 +300,24 @@ abstract class MerklistenManager {
       'nid' => $nid
     ];
     
-    db_insert('lk_merklisten')->fields($insert)->execute();
+    
+    $id = db_insert('lk_merklisten')->fields($insert)->execute();
+    $this->setAction('merkliste-add-kampagne', $id);
+    
     db_query('UPDATE lk_merklisten_terms SET kampagnen=kampagnen+1, changed=:changed WHERE merklisten_id=:mlid',[':mlid' => 'merklisten_id', ':changed' => time()]);
+    
+    $this->newKampagneAdded($merkliste, $nid);
     $this->performedUpdate();
   }
+  
+  
+  /**
+   * Is triggered once the Kampagne gets int the ML
+   * 
+   * @param \LK\Merkliste\Manager\Entity $merkliste
+   * @param int $nid
+   */
+  function newKampagneAdded($merkliste, $nid){ }
   
   /**
    * Gets the User-Terms-Count

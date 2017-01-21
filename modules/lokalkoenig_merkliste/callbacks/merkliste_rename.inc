@@ -19,7 +19,7 @@ function lokalkoenig_merkliste_ajax_callback_rename($tid){
   
   if(!$newname){
     drupal_set_message("Bitte vergeben Sie einen eindeutigen Merklisten-Titel."); 
-    drupal_goto($manager ->getUrl());
+    drupal_goto($merkliste ->getUrl());
   }      
   
   $new_id = $manager->renameMerkliste($merkliste->getId(), $newname);
