@@ -26,8 +26,13 @@ class PageDefault extends PageInterface {
     return $item;
   }
   
-  function updateItem(\VKUCreator $vku, $pid, array $item){ }
-  function removeItem(\VKUCreator $vku, $pid){ }
+  function updateItem(\VKUCreator $vku, $pid, array $item){ 
+    // do nothing
+  }
+  
+  function removeItem(\VKUCreator $vku, $pid){ 
+    // do nothing
+  }
   
   function getImplementation(\VKUCreator $vku, $item, $page){
  
@@ -83,8 +88,31 @@ class PageDefault extends PageInterface {
   }
   
   
-  function getOutputPDF(){
+  /**
+   * Adds a PDF Page
+   * 
+   * @param array $page
+   * @param \PDF $pdf
+   */
+  function getOutputPDF($page, $pdf){
     
+    $static_pages = [
+        'title' => 'a-cover.php',
+        'contact' => 'z-contact.php',
+        'kontakt' => 'z-contact.php',
+        'onlinewerbung' => 'q-onlinewerbung.php',
+        'wochen' => 'p-wochenblaettern.php',
+        'tageszeitung' => 'o-tageszeitungen.php',
+        'kplanung' => 'r-kampagnenplanung.php',
+    ];
+    
+    $module_dir = $this->getPDFFileDirectory();
+    $module = $page["data_class"];
+    $vku = new \VKUCreator($page['vku_id']);
+    
+    if(isset($static_pages[$module])){
+      require_once $module_dir . '/' . $static_pages[$module];
+    }
   }
   
   function getOutputPPT(){

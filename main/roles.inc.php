@@ -29,6 +29,19 @@ return false;
 
 
 /**
+ * Gives back yes or no
+ * if the Kampagne can be purchased
+ * 
+ * @param int $nid
+ * @param int $uid
+ * @return boolean
+ */
+function lk_kampagne_can_purchase($nid, $uid){
+  return \LK\Kampagne\AccessInfo::userHasAccessToKampagne($uid, $nid);
+}
+
+
+/**
  * Checks weather the current user is a Verlag
  * and if the current user can access this
  * 

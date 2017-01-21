@@ -4,8 +4,8 @@
 define("VKU_FONT", 'DejaVu');
 define("FPDF_VERSION", "Lokalkoenig");
 
-require(dirname(__FILE__).'/../../../../../tpdf/tFPDF.php');
-require(dirname(__FILE__).'/../../../../../tpdf/table/pdftable.inc.php');
+require(dirname(__FILE__).'/../../../../../libraries/tpdf/tFPDF.php');
+require(dirname(__FILE__).'/../../../../../libraries/tpdf/table/pdftable.inc.php');
 
 /**
  * Lokalkoenig PDF Class

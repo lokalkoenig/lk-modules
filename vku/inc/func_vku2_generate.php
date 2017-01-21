@@ -1,13 +1,12 @@
 <?php
 
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Generates a VKU 2.0 Form
+ * 
+ * @path \vku\%
+ * @param VKUCreator $vku
+ * @return string
  */
-
-//require_once __DIR__ . "/func_vku2_callback.php";
-
 function vku2_generate_form(VKUCreator $vku){
     
    drupal_add_js(drupal_get_path('module', 'vku') .'/js/vku2.js', 'file');
@@ -44,10 +43,8 @@ function vku2_generate_form(VKUCreator $vku){
    }
    
    $array["kampagnen"] = $manager ->getPossibilePages('kampagnen', $account); 
-   
    $array["templates"] = vkuconnection_get_user_templates($uid);
    $array["ausgaben"] = vku2_get_ausgaben_hinweis($vku, $uid);
-   
    $array["dokumente"] = theme("vku2_documents", $array);
    
    return theme('vku2', $array);    
@@ -67,8 +64,7 @@ function vku2_get_ausgaben_hinweis(VKUCreator $vku, $user_uid){
              $ausgaben_formatted[] = $object -> getTitleFormatted(); 
          }
      }
-     
-     
+
      $link = '';
      // Can adjust theese Settings
      if($account -> isTelefonmitarbeiter()){
@@ -93,74 +89,3 @@ function vku2_get_ausgaben_hinweis(VKUCreator $vku, $user_uid){
     
 return false;    
 }
-
-
-////////////////////////////////////////////////////
-
-
-function _vku2_generate_add_new_category_page($vku_id, $type, $page){
-   $category_id = db_insert('lk_vku_data_categories')->fields(array('vku_id' => $vku_id, 'category' => $type, 'sort_delta' => $page["data_delta"]))->execute();
-   
-   _vku2_add_page_to_category($page, $category_id);
-}
-
-function _vku2_add_page_to_category($page, $category_id){
-   db_query("UPDATE lk_vku_data SET data_category='". $category_id ."' WHERE id='". $page["id"]  ."'");    
-}
- 
-/**
- * 
- * @param VKUCreator $vku
- * @return Array
- */
-function vku2_generate_category_pages(VKUCreator $vku){
-    
-    $pagem = new \LK\VKU\PageManager();
-    return $pagem ->generatePageConfiguration($vku);
-}
-
-
-
-/**
- * Gets back yes or no, if Node can be licenced
- * 
- * @param Int $nid
- * @param Int $uid
- * @return boolean
- */
-function vku2_node_can_add($nid, $uid){
-    
-    $node = node_load($nid);
-    $access = na_check_user_has_access($uid, $node -> nid);
-    
-    if(!$node -> status OR !$access["access"]){
-        return false;
-    }
-    
-return true;    
-}
-
-
-/**
- * Returns the Basic Configuration of the
- * new VKU2 Categories
- * 
- * @return Array
- */
-function vku2_generate_vku_categories(){
-   $pagem = new \LK\VKU\PageManager();
-   $pagem ->getDefaultCategories();
-}
-
-
-/**
- * Copy a Vorlage to a existing VKU
- * 
- * 
- * @param VKUCreator $vku
- * @param Integer $vorlage_vku_id
- * @return VKUCreator
- */
-function vku2_generate_takeover_vorlage(VKUCreator $vku, $vorlage_vku_id){
-  return \LK\VKU\Vorlage::takeOver($vku, $vorlage_vku_id);  
-}    

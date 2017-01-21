@@ -25,7 +25,7 @@ global $user;
        $vku_new = new VKUCreator('new', $settings);
        require_once __DIR__ ."/func_vku2_generate.php";
        
-       $vku_new_generated = vku2_generate_takeover_vorlage($vku_new, $vku -> getId());
+       $vku_new_generated = \LK\VKU\Vorlage::takeOver($vku_new, $vku -> getId());
        $vku_new_generated -> setStatus('new');
        
        $vku_new_id = $vku_new_generated -> getId(); 

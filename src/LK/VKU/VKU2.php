@@ -15,6 +15,7 @@ class VKU2 {
   use \LK\Log\LogTrait;
   use \LK\Stats\Action;
   
+  var $LOG_CATEGORY = 'VKU2';
   var $vku = null;
   var $response = [];
   var $pagemanager = null;
@@ -43,6 +44,7 @@ class VKU2 {
    */
   public function checkSignature(){
     if(!isset($this->response['signature']) || $this->response['signature'] != $this->getVKU()->get("vku_changed")){
+      $this->logNotice('Signatur-Fehler gesendet gefunden und behoben in: ' . $this->getVKU());
       $this->sendError(['signature_error' => true]);
     }
   }
@@ -87,42 +89,16 @@ class VKU2 {
     foreach($obj["data"] as $item){
       $sid = $item["sid"];
       $items = explode("-", $item["sid"]);
-          
-      // new item
-      if($item["status"] == 3){
-        $cid = $vku ->setDefaultCategory('other', 0);
-        $data = $pagemanager->addNewPage($vku, $cid, $items[0], $items[1], $item); 
-        $replace_sid =  $sid;
-        $id = db_insert('lk_vku_data')->fields($data)->execute();
-           
-        $sid = $cid . "-" . $id; 
-        $new = $sid;
-      }
-      
       $cid = $items[0];
       $pid = $items[1];
-            
-      // disable
-      if($item["status"] === 0){
-        $vku ->setPageStatus($pid, false);
-      }
-      else {
-        $vku ->setPageStatus($pid, true);
-      }
-            
-      // delete item
-      if($item["status"] == 2){
-        $vku ->removePage($pid);
-        continue;
-      }
-            
-      $line[$sid] = array();
-      
+    
       // Load Container
       $category = $vku -> getDefaultCategory($cid);
       
       // Mainly print & online
       if($category && in_array($category -> category, array('print', 'online'))){
+        $line[$sid] = array();
+        
         // No Entries
         if(!isset($item["children"])):
           $item["children"] = array();
@@ -154,7 +130,36 @@ class VKU2 {
           $line[$sid][] = $sid2;
         }
         
+        continue;
       }
+      
+      // other - items
+      
+      // new item
+      if($item["status"] == 3){
+        $cid = $vku ->setDefaultCategory('other', 0);
+        $data = $pagemanager->addNewPage($vku, $cid, $items[0], $items[1], $item); 
+        $replace_sid =  $sid;
+        $id = db_insert('lk_vku_data')->fields($data)->execute();
+        $sid = $cid . "-" . $id; 
+        $new = $sid;
+      }
+      // disable
+      elseif($item["status"] === 0){
+        $vku ->setPageStatus($pid, false);
+      }
+      // delete item
+      elseif($item["status"] == 2){
+        $vku ->removePage($pid);
+        continue;
+      }
+      // nothing but update
+      else {
+        $vku ->setPageStatus($pid, true);
+        $pagemanager->updatePage($vku, $pid, $item);
+      }
+      
+      $line[$sid] = array();
     }
    
     // Save the Delta
@@ -162,7 +167,6 @@ class VKU2 {
     
     $vku_updated = new \VKUCreator($vku ->getId());
     $pages = $pagemanager ->generatePageConfiguration($vku_updated);
-    
     
     $response = [];
     $response["replace"] = null;
@@ -254,7 +258,9 @@ class VKU2 {
         
     if(!empty($obj["template"])){
       $new_vku = Vorlage::takeOver($vku, $obj["template"]);
-      $pages = vku2_generate_category_pages($new_vku);
+      
+      $manager = $this->getPageManager();
+      $pages = $manager->generatePageConfiguration($new_vku);
       $generated = theme("vku2_items", array("items" => $pages, 'vku' => $new_vku));
       $obj["renew_items"] = $generated;
     }    

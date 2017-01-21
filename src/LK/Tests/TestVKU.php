@@ -1,14 +1,5 @@
 <?php
-
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace LK\Tests;
-
-
 
 /**
  * Description of TestVKU
@@ -17,10 +8,7 @@ namespace LK\Tests;
  */
 class TestVKU extends TestCase {
     //put your code here
-    
-  
-    
-    
+   
     function build() {
         //$this ->printLine('', 'Formate');
         
@@ -70,25 +58,22 @@ class TestVKU extends TestCase {
         $this->append(theme('table', array('header' => $header, 'rows' => $rows)));
         
         if(isset($_GET['render']) AND $_GET['render'] == 'pdf'){
-                $pdf = generate_pdf_object_verlag();
-                $node = node_load(88);
-                $node -> title = 'Test-Kampagne';
-                $node -> medien = $medias;
+          $node = node_load(88);
+          $node -> title = 'Test-Kampagne';
+          $node -> medien = $medias;
                 
-                $module_dir = 'sites/all/modules/lokalkoenig/vku/pages/';
-                require($module_dir.'/b-medias.php');
-                
-                $mydir = 'public://test'; 
-                file_prepare_directory($mydir, FILE_CREATE_DIRECTORY);
-                $dir = drupal_realpath($mydir);
-                $pdf->Output($dir . "/test-pdf.pdf", 'F');
-                $size = filesize($dir . "/test-pdf.pdf");
-                $this ->printInfo("Sie koennen nun die Test-PDF " .l('Test-PDF', 'sites/default/files/test/test-pdf.pdf') . ' ('.format_size($size) .') herunterladen.');
+          $pdf = \LK\PDF\PDF_Loader::renderTestNode($node, FALSE);
+          $mydir = 'public://test'; 
+          file_prepare_directory($mydir, FILE_CREATE_DIRECTORY);
+          $dir = drupal_realpath($mydir);
+          $pdf->Output($dir . "/test-pdf.pdf", 'F');
+          $size = filesize($dir . "/test-pdf.pdf");
+          $this ->printInfo("Sie koennen nun die Test-PDF " .l('Test-PDF', 'sites/default/files/test/test-pdf.pdf') . ' ('.format_size($size) .') herunterladen.');
         }
         
         $actions = array(
             '<a href="'. url('lkadmin/test', array('query' => array('case' => __CLASS__, "render" => 'pdf'))) .'" class="btn btn-primary btn-hollow">Test-PDF Generieren</a>',
-            '<a href="/vku/test?ppt=1" class="btn btn-primary btn-hollow">Test-PPT Generieren</a>'
+            '<a href="#" class="btn btn-primary btn-hollow">Test-PPT Generieren</a>'
         );
         
         $this->append('<hr />' . implode(' ', $actions));

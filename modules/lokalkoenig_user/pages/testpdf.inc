@@ -10,16 +10,14 @@
  */
 
 function lokalkoenig_user_verlag_testpdf($user){
-   $verlag = _lk_user($user);
+   $account = \LK\get_user($user);
    
-   
-   if(!lk_is_verlag($verlag))  { 
-       print 'User ist kein Verlag'; 
-       drupal_exit(); 
+   if(!$account || !$account ->isVerlag()){
+     drupal_goto('<front>');
    }
    
    $module_dir = 'sites/all/modules/lokalkoenig/vku/pages/';
-   $pdf = generate_pdf_object_verlag($verlag -> uid);
+   $pdf = \LK\PDF\PDF_Loader::getPDF($user -> uid);
    
     //?hg_color=fa35ab&hg_color_titel=1ab51f&vg_color_titel=ffffff
     if(!empty($_GET["hg_color"])){

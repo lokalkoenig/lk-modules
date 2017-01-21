@@ -397,16 +397,14 @@ function lokalkoenig_addkampagne_menu(){
       'title' => 'Moderation',
       'type' => MENU_LOCAL_TASK);
      
-   
-   
-     $items['node/%node/pdf'] = array(
+    $items['node/%node/pdf'] = array(
       'access callback' => 'lokalkoenig_addkampagne_checktype',
       'access arguments' => array(1, 'admin'),
       'page callback' => '\\LK\\PDF\\PDF_Loader::renderTestNode', 
       'page arguments' => array(1),
-      'file' => 'admin.inc',
       'title' => 'PDF',
-      'type' => MENU_LOCAL_TASK);  
+      'type' => MENU_LOCAL_TASK
+     );  
     
      $items['node/%node/status'] = array(
       'access callback' => 'lokalkoenig_addkampagne_checktype',

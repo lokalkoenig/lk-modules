@@ -19,7 +19,7 @@ $pdf->AddPage();
 $pdf -> SetLeftMargin(25);
 $pdf -> Ln(10);
 
-$pdf->Image($module_dir .'telefon.jpg', 180, 100, 100);   
+$pdf->Image($module_dir .'/telefon.jpg', 180, 100, 100);   
 $pdf->SetFont(VKU_FONT,'B',45);
 
 $bild = null;

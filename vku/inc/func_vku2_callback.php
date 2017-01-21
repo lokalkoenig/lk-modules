@@ -20,8 +20,8 @@ function _vku2_callback($vku_id){
     
     // Preview
     if(isset($_GET["preview"]) AND $_GET["preview"] == 1){
-        _vku2_callback_preview($vku);
-        exit;
+      $pagemanager = new \LK\VKU\PageManager();
+      $pdf = $pagemanager ->generatePDF($vku, 0, true);
     }
     
     $manager = new \LK\VKU\VKU2($vku, $_POST['save']);
@@ -47,6 +47,9 @@ function _vku2_callback($vku_id){
     $obj["msg"] = null;
     $obj["signature_error"] = false; 
     
+    // Get an updated Version
+    $vku_updated = new \VKUCreator($vku ->getId());
+    
     // Final check
     if($obj["type"] == 'savelast' OR $obj["type"] == "save" OR $obj["type"] == "finalize"):
       // Node count
@@ -58,7 +61,7 @@ function _vku2_callback($vku_id){
       else {
           // check for Kampagnen die nicht lizenziert werden können
           foreach($nodes as $nid){
-            if(!vku2_node_can_add($nid, $vku -> getAuthor())){
+            if(!lk_kampagne_can_purchase($nid, $vku -> getAuthor())){
                 $obj["error"] = 1;
                 $node = node_load($nid);
                 $obj["msg"] = 'Die Kampagne <strong>' . $node -> title . "</strong> kann im Moment nicht lizenziert werden. Bitte löschen Sie diese aus Ihrer Verkaufsunterlage."; 
@@ -129,38 +132,5 @@ function _vku2_callback($vku_id){
     }    
     
     // Nothing happend
-    $manager->sendJSON([]);
-}
-
-
-
-function _vku2_callback_preview(VKUCreator $vku){
-    
-  $author = $vku -> getAuthor();
-  $id = $vku -> getId();
-  
-  $pdf = vku_generate_get_pdf_object($vku); 
-  $fn = $id . "_" . time() . ".pdf";
-  $pages = $vku -> getPages();
-
-
-  while(list($key, $page) = each($pages)){
-      
-      if(!$page["data_active"]) {
-          continue;
-      }
-      
-      $mod = $page["data_module"];  
-      $func_name = 'vku_generate_pdf_' . $mod;
-
-      if(function_exists($func_name)){
-        $func_name($vku, $page, $pdf);
-      }
-  }
-  
-  
-  $vku ->logEvent('pdf-preview', 'Vorschau PDF wurde generiert.');
-  $pdf->Output();
-  exit;
-  //return $dir . "" .  $fn; 
+    $manager->sendJSON($obj);
 }

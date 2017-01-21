@@ -6,7 +6,7 @@ $pdf -> SetLeftMargin(25);
 $pdf -> SetRightMargin(125);
 
 $pdf -> Ln(15); 
-$pdf->Image($module_dir .'shutterstock_online_small.jpg', 180, 30.2, 130);   
+$pdf->Image($module_dir .'/shutterstock_online_small.jpg', 180, 30.2, 130);   
 
 //$pdf -> SetLeftMargin(120);
 $pdf->SetFont(VKU_FONT,'B',28);

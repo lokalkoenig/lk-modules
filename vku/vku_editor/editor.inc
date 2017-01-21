@@ -5,8 +5,8 @@
  * Imports all the necessary functions
  */
 
-require_once __DIR__ . '/../../editor/dist/src/autoload.php';
-
+define("VKU_EDITOR_PATH", 'sites/all/libraries/lk_editor');
+require_once __DIR__ . '/../../../../libraries/lk_editor/dist/src/autoload.php';
 
 /**
  * HOOK_menu
@@ -102,12 +102,12 @@ function vku_editor_library() {
     'title' => 'PXEdit',
     'version' => '1.0.1',
     'js' => array(
-      drupal_get_path('module', 'vku') . '/../editor/dist/js/trumbowyg.js' => array(),
-      drupal_get_path('module', 'vku') . '/../editor/dist/js/jquery.fileupload.js' => array(),
-      drupal_get_path('module', 'vku') . '/../editor/dist/js/PXEdit-packed.js' => array()  
+      VKU_EDITOR_PATH . '/dist/js/trumbowyg.js' => array(),
+      VKU_EDITOR_PATH . '/dist/js/jquery.fileupload.js' => array(),
+      VKU_EDITOR_PATH . '/dist/js/PXEdit-packed.js' => array()  
     ),
     'css' => array(
-      drupal_get_path('module', 'vku') . '/../editor/dist/css/project.css' => array(
+      VKU_EDITOR_PATH . '/dist/css/project.css' => array(
         'type' => 'file',
         'media' => 'screen',
       ),

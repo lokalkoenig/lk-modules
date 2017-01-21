@@ -101,7 +101,7 @@ class PageKampagne extends PageInterface {
    * @param array $item
    */
   function updateItem(\VKUCreator $vku, $pid, array $item){
-  
+    
     $save = array(); 
     foreach($item['children'] as $child){
       $explode = explode("-", $child["sid"]);
@@ -115,7 +115,7 @@ class PageKampagne extends PageInterface {
       }              
     }
     
-    $vku -> setPageSerializedSetting($pid, $save);
+    $vku -> setPageSerializedSetting($pid, $save); 
   }
   
   
@@ -143,10 +143,6 @@ class PageKampagne extends PageInterface {
     $item['data_serialized'] = serialize($save);
     return $item;
  }
- 
- 
-  
-  
   
   /**
    * Gets the Children of the given Kampagne
@@ -259,8 +255,25 @@ class PageKampagne extends PageInterface {
     return $kampagnen;  
   }
   
-  function getOutputPDF(){
+  /**
+   * Gets back the Output of the Kampagne
+   * 
+   * @param type $page
+   * @param type $pdf
+   */
+  function getOutputPDF($page, $pdf){
+    $module_dir = $this->getPDFFileDirectory();
     
+    // added for Testing purposes
+    if(isset($page['node'])){
+      $node = $page['node'];
+    }
+    else {
+      $nid = $page["data_entity_id"];
+      $node = node_load($nid); 
+    }
+    
+    include $module_dir .'/b-medias.php';
   }
   
   function getOutputPPT(){

@@ -9,9 +9,11 @@ namespace LK\VKU;
 abstract class PageInterface {
   
   protected $pagemanager = null;
+  var $pdf_pages_dir = null;
   
   function __construct(PageManager $pagemanager) {
     $this->pagemanager = $pagemanager;
+    $this -> pdf_pages_dir = __DIR__ .'/../../../vku/pages';
   }
   
   /**
@@ -21,6 +23,13 @@ abstract class PageInterface {
     $this->pagemanager->getDefaultOptions();
   }
   
+  /**
+   * Gets back the PDF-Directory
+   * @deprecated Should be not used by new Modules
+   */
+  final public function getPDFFileDirectory(){
+    return $this->pdf_pages_dir;
+  }
   
   abstract function getImplementation(\VKUCreator $vku, $item, $page);
   
@@ -32,7 +41,9 @@ abstract class PageInterface {
   
   abstract function removeItem(\VKUCreator $vku, $pid);
   
-  abstract function getOutputPDF();
+  function getOutputPDF($page, $pdf){
+    $pdf->AddPage();
+  }
   
   abstract function getOutputPPT();  
 }

@@ -11,6 +11,7 @@ class PageManager {
   var $default_options = [
    'has_children' => false, 
    'delete' => false, 
+   'active' => 1,   
    'preview' => false,
    'container' => false, 
    'children_sortable' => false,
@@ -32,6 +33,7 @@ class PageManager {
       'node' => '\\LK\\VKU\\Pages\\PageKampagne',
   ];
   
+  var $save_dir = "sites/default/private/vku";
   
   /**
    * Calls a Hook to Modules to get Invokes
@@ -78,7 +80,7 @@ class PageManager {
       return false;
     }
     
-    $obj ->updateItem($vku, $id, $item);
+    return $obj ->updateItem($vku, $id, $item);
   }
   
   
@@ -102,6 +104,62 @@ class PageManager {
     
     return $obj ->saveNewItem($insert);
   }
+  
+  /**
+   * Generates a Sample Kampagne
+   */
+  function generateSampleKampagne($pdf, $node){
+    $obj = $this->getModule('node');
+    $obj ->getOutputPDF(['node' => $node, 'data_serialized' => ''], $pdf);
+  }
+  
+  
+  /**
+   * Gets back a generated PDF from the VKU
+   * @param \VKUCreator $vku
+   * @param $line_item optional-page-id
+   * @param boolean $output direct
+   */
+  function generatePDF(\VKUCreator $vku, $line_item = 0, $output = false){
+    
+    $pdf = \LK\PDF\PDF_Loader::getPDF($vku ->getAuthor()); 
+    $pages = $vku -> getPages();
+    
+    while(list($key, $page) = each($pages)){
+      if(!$page["data_active"]) {
+          continue;
+      }
+      
+      if($line_item && $line_item != $key){
+        continue;
+      }
+      
+      $mod = $this->getModule($page["data_module"]);
+      if($mod){
+        $mod->getOutputPDF($page, $pdf);
+      }
+    }
+    
+    if($output){
+      \LK\PDF\PDF_Loader::output($pdf);
+    }
+    
+    return $pdf;  
+  }
+  
+  function finalizeVKU(\VKUCreator $vku){
+    $pdf = $this->generatePDF($vku);
+    $fn = $vku -> getId() . ".pdf";
+    $file_path = $this->save_dir .'/'. $fn;
+    $pdf->Output($file_path, 'F');
+  
+    $vku -> set("vku_ready_filename", $fn);
+    $vku -> set("vku_ready_time", time()); 
+    $vku -> set("vku_ready_filesize", filesize($file_path)); 
+    
+    
+  }
+  
   
   /**
    * Gets back the items for the Categories

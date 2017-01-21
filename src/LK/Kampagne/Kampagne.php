@@ -197,13 +197,12 @@ class Kampagne {
           }
       }
       else {
-           $ml["href"] = 'node/' . $node -> nid;
-           $ml["attributes"]["class"] = array('merkliste');
-           $ml["attributes"]["data-toggle"] = 'tooltip';
-           $ml["attributes"]["onclick"] = 'return false;';
-           $ml["attributes"]["title"] = 'Diese Funktion ist für Sie nicht verfügbar';  
+        $ml["href"] = 'node/' . $node -> nid;
+        $ml["attributes"]["class"] = array('merkliste');
+        $ml["attributes"]["data-toggle"] = 'tooltip';
+        $ml["attributes"]["onclick"] = 'return false;';
+        $ml["attributes"]["title"] = 'Diese Funktion ist für Sie nicht verfügbar';  
       }
-      
       
       $node -> merkliste_link = $ml;
       
@@ -319,7 +318,10 @@ class Kampagne {
       
       if($view_mode === 'full'){
         $this ->getFullViewAccessInformation();
-        $this->addMoreLikeThis();
+        
+        if($node -> status){
+          $this->addMoreLikeThis();
+        }
         
         if(\lk_vku_access()){
           $this->trackNodeView();

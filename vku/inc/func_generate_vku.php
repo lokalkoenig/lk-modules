@@ -38,8 +38,6 @@ global $user;
     }  
   }
   
-  
-  
   $vku = new VKUCreator($vku_id);
   $vkuauthor = $vku -> getAuthor();  
   $filesize = $vku -> getValue("vku_ready_filesize");
@@ -48,7 +46,6 @@ global $user;
   $return["filesize"] = format_size($filesize);
   
   $vku ->logEvent('pdf', 'PDF generiert ('. $return["filesize"] .')');
-  
   
   if(isset($_GET["ajax"])){
     drupal_json_output($return);
@@ -61,79 +58,32 @@ global $user;
   }
 }
 
+/**
+ * Generates the VKU
+ * 
+ * @param VKUCreator $vku
+ * @return boolean
+ */
 function _vku_generate_final_vku_v2(VKUCreator $vku){
-    $pdf = vku_generate_get_pdf_object($vku); 
-    $fn = $vku -> getId() . ".pdf";
-    
-    $pages = $vku -> getPages();
-    
-    
-    while(list($key, $page) = each($pages)){
-      if(!$page["data_active"]) {
-          continue; 
-      }
-      
-      $mod = $page["data_module"];  
-      $func_name = 'vku_generate_pdf_' . $mod;
-
-      if(function_exists($func_name)){
-        $func_name($vku, $page, $pdf);
-      }
-    }
-    
-    $dir = "sites/default/private/vku/";
-    $pdf->Output($dir . $fn, 'F');
-    
-    if(!file_exists("sites/default/private/vku/" . $fn)){
-        return false;   
-    }
-    
-    $vku -> set("vku_ready_filename", $fn);
-    $vku -> set("vku_ready_time", time()); 
-    $vku -> set("vku_ready_filesize", filesize("sites/default/private/vku/" . $fn)); 
-    
-    return true;
+  $manager = new \LK\VKU\PageManager();
+  $manager ->finalizeVKU($vku);
+  
+  return true;
 }    
 
 
- function _vku_generate_final_vku(VKUCreator $vku){
-  $author = $vku -> getAuthor();
-  $id = $vku -> getId();
-
-  
-  $pdf = vku_generate_get_pdf_object($vku); 
-  $fn = $id . ".pdf";
-  $pages = $vku -> getPages();
-
-
-  while(list($key, $page) = each($pages)){
-      if(!$page["data_active"]) continue;
-
-      $mod = $page["data_module"];  
-      $func_name = 'vku_generate_pdf_' . $mod;
-
-      if(function_exists($func_name)){
-        $func_name($vku, $page, $pdf);
-      }
-  }
-
-  //drupal_get_messages();
-  $dir = "sites/default/private/vku/";
-  $pdf->Output($dir . $fn, 'F');
-  
-  if(!file_exists("sites/default/private/vku/" . $fn)){
-    return false;   
-  }
-
-  $vku -> set("vku_ready_filename", $fn);
-  $vku ->logVerlagEvent('Verkaufsunterlage zum Download bereit');
-  
-  $vku -> set("vku_ready_time", time()); 
-  $vku -> set("vku_ready_filesize", filesize("sites/default/private/vku/" . $fn)); 
+/**
+ * Generates the VKU
+ * 
+ * @param VKUCreator $vku
+ * @return boolean
+ * @deprecated
+ */
+function _vku_generate_final_vku(VKUCreator $vku){
+  _vku_generate_final_vku_v2($vku);
   $vku ->setStatus('ready');
-
-    return true; 
-  }
+  return true; 
+}
   
 
 ?>
