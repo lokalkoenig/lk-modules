@@ -240,8 +240,6 @@ function lk_theme_search_result_view($search){
 
     $title = \LK\Solr\SearchQueryParser::toMarkup($search);
     $link = \LK\Solr\SearchQueryParser::buildLink($search);
-    
-    $kampagnen = [];
     $solr ->setLimit(4);
     $nodes = $solr ->getNodes();
     

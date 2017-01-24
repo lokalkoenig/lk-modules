@@ -25,7 +25,16 @@ function lokalkoenig_user_theme(){
             ),
         ),
     );
+ 
+$themes["lk_user_change_ausgaben"] = [
+  'template' => 'templates/lk_user_change_ausgaben', // your template file called custompage.tpl.php
+  'variables' => [
+      'ausgaben' => [],
+      'link' => null,
+  ],
+];
   
+ 
  $themes["lk_user_block_left_anonym"] = array(
             'template' => 'templates/lkuserblockleft_ano', // your template file called custompage.tpl.php
             'variables' => array(),

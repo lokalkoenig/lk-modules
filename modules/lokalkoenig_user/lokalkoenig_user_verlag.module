@@ -29,6 +29,38 @@ function lokalkoenig_user_verlag_check_user_access_is_verlag($account){
 }
 
 /**
+ * Alters the Page-Variables 
+ * in order to place the Ausgaben-Switcher
+ * 
+ * @param array $page
+ */
+function lokalkoenig_user_verlag_page_alter(&$page) {
+  
+  if(lk_search_is_searchpage() && !lk_search_has_no_results()){
+    
+    $current = \LK\current();
+    if(!$current ->isTelefonmitarbeiter()){
+      return ;
+    }
+    
+    $query = \LK\Solr\SearchQueryParser::get();
+    $ausgaben = $current ->getAusgabenFormatted();
+    $link = url('user/' . $current ->getUid() . "/setplz", ['query' => $query]);
+    
+    $new_sidebar = [
+      '#weight' => -10,
+      '#markup' => theme('lk_user_change_ausgaben', [
+        'ausgaben' => $ausgaben, 
+        'link' => $link
+      ]),
+    ];
+    
+    array_splice($page['sidebar_first'], 1, 0, ['lokalkoenig_user_verlag' => $new_sidebar]);
+  }
+ }
+
+
+/**
  * Restricts the Settings 
  * on the Verlags-Settings
  * 

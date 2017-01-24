@@ -252,7 +252,7 @@ return $options;
 
 
 function lokalkoenig_team_stats_abrechnung_page($team_id){
-
+    
   $v = lk_get_verlag_from_team($team_id);
   
     // First-Month - Get From Lizenzen-Tabelle
