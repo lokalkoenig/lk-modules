@@ -80,7 +80,7 @@ class Search {
         
        if(isset($query['f'])){
           foreach ($query['f'] as $f):
-              $this -> solr -> addParam('fq','im_' . $f);
+            $this -> solr -> addParam('fq','im_' . $f);
           endforeach;
       }        
               

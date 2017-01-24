@@ -33,7 +33,7 @@ global $user;
   // Suche
   if(isset($message->field_search_query['und'][0]['value'])){
       $search = unserialize($message->field_search_query['und'][0]['value']);
-      
+     
       if($search){
         $vars['search'] = [
           '#markup' => lokalkoenig_search_preview_theme($search),
