@@ -178,6 +178,8 @@ ul.dropdown-menu-vku .item.active .hide-active {
 .modal-header  {
     color: White;
     background: #3276b1;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
 }
 
 .modal-header .close {

@@ -1,8 +1,7 @@
 
 <div class="well well-white">
-  <h4>Verlagseigene Dokumente</h4>
-  <p>Mit den VKU Extras können Sie benutzerdefinierte Dokumente erzeugen, die Sie hier zentral verwalten können.</p>
-  
+  <h4>Vorlagen für Verkaufsunterlagen</h4>
+  <p>Hier können Sie Vorlagen anlegen und verwalten.<br />Nach der Veröffentlichung stehen diese Dokumente Ihren Mitarbeitern zur weiteren Bearbeitung zur Verfügung.</p>
   <hr />
     
   <div id="vku-editor-verlag-documents">

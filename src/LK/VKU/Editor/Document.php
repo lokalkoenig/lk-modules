@@ -99,6 +99,24 @@ class Document {
     return $this->setData('document_category', $category);
   }
   
+  /**
+   * Gets the Page-Title
+   * @return string
+   */
+  function getPageTitle(){
+    return $this -> data['document_page_title']; 
+  }
+  
+  /**
+   * Sets the Page-Title
+   * 
+   * @param type $value
+   * @return $this
+   */
+  function setPageTitle($value){
+    return $this->setData('document_page_title', $value);
+  }
+  
   
   /**
    * Sets Data

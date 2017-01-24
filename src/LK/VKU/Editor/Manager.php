@@ -33,7 +33,7 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     
     $variables['footer_logos'] = [];
     foreach ($defaults["logos_unten"] as $logo):
-      	$variables['footer_logos'][] = \image_style_url($style, $logo);
+      	$variables['footer_logos'][] = \image_style_url('pxedit_footer_logo', $logo);
     endforeach;
     
     $variables['header_logo'] = \image_style_url($style, $defaults["logo_oben"]);
@@ -104,8 +104,8 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     }
     
     $preset = $this->loadPreset($document -> getPreset());
-    
-    $callback['values'] = $preset -> getDefaultValues();
+        
+    $values = $callback['values'] = $preset -> getDefaultValues();
     $callback['options'] = $preset -> getOptions();
    
     $callback['options']['category'] = $document ->getCategory();  
@@ -115,10 +115,18 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     $callback['options']['image_presets'] = $this->getImagePresets();  
     $callback['options']['title'] = $document ->getTitle();
     $callback['options']['id'] = $document ->getId();
+    $callback['options']['page_title'] = $document ->getPageTitle();
+    
+    if(!$callback['options']['page_title']){
+      $callback['options']['page_title'] = $callback['options']['title'];
+    }
+    
     $callback['inputs'] = $preset -> getManagedInputs();
     $callback['values']-> layout = $document -> getLayout();  
     $callback['values']-> preset = $document -> getPreset();  
     $callback['values']-> content = $document -> getContent();
+    $callback['values']-> sample = $values -> sample;
+    
     
     $html = array();
     $layouts = $preset -> getAvailableLayouts();
@@ -181,6 +189,32 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
    
    $this ->sendError('Das Dokument <em>ID: '. $id .'</em> wurde nicht gefunden oder Sie haben keinen Zugriff.');
  }
+ 
+ /**
+  * Toggles the Document state
+  * 
+  * @param int $id
+  */
+ function toggleDocumentState($id){
+   $document = $this ->getDocumentVerlag($this->getAccount(), $id);
+   
+   if($document){
+     $state = $document ->getStatus();
+    
+     if(!$state){
+      $document ->setStatus(1)->save();
+      $message = "Das Dokument <em>" . $document . "</em> wurde aktivert.";
+     }
+     else {
+      $document ->setStatus(0)->save();
+      $message = "Das Dokument <em>" . $document . "</em> wurde deaktiviert.";
+     }
+     
+     $this->sendJson(['message' => $message, 'documents' => \vku_editor_verlag_documents_themed($this->getAccount())]);
+   }
+   
+   $this ->sendError('Das Dokument <em>ID: '. $id .'</em> wurde nicht gefunden oder Sie haben keinen Zugriff.');
+ }
   
  /**
  * Saves the Document
@@ -210,6 +244,7 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     $document ->setTitle($data['title']);
     $document ->setStatus((int)$data['status']);
     $document ->setFootnote($data['footnote']);
+    $document ->setPageTitle($data['page_title']);
     $document ->save();
   
   return $document;  
@@ -259,37 +294,31 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
        'OnlineArgumentation' => [
            'title' => 'Online Argumentation', 
            'category' => 'online',
-           'desc' => 'Erstellen Sie ...', 
         ],
        
         'OnlineMedium' => [
            'title' => 'Online Medium', 
            'category' => 'online',
-           'desc' => 'Erstellen Sie ...', 
         ],
         
        'RegionalArgumentation' => [
            'title' => 'Regional Argumentation', 
            'category' => 'print',
-           'desc' => 'Erstellen Sie ...', 
         ],
         
        'Preisliste' => [
-           'title' => 'Preisliste', 
+           'title' => 'Preiskalkulation', 
            'category' => 'sonstiges',
-           'desc' => 'Erstellen Sie ...',
         ],
         
         'OpenDokument' => [
            'title' => 'Freies Dokument', 
            'category' => 'sonstiges',
-           'desc' => 'Erstellen Sie ...',
         ],
         
        'OnlineMediumCollection' => [
            'title' => 'Online Medien Kollektion', 
            'category' => 'online',
-           'desc' => 'Erstellen Sie ...',
         ],
     ];
   }

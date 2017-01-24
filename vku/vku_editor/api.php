@@ -32,8 +32,8 @@ function vku_editor_api_cb(){
   }
   
   // Load document
-  if(isset($_GET['action']) && $_GET['action'] == 'load-document' && isset($_GET['id'])){
-    $manager ->loadDocumentVerlag($verlag, $_GET['id']);
+  if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'load-document' && isset($_REQUEST['id'])){
+    $manager ->loadDocumentVerlag($verlag, $_REQUEST['id']);
   }
   
   if(isset($_GET['preset']) && is_string($_GET['preset'])){
@@ -42,6 +42,10 @@ function vku_editor_api_cb(){
   
   if(isset($_POST['action']) && is_string($_POST['action']) && $_POST['action'] == 'remove-document'){
     $manager -> removeDocument((int)$_POST['id']);
+  }
+  
+   if(isset($_POST['action']) && is_string($_POST['action']) && $_POST['action'] == 'toggle-state'){
+    $manager -> toggleDocumentState((int)$_POST['id']);
   }
   
   if(isset($_POST['action']) && is_string($_POST['action']) && $_POST['action'] == 'save-document'){

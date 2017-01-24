@@ -132,15 +132,53 @@ function vku_editor_image_default_styles() {
   while(list($key, $val) = each($image_styles)){
     $styles[$key] = array(
       'label' => "[PXEdit] " . $val['title'],
-      'effects' => array(
+      'effects' =>  [[
+        'name' => 'image_scale',
+        'data' => array('height' => $val['height'], 'upscale' => 0, 'width' => ''),
+        'weight' => 1,
+      ],
+      [
+        'name' => 'image_scale',
+        'data' => ['width' => $val['width'], 'height' => '', 'upscale' => 0],
+        'weight' => 2,
+      ],
+      ],  
+    );
+  }
+  
+  /**
+  array(
         array(
           'name' => 'image_scale_and_crop',
           'data' => array('width' => $val['width'], 'height' => $val['height']),
           'weight' => 0,
         ),
       ),
-    );
-  }
+ */ 
+  // Footer Logos
+  $styles['pxedit_footer_logo'] = array(
+    'label' => "[PXEdit] Verlag logos (Footer)",
+    'effects' => array(
+      [
+        'name' => 'image_scale',
+        'data' => array('height' => 90, 'upscale' => 0, 'width' => ''),
+        'weight' => 2,
+      ],
+      [
+        'name' => 'image_scale',
+        'data' => ['width' => 300, 'height' => '', 'upscale' => 0],
+        'weight' => 3,
+      ],
+      [
+        'name' => 'canvasactions_definecanvas',
+        'data' => array('RGB' => ['HEX' => ''],
+                        'under' => 1,
+                        'exact' => ['width' => 300, 'height' => 90, 'xpos' => 'center', 'ypos' => 'center'],  
+                       ),
+        'weight' => 4,
+      ],  
+    ),
+  );
 
   return $styles;
 }

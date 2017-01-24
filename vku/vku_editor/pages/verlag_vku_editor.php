@@ -12,8 +12,8 @@
  */
 function vku_editor_page_verlag_cb($account){
   
-  drupal_set_title('Verlagseigene Verkaufsdokumente');
-  lk_set_icon('tint');
+  drupal_set_title('Vorlagen für Verkaufsunterlagen');
+  lk_set_icon('file');
   
   $verlag = \LK\get_user($account);
   if(!$verlag ->getVerlagSetting('vku_editor', 0)){

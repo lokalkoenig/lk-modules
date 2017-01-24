@@ -61,16 +61,16 @@ function lokalkoenig_user_profile_links_verlag(\LK\User $account){
        $links[] = array('title' => "Verlagsdaten editieren", "link" => "user/" . $uid . "/edit/verlag", 'icon' => "wrench");
     }
     
+    if($verlag ->getVerlagSetting('vku_editor', 0) || $current ->isModerator()){
+      $links[] = array('title' => "VKU Vorlagen editieren", "link" => "user/" . $verlag_uid . "/vku_editor", 'icon' => "file");
+    }
+    
     $links[] = array('title' => "Mitarbeiter", "link" => "user/" . $verlag_uid . "/struktur", 'icon' => "user");
     $links[] = array('title' => "Ausgaben", "link" => "user/" . $verlag_uid . "/ausgaben", 'icon' => "globe");
     $links[] = array('title' => "Verlags-Statistiken", "link" => "user/" . $verlag_uid . "/verlagstats", 'icon' => "stats");
     
     if($verlag -> showProtokoll()){
       $links[] = array('title' => "Mitarbeiter Protokoll", "link" => "user/" . $verlag_uid . "/verlagsprotokoll", 'icon' => "list");
-    }
-    
-    if($verlag ->getVerlagSetting('vku_editor', 0) || $current ->isModerator()){
-      $links[] = array('title' => "VKU Editor", "link" => "user/" . $verlag_uid . "/vku_editor", 'icon' => "tint");
     }
     
     $links[] = array('title' => "Abrechnung", "link" => "user/" . $verlag_uid . "/abrechnung", 'icon' => "euro");
