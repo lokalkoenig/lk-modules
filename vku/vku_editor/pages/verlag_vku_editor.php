@@ -20,7 +20,10 @@ function vku_editor_page_verlag_cb($account){
     drupal_set_message('Dieses Feature ist im Moment nicht für Sie verfügbar.');  
     drupal_goto('user');
   }
-  
+
+  $manager = new LK\VKU\Editor\Manager();
+  $manager -> setAccount($verlag);
+  $presets = $manager->getPresetsAvailable();
   $documents = vku_editor_verlag_documents_themed($verlag);
   
   drupal_add_library('vku_editor', 'vku_inlace_editor');
@@ -28,6 +31,7 @@ function vku_editor_page_verlag_cb($account){
   
   $theme = theme('vku_editor_verlag',[
       'account' => $account,
+      'presets' => $presets,
       'documents' => $documents,
   ]);
   
