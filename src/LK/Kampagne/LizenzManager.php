@@ -14,7 +14,7 @@ class LizenzManager {
   use \LK\Stats\Action;
   
   var $LOG_CATEGORY = "Lizenzen";
-  const ADMIN_URL = "logbuch/verlag-lizenzen";
+  const ADMIN_URL = "backoffice/logbuch/editlizenz";
   
   /**
    * Creates a new Lizenz for the Node

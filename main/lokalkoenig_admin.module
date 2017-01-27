@@ -11,37 +11,29 @@ require_once __DIR__ .'/blocks.inc.php';
 require_once __DIR__ .'/roles.inc.php';
 require_once __DIR__ .'/lokalkoenig_admin.menu.inc';
 
-function lokalkoenig_admin_theme(){
-    
-    $themes = array();
-    $themes["lokalkoenig_admin_navigation"] = array(
-       'template' => 'templates/lokalkoenig_admin_navigation', // your template file called custompage.tpl.php
-       'variables' => array(),
-    );
- 
-return $themes;    
-}
-
+/**
+ * HOOK_INT
+ * @global type $user
+ */
 function lokalkoenig_admin_init(){
 global $user;    
-    if(arg(0) == "lkadmin" OR arg(0) == "logbuch" OR arg(0) == "verlage" OR arg(0) == "lkstats" OR arg(0) == "kampagnen" OR arg(0) == "lkabrechnung"){
-        lk_set_icon('cog');
-        
-        drupal_add_css(drupal_get_path('module', 'lokalkoenig_admin') .'/css/admin.css');
-    }   
-    
-    // Takeover
-    if(arg(0) == 'user'){
-      if($user -> uid == 0){
-        drupal_set_title("Anmelden");
-         lk_set_icon('home');
-      }
-      else {
-        lk_set_icon('user');
-        drupal_set_title("Ihr Profil");
-        //lk_set_subtitle('Verwalten Sie hier Ihre Daten');
-      }
-   }
+
+  if(arg(0) == "backoffice"){
+    lk_set_icon('cog');
+    drupal_add_css(drupal_get_path('theme', 'bootstrap_lk') .'/dist/admin.css');
+  }   
+
+  // Takeover
+  if(arg(0) == 'user'){
+    if($user -> uid == 0){
+      drupal_set_title("Anmelden");
+       lk_set_icon('home');
+    }
+    else {
+      lk_set_icon('user');
+      drupal_set_title("Ihr Profil");
+    }
+  }
 }
 
 
@@ -61,16 +53,14 @@ function lokalkoenig_admin_form_alter(&$form, &$form_state, $form_id){
   }
   
   if(arg(0) == "kampagnen" AND $form_id == 'views_exposed_form' AND isset($form["field_kamp_status_value"])){
-     //dpm($form);  
-     unset($form["field_kamp_status_value"]["#size"]);
-     $form["field_kamp_status_value"]["#type"] = 'select';
-     $form["field_kamp_status_value"]["#options"] = array(
-      '' => "-- ALLE --",
-      'new' => "Neu",
-      'proof' => "Zu überprüfen",
-      'published' => "Online",
-      'canceled' => "Abgelehnt"
-     ); 
+    unset($form["field_kamp_status_value"]["#size"]);
+    $form["field_kamp_status_value"]["#type"] = 'select';
+    $form["field_kamp_status_value"]["#options"] = [
+     '' => "-- ALLE --",
+     'new' => "Neu",
+     'proof' => "Zu überprüfen",
+     'published' => "Online",
+     'canceled' => "Abgelehnt"
+    ];
   }  
 }
-

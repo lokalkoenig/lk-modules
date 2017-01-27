@@ -1,7 +1,9 @@
 <?php
 
 function lokalkoenig_admin_views_data() {
-    
+
+  $data = [];
+  
   /////////////////
   ///////// LK_LOG
   ////////////////
@@ -383,11 +385,5 @@ function lokalkoenig_admin_views_data() {
     ),
   );
   
-  
-  
-  
-  
-  
-   
   return $data;
 }

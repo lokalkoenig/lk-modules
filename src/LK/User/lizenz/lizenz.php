@@ -68,11 +68,6 @@ class Lizenz {
      return "Erworben am: " . format_date($this-> data -> lizenz_date) . " / " . $this -> data -> lizenz_downloads . " &times heruntergeladen";
    }
    
-   function getSummary(){
-     return $this ->toString();
-   }
-   
-   
    /**
     * Generates the ZIP for the Licence
     */
@@ -237,7 +232,7 @@ class Lizenz {
    }
    
    function getEditUrl(){
-       return 'logbuch/editlizenz/' . $this -> id;
+       return 'backoffice/logbuch/editlizenz/' . $this -> id;
    }
    
    /**
@@ -273,10 +268,9 @@ class Lizenz {
       
   return $this->logNotice("Lizenz gelöscht.", array('lizenz' => $this));
   }
-    
-   function toString() {
-      
-       $vku = new \VKUCreator($this -> vku_id); 
+
+  function getSummary(){
+       $vku = new \VKUCreator($this -> vku_id);
        $node = node_load($this -> data -> nid); 
        $array = array();
        
@@ -315,8 +309,7 @@ class Lizenz {
       
       
       // add a check, otherwise Drupal will break
-      if(lk_is_moderator() 
-         && arg(1) != "editlizenz"){
+      if(lk_is_moderator() && arg(2) != "editlizenz"){
         $data .= '<hr />' . l('<span class="glyphicon glyphicon-pencil"></span> Lizenz editieren', $this ->getEditUrl(), array('html' => true, "query" => drupal_get_destination(), 'attributes' => array('class' => 'btn btn-sm btn-primary')));
       }
       

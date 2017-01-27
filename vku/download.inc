@@ -12,7 +12,6 @@ function _vku_only_download($sid){
 
   // explode SID
   drupal_set_title("Download");
-  
   $manager = new \LK\Kampagne\LizenzManager();
   $lizenz = $manager ->getLizenzFromSignature($sid);
   
@@ -26,17 +25,17 @@ function _vku_only_download($sid){
   
   // Wenn kein Zugriff mehr vorhanden ist
   if(!$test["access"]){
-      drupal_set_message($test["reason"],'warning');
-      return '';
+    drupal_set_message($test["reason"],'warning');
+    return '';
   }
   
   // Show Download link
   if(!isset($_GET["download"])){
     return theme("lizenz_download", 
-            [
-                'lizenz' => $lizenz ->getTemplateData(), 
-                'link' => $lizenz->getDownloadLink(true)
-            ]
+      [
+        'lizenz' => $lizenz ->getTemplateData(),
+        'link' => $lizenz->getDownloadLink(true),
+      ]
     );
   }
   

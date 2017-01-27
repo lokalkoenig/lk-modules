@@ -9,7 +9,7 @@ function vku_vku_admin_edit($lizenz_id){
     drupal_set_message("Die Lizenz wurde nicht gefunden.");
     drupal_goto($manager -> getOverviewURL());
   }
-  
+
   lk_set_icon('pencil');
   $form = (drupal_get_form("lk_edit_lizenz", $lizenz));
   return "<div class='well well-white'>" . render($form) . "</div>"; 
@@ -21,13 +21,14 @@ function lk_edit_lizenz($form, $form_state, \LK\Lizenz $lizenz){
   $author = \LK\get_user($lizenz ->getAuthor());
   
   $form["#lizenz"] = $lizenz;
+
   $form["mark"] = array('#markup' => '
     <h3>Lizenz ändern:</h3>
     <p>
       Hier können Sie Lizenzen editieren. Bei Änderung der Lizenz erfolgt auch eine Änderung der PLZ-Sperre. Wird die Lizenz gelöscht, erlischt auch die PLZ Sperre.
     </p>
     <div class="well well-white">'. $lizenz ->getSummary() . "</div>");
-  
+
    $form['lizenzerweiterung'] = array(
     '#type' => 'checkbox', 
     '#title' => ('Download erweitern um 30 Tage (von Heute aus)')
@@ -36,6 +37,8 @@ function lk_edit_lizenz($form, $form_state, \LK\Lizenz $lizenz){
    
   $verlag = $author -> getVerlagObject();
   
+
+
   if($verlag):
         // get Ausgaben von Verlag
         $bereiche = $verlag ->getAusgaben();

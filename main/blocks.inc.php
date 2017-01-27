@@ -14,12 +14,6 @@ function lokalkoenig_admin_block_info(){
     // Block caching options (per role, per user, etc.)
   );
 
-  $blocks['lokalkoenig_admin_block'] = array(
-    // info: The name of the block.
-    'info' => 'Lokalkoenig Moderation links',
-    // Block caching options (per role, per user, etc.)
-  );
- 
 return $blocks;
 }
 
@@ -30,16 +24,7 @@ function lokalkoenig_admin_block_view($delta = '') {
 global $user, $_lk_subtitle, $_lk_icon, $_lk_faq_node;
   
   $block = array();
- 
-  if($delta === 'lokalkoenig_admin_block'):
-     // new Block for Mods
-      if(arg(0) == "lkadmin" OR arg(0) == "logbuch" OR arg(0) == "verlage" OR arg(0) == "lkstats" OR arg(0) == "kampagnen" OR arg(0) == "lkabrechnung"):
-           return array('title' => "", 'content' => theme('lokalkoenig_admin_navigation'));
-       endif;
-    endif;
-  
- 
-  
+
   if($delta == 'lokalkoenig_title'){
     $content = '<div class="page-header">';
     

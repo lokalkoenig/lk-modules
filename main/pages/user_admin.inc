@@ -108,19 +108,17 @@ function lokalkoenig_user_info($account){
   }
     
   
-  $return = '<div class="panel panel-info"><div class="panel-body">';
-    
+  $return = '<div class="well well-white">';
+  $return .= '<p><strong>User-Information</strong></p>' . $table . '<hr />';
+
   if($links_rendered){
     $links = '<ul class="list-inline"><li>'. implode("</li><li>", $links_rendered) .'</li></ul>';
-    $return .= '<div class="">'. $links .'</div><hr />'; 
+    $return .= '<div class="">'. $links .'</div>';
   }
   else {
-    $return .= '<p class="alert alert-success">Der Status dieses Benutzers kann nicht verändert werden.</p>'; 
+    $return .= '<p><strong>Der Status dieses Benutzers kann nicht verändert werden.</strong></p>';
   }
-  
-  $return .= '<div class="well well-white"><h3>User-Information</h3>' . $table . '</div>';
-  $return .= '</div></div>';
-
+  $return .= '</div>';
   return $return;    
 }
 
