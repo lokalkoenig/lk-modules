@@ -10,14 +10,6 @@ function lokalkoenig_user_stats_menu(){
       'title' => 'Statistiken',
       'type' => MENU_CONTEXT_NONE);
 
-  $items['lkabrechnung'] = array(
-      'access callback' => 'lk_is_moderator',
-      'file' => 'pages/lkstats.inc',
-      'page callback' => 'lokalkoenig_user_overallpage',
-      'title' => 'Statistiken',
-      'type' => MENU_CONTEXT_NONE);
-
-
   $items['user/%user/verlagstats'] = array(
       'access callback' => 'lk_verlagsaccount_access',
       'access arguments' => array(1),

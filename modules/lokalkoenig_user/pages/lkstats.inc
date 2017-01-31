@@ -4,8 +4,7 @@
 function lokalkoenig_user_overallpage(){
  
   $options = array();
-  
-   $dbq = db_query("SELECT 
+  $dbq = db_query("SELECT 
       YEAR(FROM_UNIXTIME(lizenz_date)) as year,
       COUNT(*) as count 
       FROM lk_vku_lizenzen 
@@ -27,9 +26,6 @@ function lokalkoenig_user_overallpage(){
          $options[] = $all2; 
       }  
    }
-  
-  
- 
  
    drupal_set_title("Abrechnung");
    
@@ -158,7 +154,7 @@ function lk_abrechnung_select_options_submit($form, $form_state){
   
    $select = $form_state["values"]["select"];
    
-   drupal_goto(arg(0), array("query" => array("select" => $select)));
+   drupal_goto($_GET['q'], array("query" => array("select" => $select)));
    drupal_exit();
 }
 
@@ -181,8 +177,6 @@ function lk_abrechnung_select_options($form, $form_state, $options){
        '#type' => 'select',
        '#title' => ('Abrechnungsmonat'),
        '#options' => $select,
-       //'#default_value' => $category['selected'],
-       //'#description' => t('Set this to <em>Yes</em> if you would like this category to be selected by default.'),
    );
 
  if(isset($_GET["select"])){

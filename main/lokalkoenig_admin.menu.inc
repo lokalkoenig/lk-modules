@@ -93,6 +93,16 @@ function lokalkoenig_admin_menu(){
       'weight' => 100,
       'type' => MENU_LOCAL_TASK,
     ];
+
+  $items['backoffice/abrechnung'] = [
+    'access callback' => 'lk_is_moderator',
+    'file' => 'pages/lkstats.inc',
+    'file path' => drupal_get_path('module','lokalkoenig_user'),
+    'page callback' => 'lokalkoenig_user_overallpage',
+    'title' => 'Abrechnung',
+    'menu_name' => 'navigation',
+    'type' => MENU_NORMAL_ITEM,
+  ];
  
     return $items;
 }

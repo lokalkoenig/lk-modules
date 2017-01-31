@@ -133,10 +133,10 @@
       
       
       $links = array();
-      $links[] = '<a href="'. url("kampagnen") .'"><span class="glyphicon glyphicon-lock"></span> Kampagnen verwalten</a>';
-      $links[] = '<a href="'. url("logbuch") .'"><span class="glyphicon glyphicon-paperclip"></span> Logbuch einsehen</a>';
-      $links[] = '<a href="'. url("lkabrechnung") .'"><span class="glyphicon glyphicon-euro"></span> Abrechnungsübersicht</a>';
-      $links[] = '<a href="'. url("lkstats") .'"><span class="glyphicon glyphicon-search"></span> Suchen</a>';
+      $links[] = '<a href="'. url("backoffice/kampagnen") .'"><span class="glyphicon glyphicon-lock"></span> Kampagnen verwalten</a>';
+      $links[] = '<a href="'. url("backoffice/logbuch") .'"><span class="glyphicon glyphicon-paperclip"></span> Logbuch einsehen</a>';
+      $links[] = '<a href="'. url("backoffice/abrechnung") .'"><span class="glyphicon glyphicon-euro"></span> Abrechnungsübersicht</a>';
+      $links[] = '<a href="'. url("backoffice/stats/searches") .'"><span class="glyphicon glyphicon-search"></span> Suchen</a>';
       $links[] = '<a href="'. url("user/11/messages") .'"><span class="glyphicon glyphicon-envelope"></span> Supportanfragen</a>';
       
       return theme('lk_ma_dashboard', array('list' => $dashboard, 'links' => $links, 'account' => $account));

@@ -272,52 +272,64 @@ class Lizenz {
   return $this->logNotice("Lizenz gelöscht.", array('lizenz' => $this));
   }
 
+  /**
+   * Gets a Summary of the Lizenz
+   *
+   * @return string
+   */
   function getSummary(){
-       $vku = new \VKUCreator($this -> vku_id);
-       $node = node_load($this -> data -> nid); 
-       $array = array();
-       
-       $array[] = 'Benutzer ' . \LK\u($this -> data -> lizenz_uid);
-       $array[] = 'Lizenziert am: ' . format_date($this -> data -> lizenz_date);
-       $array[] = 'Downloads gültig bis: ' . format_date($this -> data -> lizenz_until);
-       $array[] = 'VKU: ' .  l($vku ->getValue('vku_title'), $vku -> url(), array("html" => true));
-       
-       if($this -> data -> lizenz_verlag_uid && lk_is_moderator()){
-            $verlag = \LK\get_user($this -> data -> lizenz_verlag_uid);
-            $array[] = 'Verlag: ' . (string)$verlag;
-       }
-       
-       $ausgaben = $this ->getAusgaben();
-       $ausgaben_formatted = array();
-       foreach($ausgaben as $au){
-           $a = \LK\get_ausgabe($au);
-           $ausgaben_formatted[] = $a ->getTitleFormatted();
-       }
-       
-      if($ausgaben){
-          $array[] = 'Ausgaben: ' . implode(" ", $ausgaben_formatted);
-      }
-    
-      $data = '<span class="label label-default pull-right">Lizenz #' . $this->getId() . '</span><p><strong>Kampagne: ' . l($node->title, 'node/'. $node->nid) . "</strong> <label class=\"label label-primary\">". $node -> field_sid['und'][0]['value'] ."</label></p>"; 
-      $data .= '<div class="row clearfix"><div class="col-xs-6"><ul><li>'. implode('</li><li>', $array) .'</ul></div>'
-              . '<div class="col-xs-6">'; 
+    $vku = new \VKUCreator($this -> vku_id);
+    $node = node_load($this -> data -> nid);
+    $array = array();
+
+    $array['Kampagne'] = l($node->title, 'node/'. $node->nid) . ' ('. $node -> sid .')';
+    $array['Benutzer'] = \LK\u($this -> data -> lizenz_uid);
+    $array['Lizenziert am'] = format_date($this -> data -> lizenz_date);
+    $array['Downloads gültig bis'] = format_date($this -> data -> lizenz_until);
+    $array['VKU'] = l($vku ->getValue('vku_title'), $vku -> url(), array("html" => true));
+
+    if($this -> data -> lizenz_verlag_uid && lk_is_moderator()){
+     $verlag = \LK\get_user($this -> data -> lizenz_verlag_uid);
+     $array['Verlag'] = (string)$verlag;
+    }
+
+    $ausgaben = $this ->getAusgaben();
+    $ausgaben_formatted = array();
+    foreach($ausgaben as $au){
+      $a = \LK\get_ausgabe($au);
+      $ausgaben_formatted[] = $a ->getTitleFormatted();
+    }
+
+    if($ausgaben){
+      $array['Ausgaben'] = implode(" ", $ausgaben_formatted);
+    }
+
+
+
+    $data = '<span class="label label-default pull-right">Lizenz #' . $this->getId() . '</span>';
+    $data .= '<div class="row clearfix">';
+
+       // add a check, otherwise Drupal will break
+    if(lk_is_moderator() && arg(2) != "editlizenz"){
+      $data .= '<div class="col-xs-12">' . l('<span class="glyphicon glyphicon-pencil"></span> Lizenz editieren', $this ->getEditUrl(), array('html' => true, "query" => drupal_get_destination(), 'attributes' => array('class' => 'btn btn-sm btn-default'))) . "</div>";
+    }
+
+    $data .= '<div class="col-xs-8">'. \LK\UI\DataList::render($array) .'</div>'
+           . '<div class="col-xs-4">';
       
-      $downloads = $this ->getDownloads();
-      
-      if($downloads){
-         $data .= '<strong>Downloads: (' . count($downloads) . ')</strong> <div>' . implode("</div><div>", $downloads) . '</div>';  
-       } 
-       
-       $data .= '</div></div>';
-      
-      
-      // add a check, otherwise Drupal will break
-      if(lk_is_moderator() && arg(2) != "editlizenz"){
-        $data .= '<hr />' . l('<span class="glyphicon glyphicon-pencil"></span> Lizenz editieren', $this ->getEditUrl(), array('html' => true, "query" => drupal_get_destination(), 'attributes' => array('class' => 'btn btn-sm btn-primary')));
-      }
-      
-   return $data;   
-   }
+    $downloads = $this ->getDownloads();
+    if($downloads){
+      $data .= '<strong>Downloads: (' . count($downloads) . ')</strong> <div>' . implode("</div><div>", $downloads) . '</div>';
+    } 
+    else {
+      $data .= '<em>Keine Downloads bisher</em>';
+    }
+
+    $data .= '</div>';
+    $data .= '</div>';
+
+    return $data;
+  }
 }
 
 /**

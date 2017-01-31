@@ -24,7 +24,7 @@ class Verlag extends LogReader {
         $data = $this -> data;
         
         
-        return '<div class="well well-white clearfix"><div class="row"><div class="col-xs-8">'
+        return '<div class="well well-white well-log clearfix"><div class="row"><div class="col-xs-8">'
                 . '<small>' .format_date($data -> request_time) . '</small> | '
                 . \LK\u($data -> uid) . '<br />' . $data -> message . $this -> getContext()
                 . '</div><div class="text-right col-xs-4">'

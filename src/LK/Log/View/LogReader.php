@@ -48,27 +48,22 @@ abstract class LogReader {
             $context[] = '<p class="small">Die Lizenz wurde administrativ entfernt.</p>';
         }
       }
-  
-      
+
+
       if(lk_is_moderator()):
           $data = unserialize($this -> data -> context);
           if($data){
             $context[] = "<hr /><p><span class='glyphicon glyphicon-plus'></span> <small>" .  print_r($data, true) . "</small></p>";
           }
        endif;
-       
-    return implode('', $context);   
+
+      return implode('', $context);
     }
     
     function getNode(){
-        
-        //dpm($this -> data);
-      
         if(!$this -> data -> node_nid){
             return null;
         }
-        
-        $node = node_load($this -> data -> node_nid);
-        return '<p>' . l($node -> title, "node/" . $node -> nid) . " &nbsp;&nbsp;<small class='label label-info'>" . $node->field_sid['und'][0]['value'] . '</small></p>';    
+        return \LK\UI\Kampagne\Picture::get($this -> data -> node_nid, ['width' => 100, 'height' => 100]);
     }
 }
