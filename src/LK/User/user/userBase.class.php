@@ -191,16 +191,20 @@ class User {
     
     
     function getAusgabenFormatted(){
-        $ausgaben = $this ->getCurrentAusgaben();
-        
-        $return = ' <span class="user-ausgaben">';  
-        foreach($ausgaben as $item){
-           $ausgabe = get_ausgabe($item);
-           $return .= $ausgabe ->getTitleFormatted();
-        }
-        $return .= '</span>';   
-        
-    return $return;    
+      $ausgaben = $this ->getCurrentAusgaben();
+
+      if(!$ausgaben){
+        return NULL;
+      }
+
+      $return = ' <span class="user-ausgaben">';
+      foreach($ausgaben as $item){
+         $ausgabe = get_ausgabe($item);
+         $return .= $ausgabe ->getTitleFormatted();
+      }
+      $return .= '</span>';
+
+      return $return;
     }
     
     function getCurrentAusgaben(){

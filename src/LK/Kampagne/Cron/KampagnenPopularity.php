@@ -38,11 +38,11 @@ class KampagnenPopularity {
     $points += $res -> count;
   
     // 3 Punkte in VKU
-    $count = get_nid_in_vku_count($node -> nid);
+    $count = \LK\VKU\VKUManager::getNidInVKUCount($node -> nid);
     $points += $count * 3;
   
     // 2 Punkte in Merkliste
-    $manager = new \LK\Merkliste\AdminMerkliste(0);
+    $manager = new \LK\Merkliste\AdminMerkliste();
     $count = $manager->getGeneralKampagnenCount($node -> nid);
     $points += $count * 2; 
   

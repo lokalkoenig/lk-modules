@@ -212,12 +212,15 @@ class Lizenz {
       $uid = $this->getAuthor();
       
       $manager = new \LK\Kampagne\SperrenManager();
-      $result = $manager ->createSperre($nid, $uid, $ausgaben, $until_date);  
-      $plz_id = $result ->getId();
-      
-      db_query("UPDATE lk_vku_lizenzen SET plz_sperre_id='". $plz_id ."' WHERE id='". $this->getId() ."'");
-      $this -> data -> plz_sperre_id = $plz_id;
-      
+      $result = $manager ->createSperre($nid, $uid, $ausgaben, $until_date);
+
+      // only if we get a Sperre
+      if($result){
+        $plz_id = $result ->getId();
+        db_query("UPDATE lk_vku_lizenzen SET plz_sperre_id='". $plz_id ."' WHERE id='". $this->getId() ."'");
+        $this -> data -> plz_sperre_id = $plz_id;
+      }
+
    return $result;   
    }
    

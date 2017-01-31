@@ -40,10 +40,25 @@ abstract class PageInterface {
   abstract function updateItem(\VKUCreator $vku, $pid, array $item);
   
   abstract function removeItem(\VKUCreator $vku, $pid);
-  
+
+
+  /**
+   * Generates a PDF Output of the page
+   *
+   * @param array $page
+   * @param \LK\PDF\PDF $pdf
+   */
   function getOutputPDF($page, $pdf){
     $pdf->AddPage();
   }
-  
-  abstract function getOutputPPT();  
+
+  /**
+   * Creates a PPT Slide
+   *
+   * @param array $page
+   * @param \LK\PPT\LK_PPT_Creator $ppt
+   */
+  function getOutputPPT($page, $ppt){
+    $ppt ->createSlide();
+  }
 }

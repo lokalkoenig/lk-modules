@@ -19,32 +19,30 @@ class PPTTest extends TestCase {
     //put your code here
     
     function build() {
-        
-        $this ->printLine('', 'Suche letzte aktive VKU / [Eine X-beliebige kann per GET Parameter erzeugt werden.]'); 
-        
-        $id = vku_get_active_id();
-        if(!$id){
-           drupal_set_message('Sie haben keine Aktive VKU');
-           return ;
-        }
-       
-        $vku = new \VKUCreator($id);
-        
-        // get the last VKU-ID
-        $this ->printLine('VKU', $vku ->getTitle());
-        $this ->printLine('Author', \LK\u($vku ->getAuthor()));
-        
-        $ppt = new LK_PPT_Creator($vku -> getId());
-        $ppt -> process();
-        
-        
-        $mydir = 'public://test'; 
-        file_prepare_directory($mydir, FILE_CREATE_DIRECTORY);
-        $dir = drupal_realpath($mydir);
-        $fn = $ppt -> write($dir, $vku -> getId());
-        
-        $size = filesize($mydir . '/' . $fn);
-        $this ->printLine('PPTX', l($fn, 'sites/default/files/test/' . $fn));
-        $this ->printLine('Size', format_size($size));
+    global $user;
+
+      $this ->printLine('', 'Suche letzte aktive VKU / [Eine X-beliebige kann per GET Parameter erzeugt werden.]');
+
+      $vku_id = \LK\VKU\VKUManager::getActiveVku($user -> uid);
+      if(!$vku_id){
+         drupal_set_message('Sie haben keine Aktive VKU');
+         return ;
+      }
+
+      $vku = new \VKUCreator($vku_id);
+      $this ->printLine('VKU', $vku ->getTitle());
+      $this ->printLine('Author', \LK\u($vku ->getAuthor()));
+      
+      $manager = new \LK\VKU\PageManager();
+      $file_name = 'test-vku';
+      file_prepare_directory($mydir, FILE_CREATE_DIRECTORY);
+      
+      $mydir = 'public://test';
+      $dir = drupal_realpath($mydir);
+      $pptx = $manager ->generatePPTX($vku);
+      $fn = \LK\PPT\PPTX_Loader::save($pptx, $dir, $file_name);
+      $size = filesize($dir . '/' . $fn);
+      $this ->printLine('PPTX', l($fn, 'sites/default/files/test/' . $fn));
+      $this ->printLine('Size', format_size($size));
     }
 }

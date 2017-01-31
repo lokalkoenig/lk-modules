@@ -23,7 +23,6 @@ function _vku2_add_node($node){
             drupal_goto($vku -> url());
         }
         
-        
         drupal_json_output(array('menu' => $menu, 'vku_id' => $vku -> getId(), 'message' => $message, 'error' => 0, 'nid' => $node -> nid, 'total' => $count));
         drupal_exit();  
     }

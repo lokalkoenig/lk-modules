@@ -124,11 +124,6 @@ if(count($node -> medien) > 2){
                             // Show Gif Animation  
                             $vorschau["path"] = $vorschau['uri'];
                             $image = theme('image', $vorschau);
-                            //lk_process_gif_ani($vorschau);
-                           /**$image = theme('image_style',array(
-                            'style_name' => 'varianten_gif',
-                            'path' => $vorschau['uri']));   */   
-                       
                        }
                        else $image = theme('image_style',array(
                             'style_name' => 'varianten',

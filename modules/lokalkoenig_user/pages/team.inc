@@ -91,11 +91,7 @@ global $user;
 
   
   drupal_set_title($team -> getTitle());
-  $v = $team -> getVerlag();
-  $verlag = _lk_user($v);
-  
-  lk_set_subtitle($verlag -> name);
-  $vkl =  $team ->getLeiter();
+  lk_set_subtitle($verlag_obj ->getUsername());
   
   switch($page){
     case 'edit':
@@ -199,23 +195,22 @@ function team_show_members_and_admin($team){
 
   
 function form_change_team_leiter_submit($form, $form_state){
- $args = ($form_state['build_info']['args']);
-  
-  $team = lk_get_team($args[0]);
-  
+  $args = ($form_state['build_info']['args']);
+  $team_object = \LK\get_team($args[0]);
+  $team = $team_object -> getEntity();
+
   if($form_state["values"]["select"] != $args[2]){
      if(isset($args[1][$form_state["values"]["select"]])){
         $team ->field_team_verkaufsleiter['und'][0]["uid"] = $form_state["values"]["select"];
         entity_save('team', $team);   
         drupal_set_message("Der Verkaufsleiter wurde geändert.");
-     } 
+     }
   }
 }
 
   
 function form_change_team_leiter($form, $form_state, $team_id, $ma, $leiter){
 
-  
   $args = ($form_state['build_info']['args']);
 
    $form["select"] = array(
@@ -226,7 +221,6 @@ function form_change_team_leiter($form, $form_state, $team_id, $ma, $leiter){
    );
   
   $form['submit'] = array('#type' => 'submit', '#value' => ('Verkaufsleiter ändern'));
-
   return $form;
 }  
 

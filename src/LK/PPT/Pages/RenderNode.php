@@ -44,23 +44,12 @@ class RenderNode extends PPT_Base {
     }
     
     
-    function render($page = array()){
-         
-         if(is_array($page)){
-            $node = node_load($page["data_entity_id"]);
-            _vku_load_vku_settings_node($node, $page);
-         }
-         
-         if(is_object($page)){
-             $node = $page;
-            _vku_load_vku_settings_node($node, array());
-         }
+    function render($node){
+
+      $this -> hide_online_label = $this -> reference -> getSetting('hide_size_online');
+      //Load Node Settings
         
-        $this -> hide_online_label = $this -> reference -> getSetting('hide_size_online');
-         
-        //Load Node Settings
-        
-        $this -> setNode($node);
+      $this -> setNode($node);
         
         if($node -> vku_hide == false){
            $this ->addGeneralDescription($node);
@@ -200,7 +189,7 @@ class RenderNode extends PPT_Base {
         
         
         $shape_no = $slide->createRichTextShape()->setHeight(40)->setWidth(290)->setOffsetX(600)->setOffsetY(570);
-        $this->textRun($shape_no, "A". _lk_get_kampa_sid($this -> node), 12, false, '969696');
+        $this->textRun($shape_no,  $this -> node -> sid, 12, false, '969696');
         $shape_no->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_RIGHT );
         $this ->textRun($shape, trim($teaser_text), 16);
         
@@ -284,7 +273,7 @@ class RenderNode extends PPT_Base {
         foreach($medium->field_medium_varianten["und"] as $variante){
       
             // Gif get
-            $frames = lk_process_gif_ani($variante);
+            $frames = $variante['gif'];
             $count = count($frames);
       
             if($count == 0){

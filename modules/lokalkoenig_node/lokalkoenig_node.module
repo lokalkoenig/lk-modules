@@ -64,8 +64,9 @@ function lokalkoenig_node_menu(){
  * @param stdClass $node
  */
 function _lokalkoenig_nodeaccess_info($node){
-  print \LK\Kampagne\AccessInfo::getAccessInfo($node -> nid);   
-  drupal_exit();  
+  $manager = \LK\Kampagne\Manager\Access::createManager($node -> nid);
+  print $manager->getUsageInfoVerlag();
+  drupal_exit();
 }
   
 
@@ -80,7 +81,8 @@ function lokalkoenig_node_node_view($node, $view_mode, $langcode){
   
   if($node -> type == "kampagne" && in_array($view_mode, array('grid', 'teaser','full'))){
     $kampagne = new \LK\Kampagne\Kampagne($node);
-    $kampagne ->getAccessInformation($view_mode);  
+    $manager = new \LK\Kampagne\Manager\KampagnenView($kampagne);
+    $manager ->setMode($view_mode);
   }
 } 
 
@@ -199,8 +201,8 @@ function lokalkoenig_node_node_load($nodes, $types) {
 function computed_field_field_kamp_suche_compute(&$entity_field, $entity_type, 
     $entity, $field, $instance, $langcode, $items){
   
-    $kampagne = new \LK\Kampagne\Kampagne($entity);
-    $entity_field[0]["value"] = $kampagne->getSearchString();
+    $k = new \LK\Kampagne\Search\SearchText(($entity));
+    $entity_field[0]["value"] = $k->getSearchString();
 }
 
 /**

@@ -39,19 +39,18 @@ class VerlagController extends User {
    
    function getVerlagObject(){
       $verlag_uid = $this -> getVerlag();
-      
       return $verlag = $this -> manager -> getUser($verlag_uid);
    }
    
    function isTestAccount(){
-        $verlag = $this ->getVerlagObject();
-        
-        if(!$verlag){
-            return false;
-        }
-        else {
-            $verlag -> isTestAccount();
-        }
+      $verlag = $this ->getVerlagObject();
+
+      if(!$verlag){
+          return false;
+      }
+      else {
+          return $verlag -> isTestAccount();
+      }
     }
     
     function hasRight($key) {

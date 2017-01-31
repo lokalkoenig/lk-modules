@@ -143,7 +143,7 @@ global $user;
         if($key == $val){
           
           
-        $access = \LK\Kampagne\AccessInfo::userHasAccessToKampagne($author, $key);
+        $access = lk_user_can_purchase($author, $key);
         if(!$access) {
              // Reload Page to Show Reasons
              drupal_get_messages(); 
@@ -259,23 +259,24 @@ global $user;
   '#type' => 'checkboxes',
   '#options' => $options,
   '#title' => ('<h4>Lizenzen für folgende Kampagnen bestellen:</h4>'));
-  
+
+
+
    if(lk_is_telefonmitarbeiter($user) AND !$show_plz_info){
-      $account = _lk_user($user);  
-   
-       $ausgaben = array();
-        
-       if(isset($account->profile['mitarbeiter']->field_ausgabe['und'])){
-          foreach($account->profile['mitarbeiter']->field_ausgabe['und'] as $a){
-            $ausgaben[] = format_ausgabe_kurz($a["target_id"]);
-          }
-       }
+     $account = \LK\get_user($user);
+
+     $a = [];
+     $ausgaben = $account ->getCurrentAusgaben();
+     foreach($ausgaben as $ausgabe){
+       $obj = \LK\get_ausgabe($ausgabe);
+       $a[] = $obj ->getTitleFormatted();
+     }
+
+     $link = '<a class="btn btn-sm btn-primary" href="'. url("user/" . $account ->getUid() . "/setplz", array("query" => drupal_get_destination())) .'"><span class="glyphicon glyphicon-globe"></span> Ausgaben wechseln</a>';
       
-      $link = '<a class="btn btn-sm btn-primary" href="'. url("user/" . arg(1) . "/setplz", array("query" => drupal_get_destination())) .'"><span class="glyphicon glyphicon-globe"></span> Ausgaben wechseln</a>';
-      
-       $form['hr2'] = array('#markup' => '<div class="well">
+     $form['hr2'] = array('#markup' => '<div class="well">
        <div class ="row clearfix">
-       <div class="col-xs-9">Sie bestellen die ausgewählten Kampagnen für folgende Ausgaben: ' . implode(" ", $ausgaben) . '</div> 
+       <div class="col-xs-9">Sie bestellen die ausgewählten Kampagnen für folgende Ausgaben: ' . implode(" ", $a) . '</div>
        <div class="col-xs-3 text-right">'. $link .'</div></div></div>');
     }     
   

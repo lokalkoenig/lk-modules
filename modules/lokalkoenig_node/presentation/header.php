@@ -11,7 +11,7 @@
     <h3 style="font-weight: normal; margin-top: 0; margin-bottom: 20px;"><?php print render($content["field_kamp_untertitel"]); ?></h3>
     
     <ul class="list-inline status-icons">
-     <li><span class="prodid prodid_big"><?php print _lk_get_kampa_sid($node); ?></span></li> 
+     <li><span class="prodid prodid_big"><?php print $node -> sid; ?></span></li>
       <li><img src="/sites/all/themes/bootstrap_lk/design/icon-printanzeige.png" alt="Printanzeige" /> Printanzeige</li>
       <li><img src="/sites/all/themes/bootstrap_lk/design/icon-webanzeige.png" alt="Webanzeige" /> Onlineanzeige</li>
  

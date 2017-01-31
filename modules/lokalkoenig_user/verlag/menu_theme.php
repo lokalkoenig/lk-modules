@@ -46,15 +46,6 @@ function lokalkoenig_user_verlag_theme(){
               'items' => NULL,
             )
     );
-    
-    
-    $themes["verlaginfo"] = array(
-            'template' => 'templates/verlaginfo', // your template file called custompage.tpl.php
-            'variables' => array(
-              'vid' => NULL
-            )
-    );
- 
      
  
 return $themes;

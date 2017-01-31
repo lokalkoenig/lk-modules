@@ -148,37 +148,7 @@ class AccessInfo {
 
     
 
-    static public function getAccessInfo($nid){
-    global $user;
-        
-        $node = node_load($nid);
-        $verlags_sperre = self::get_verlag_plz_sperre($nid, true);
-        $output = array();
    
-        if($node -> plzaccess == false AND !$verlags_sperre){
-            $test = (get_ausgaben_access_nid($nid, $user));
-            if($test && $test["count"]){
-                $test["account"] = $user;
-                $test["class"] = 'well clearfix';
-                $output[] = \theme("lk_vku_lizenz_usage", $test);
-            }
-        }
-        elseif($node -> plzaccess == true OR $verlags_sperre) {
-          // Checken ob andere User VKU's mit der Kampagne erstellt haben
-          $result = vku_get_use_count($nid, $user);
-
-          if($result){
-              $output[] = theme("lk_vku_usage", array('class' => 'clearfix', "account" => $user, "entries" => vku_get_use_details($nid, $user)));
-          }
-        } 
-    
-        if(!$output){
-           $output[] = 'Keine Informationen verfügbar';
-        }
-  
-    return implode("", $output);
-    }   
-    
     
     
     static public function getUserDetails($nid, $account){

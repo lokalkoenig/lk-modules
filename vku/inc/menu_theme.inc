@@ -137,7 +137,21 @@ function vku_theme(){
               "link" => NULL
             ),
         );        
-       
+
+
+  $themes["node_page_lizenz_to_purchase"] = [
+    'template' => 'templates/node_page_lizenz_to_purchase', // your template file called custompage.tpl.php
+    'variables' => [
+      'ausgaben' => NULL,
+      'nid' => 0,
+      'link' => NULL
+    ],
+  ];
+
+  $themes["node_page_lizenz_purchas_can_not"] = [
+    'template' => 'templates/node_page_lizenz_purchas_can_not',
+  ];
+
   
   $themes['vkuconnection_settings'] = array(
             'template' => 'templates/vkuconnection_settings', // your template file called custompage.tpl.php

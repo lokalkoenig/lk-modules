@@ -115,7 +115,8 @@ class PageDefault extends PageInterface {
     }
   }
   
-  function getOutputPPT(){
-    
+  function getOutputPPT($page, $ppt) {
+      $obj = new \LK\PPT\Pages\RenderDefault($ppt);
+      $obj->render($page);
   }
 }

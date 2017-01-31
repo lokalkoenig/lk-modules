@@ -50,9 +50,8 @@
         </div>
         <div class="pull-left" style="width: 330px;">
              <p class="pull-right text-center">
-              <span class="prodid"><?php print _lk_get_kampa_sid($node); ?></span>
+              <span class="prodid"><?php print $node -> sid; ?></span>
               <br /><br />
-               <!--<a href="<?php print url("vku/node/delete/" . $node -> nid); ?>" class="delete-node-from-cart" onclick="deleteFromCart(this); return false;" nid="<?php print $node -> nid; ?>"><span class="glyphicon glyphicon-trash"></span></a>-->
              </p>
            
             <a href="<?php print url('node/'  . $node -> nid); ?>" style="display: block;"> 

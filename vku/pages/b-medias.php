@@ -16,13 +16,6 @@ $node -> title = swca($node -> title);
 
 $totalpages = 0;
 
-if(!isset($_GET["full"])){
-    _vku_load_vku_settings_node($node, $page);
-}
-
-
-
-
 $pdf -> SetLeftMargin(115);
 $pdf -> SetRightMargin(25);
 
@@ -49,7 +42,7 @@ if($node -> vku_hide == false){
     $pdf->MultiCell(0, 7, ($node -> field_kamp_teasertext['und'][0]['value']) , 0, 'L', 0);    
     $pdf->SetFont(VKU_FONT,'',12);
     $pdf -> SetTextColor(150, 150, 150);     
-    $pdf->Text(260, 175, _lk_get_kampa_sid($node) ); 
+    $pdf->Text(260, 175, $node -> sid);
     $pdf -> SetTextColor(69, 67, 71);
 }
 
@@ -116,11 +109,11 @@ foreach($node -> medien as $medium){
     $abstand = 40; 
   }
   
-  $filetype = _lk_get_medientyp_print_or_online($medium->field_medium_typ['und'][0]['tid']);
+  $filetype = $medium -> media_type;
   if($filetype != 'print'){
      $pdf->SetFont(VKU_FONT,'',14);
-      $pdf->Text(233, 45, "Animiertes Banner"); 
-      $pdf->SetFont(VKU_FONT,'',12);
+     $pdf->Text(233, 45, "Animiertes Banner"); 
+     $pdf->SetFont(VKU_FONT,'',12);
   }
   
   $pdf->SetFont(VKU_FONT,'',24);
@@ -169,7 +162,7 @@ foreach($node -> medien as $medium){
       
       // 
       if($filetype != 'print'){
-        $frames = lk_process_gif_ani($variante);
+        $frames = $variante['gif'];
         
         if($frames){
             if($hideonlinesize == 'yes'){

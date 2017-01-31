@@ -146,18 +146,58 @@ class PageManager {
     
     return $pdf;  
   }
-  
+
+  /**
+   * Gets back a generated PDF from the VKU
+   * @param \VKUCreator $vku
+   * @param $line_item optional-page-id
+   * @param boolean $output direct
+   */
+  function generatePPTX(\VKUCreator $vku, $line_item = 0){
+
+    $ppt = \LK\PPT\PPTX_Loader::load();
+    $ppt ->setVKU($vku);
+    $pages = $vku -> getPages();
+
+    while(list($key, $page) = each($pages)){
+      if(!$page["data_active"]) {
+          continue;
+      }
+
+      if($line_item && $line_item != $key){
+        continue;
+      }
+
+      $mod = $this->getModule($page["data_module"]);
+      if($mod){
+        $mod->getOutputPPT($page, $ppt);
+      }
+    }
+
+    return $ppt;
+  }
+
+
   function finalizeVKU(\VKUCreator $vku){
     $pdf = $this->generatePDF($vku);
     $fn = $vku -> getId() . ".pdf";
     $file_path = $this->save_dir .'/'. $fn;
     $pdf->Output($file_path, 'F');
-  
+
+    // PPTX
+    if(\vku_is_update_user_ppt()):
+      $pptx = $this->generatePPTX($vku);
+      $file_pptx = \LK\PPT\PPTX_Loader::save($pptx, $this->save_dir, $vku ->getId());
+      $vku -> set('vku_ppt_filename', $file_pptx);
+      $file_size = filesize($this->save_dir . '/' . $file_pptx);
+      $vku -> set('vku_ppt_filesize', $file_size);
+    endif;
+
     $vku -> set("vku_ready_filename", $fn);
     $vku -> set("vku_ready_time", time()); 
     $vku -> set("vku_ready_filesize", filesize($file_path)); 
     
-    
+    return true;
   }
   
   

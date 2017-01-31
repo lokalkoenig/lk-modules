@@ -1,5 +1,11 @@
 <?php
 
+
+function _vku_generate_final_vku($vku){
+  $manager = new \LK\VKU\PageManager();
+  return $manager ->finalizeVKU($vku);
+}
+
 function _vku_ontheflygenerate($account, $vku_id){
 global $user;
   
@@ -16,7 +22,8 @@ global $user;
   }
   
   $result = _vku_generate_final_vku($vku);
-  
+  $vku ->setStatus('ready');
+
   $return = array();
   $return["error"] = 0;
   
@@ -57,33 +64,3 @@ global $user;
     drupal_exit();
   }
 }
-
-/**
- * Generates the VKU
- * 
- * @param VKUCreator $vku
- * @return boolean
- */
-function _vku_generate_final_vku_v2(VKUCreator $vku){
-  $manager = new \LK\VKU\PageManager();
-  $manager ->finalizeVKU($vku);
-  
-  return true;
-}    
-
-
-/**
- * Generates the VKU
- * 
- * @param VKUCreator $vku
- * @return boolean
- * @deprecated
- */
-function _vku_generate_final_vku(VKUCreator $vku){
-  _vku_generate_final_vku_v2($vku);
-  $vku ->setStatus('ready');
-  return true; 
-}
-  
-
-?>

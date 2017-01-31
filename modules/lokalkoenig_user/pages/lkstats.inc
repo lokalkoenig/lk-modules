@@ -129,9 +129,9 @@ function lokalkoenig_user_overallpage(){
     
     $overall = array();
     foreach($dbq as $all){
-       $account = _lk_user($all -> node_uid);
+       $account = \LK\get_user($all -> node_uid);
        $overall[] = array(
-              l(ucfirst($account -> name), "user/" . $account -> uid), 
+              l(ucfirst($account ->getUsername()), "user/" . $account ->getUid()),
               $all -> count . " Lizenzen", 
               l("Ansehen", "user/" . $account -> uid . "/agenturabrechnung", array("query" => $arg + array('show' => 1))), 
               l('<img src="/sites/all/modules/lokalkoenig/excel.png" />', "user/" . $account -> uid . "/agenturabrechnung", array("query" => $arg, "html" => true))

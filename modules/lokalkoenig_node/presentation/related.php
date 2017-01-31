@@ -1,3 +1,10 @@
+<?php
+if($node -> status == 0){
+  return ;
+}
+
+?>
+
 
 <div class="clearfix kampa-related" style="background: #ededed; background-image: linear-gradient(#ededed 0%, white 100%); margin-top: 40px;">
 <div class="presentation_grey" style="background: transparent;">

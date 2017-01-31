@@ -2,12 +2,12 @@
 
 function _lk_get_usernamewpos($uid){
   
-  $account = _lk_user($uid);
-  $return = $account -> name;
-  
-  if(lk_is_bereichsleiter()){
+  $account = \LK\get_user($uid);
+  $return = $account -> $account ->getUsername();
+
+  if($account ->isTeamleiter()){
     $return .= ' - Bereichsleiter';
-  }  
+  }
   
   $return .= ' - ' . $account->profile['main']->field_profile_adresse['und'][0]['organisation_name'];
   $return .= ' (' . $account->profile['main']->field_profile_adresse['und'][0]['locality'] . ')';

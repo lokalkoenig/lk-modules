@@ -11,31 +11,39 @@ namespace LK;
 
 class Team {
    
-   var $id = null;
-   var $data = null;
-   var $verlag = null;
-   var $leiter = false;
-   var $members = array();
-   var $telephone = null;
+  var $id = null;
+  var $data = null;
+  var $verlag = null;
+  var $leiter = false;
+  var $members = array();
+  var $telephone = null;
+
+  function __construct($team_id) {
+    $team_data = entity_load_single("team", $team_id);
+
+    if($team_data){
+      $this -> id = $team_data -> id;
+      $this -> data = $team_data;
+      $this -> verlag = $team_data->field_verlag['und'][0]['uid'];
+      $this -> leiter = $team_data->field_team_verkaufsleiter['und'][0]["uid"];
+      $this -> telephone = $team_data->field_telefonteam['und'][0]['value'];
+
+      return $this;
+    }
+    else {
+      throw new LKException('Unable to find Team ' . $team_id);
+    }
+
+    return false;
+  }
    
-   function __construct($team_id) {
-       $team_data = entity_load_single("team", $team_id);
-       
-       if($team_data){
-           $this -> id = $team_data -> id;
-           $this -> data = $team_data;
-           $this -> verlag = $team_data->field_verlag['und'][0]['uid'];
-           $this -> leiter = $team_data->field_team_verkaufsleiter['und'][0]["uid"];
-           $this -> telephone = $team_data->field_telefonteam['und'][0]['value'];
-           
-           return $this;
-       }
-       else {
-            throw new LKException('Unable to find Team ' . $team_id);
-       }
-       
-       
-       return false;
+   /**
+    * Gets back the complete Entity
+    * 
+    * @return \stdClass
+    */
+   function getEntity(){
+     return $this->data;
    }
    
    function getAusgaben(){

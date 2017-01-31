@@ -197,22 +197,11 @@ function lokalkoenig_addkampagne_page_plz_view($node){
   $dbq = db_query("SELECT aid, until FROM na_node_access_ausgaben_time WHERE nid='". $node -> nid ."' ORDER by until ASC");
   $x = 0;
   foreach($dbq as $all){
-       $verlag = _format_user(get_verlag_from_ausgabe($all -> aid));
+    $ausgabe = \LK\get_ausgabe($all -> aid);
+    $verlag = $ausgabe->getVerlagObject();
        
-       $b = lk_load_ausgabe($all -> aid);
-         //dpm($b);
-       
-       $plz = array();
-       foreach($b -> field_plz_sperre['und'] as $i){
-        $tax = taxonomy_term_load($i["tid"]);
-        $plz[] = $tax -> name;
-       }
-       
-       
-       
-       
-       $x++;
-       $table[] = '<tr><td>'. lk_get_ausgaben_title($all -> aid) .' ['. $all -> aid .']<br />'.  count($plz) .' PLZ: <small>'. implode(", ", $plz) .'</small></td>
+    $x++;
+    $table[] = '<tr><td>'. $ausgabe ->getTitleFormatted() .' ['. $all -> aid .']<br />'.  count($ausgabe ->getPlz()) .' PLZ /  '.  $ausgabe ->getPlzFormatted() .'</td>
                       <td>'. $verlag .'</td>
                       <td>'. date("d.m.Y", $all -> until) .'</td>
               </tr>'; 

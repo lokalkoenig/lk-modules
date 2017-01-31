@@ -21,7 +21,7 @@ function lokalkoenig_main_dashboard(){
   $output = '<div class="flexbox">';
 
   while(list($key, $val) =  each($views)){
-    $output .= '<div class="flexitem well well-white '. $val['size'] .'"><h4>'. $val['title'] .'</h4><hr />' . views_embed_view($key, $val['display']) . "</div>";
+    $output .= '<div class="flexitem well well-white '. $val['size'] .'"><h4>'. $val['title'] .'</h4>' . views_embed_view($key, $val['display']) . "</div>";
   }
 
   $output .= "</div>";

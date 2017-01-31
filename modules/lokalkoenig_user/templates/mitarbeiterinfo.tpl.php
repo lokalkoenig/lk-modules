@@ -1,31 +1,15 @@
 <?php
-    
-   if(!isset($short)){
-       $short = false;
-   }
-
    $accessed = \LK\get_user($account);
    $current = \LK\current();
    $verlag = $accessed -> getVerlagObject();
-   
+   $short = false;
    $team = 0;
    $ausgaben = false;
- 
-   // Bereichinfo
-   $vid = lk_get_verlag_from_user($account);
-   $account = _lk_user($account);
-   
+
    if($verlag){
-     $verlag = _lk_user($vid);
-     
-     if($test = $accessed ->getCurrentAusgaben()){
-       $ausgaben = $accessed ->getAusgabenFormatted();
-     }
-    
+    $ausgaben = $accessed ->getAusgabenFormatted();
     $team = $accessed -> getTeamObject();
    }
-   
-   
    
    $picture = $accessed -> getPicture();
  ?>
@@ -52,15 +36,10 @@
   
    ?>
   </p>
+  <?php endif; ?>
    
-
- 
- <?php if($short == false): ?>
-   <p>&nbsp;</p>
+ <p>&nbsp;</p>
   <hr class="clearfix" style="clear:both;" /> 
-  
-    
-  
   <div class="row clearfix" style="padding-bottom: 10px;">
       <div class="col-xs-4 text-right">Benutzer:</div>
       <div class="col-xs-8">
@@ -69,21 +48,6 @@
         ?>
       </div>
   </div>
-  <?php endif; ?>
-  <?php 
-  elseif($short == false):
-    ?>  
-   <h4 style="margin-top: 0;"><?php print $accessed-> name; ?></h4>
-   <p><em><?php print ucfirst($accessed ->getRoleLong()); ?></em></p>
-    
- <p>&nbsp;</p>
-  <hr class="clearfix" style="clear:both;" /> 
-  
-  <?php   
-  endif; 
-  ?>
-  
-    <?php if($short == false): ?>
  
   <?php if($accessed ->isTestAccount()): ?>
      <div class="row clearfix" style="padding-bottom: 10px;">
@@ -92,10 +56,8 @@
           <b class="label label-warning">Testaccount</b> (Eingeschränkte Funktionalität)
       </div>
   </div>
-  <?php
-    endif;
-  ?>
- 
+  <?php endif; ?>
+  
   <?php if($ausgaben): ?>
   <div class="row clearfix" style="padding-bottom: 10px; clear:both;">
       <div class="col-xs-4 text-right">Ausgaben:</div>
@@ -110,7 +72,7 @@
   <div class="row clearfix" style="padding-bottom: 10px;">
       <div class="col-xs-4 text-right"><span class="glyphicon glyphicon-phone-alt"></span></div>
       <div class="col-xs-8">
-        <?php print $account->profile['main']->field_profile_telefon['und'][0]['value']; ?>
+        <?php print $accessed->profile['main']->field_profile_telefon['und'][0]['value']; ?>
       </div>
   </div>
    
@@ -125,7 +87,6 @@
   
   
   <?php if(!$accessed -> isVerlag() AND $accessed ->getVerlag() AND $verlag AND $current -> hasRight("edit profile")) :?>
-    <a class="btn btn-sm btn-success" href="<?php print url("user/" . $vid . "/struktur", array("query" => array("action" => "edit", "uid" => $account -> uid, "profile" => 1))); ?>"><span class="glyphicon glyphicon-pencil"></span> Account editieren</a> 
-  <?php endif; ?>
+  <a class="btn btn-sm btn-success" href="<?php print url("user/" . $verlag ->getUid() . "/struktur", array("query" => array("action" => "edit", "uid" => $account -> uid, "profile" => 1))); ?>"><span class="glyphicon glyphicon-pencil"></span> Account editieren</a>
   <?php endif; ?>
 </div>

@@ -25,8 +25,48 @@ class VKUManager {
     
   return $vku;
   }
-  
+
   /**
+   * Gets the count of VKU which relates to the Node
+   * 
+   * @param int $nid
+   * @param array $vku_status
+   * @return int
+   */
+  public static function getNidInVKUCount($nid, $vku_status = []){
+
+    $where_first = array();
+    $where_first[] = "n.data_entity_id='". $nid  ."'";
+    $where_first[] = "n.data_class='kampagne'";
+
+    if($vku_status){
+      $where_first[] = "v.vku_status IN ('". implode("','", $vku_status)  ."')";
+    }
+
+    $dbq = db_query("SELECT count(*) as count
+      FROM lk_vku_data n, lk_vku v
+      WHERE n.vku_id=v.vku_id AND " . implode(" AND ", $where_first));
+    $all = $dbq -> fetchObject();
+
+    return $all -> count;
+  }
+
+  /**
+   * Gets the not final VKU count
+   *
+   * @param int $uid
+   * @return int
+   */
+  public static function getNotfinalCount($uid){
+ 
+    $dbq = db_query("SELECT count(*) as count FROM lk_vku WHERE uid='". $uid ."' AND vku_status IN ('active', 'ready', 'created', 'downloaded')");
+    $result = $dbq -> fetchObject();
+
+    return $result -> count;
+  }
+
+
+ /**
    * Gets the Active VKU-ID of the given Account
    * 
    * @param int $uid 

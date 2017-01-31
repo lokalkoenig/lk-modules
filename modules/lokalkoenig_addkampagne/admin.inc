@@ -284,7 +284,7 @@ function _show_remove_stats($nid){
  $manager = new \LK\Merkliste\AdminMerkliste($user -> uid);
  $table["Merkliste"] = $manager->getGeneralKampagnenCount($nid);
   
- $vku_count = get_nid_in_vku_count($nid); 
+ $vku_count = \LK\VKU\VKUManager::getNidInVKUCount($node -> nid);
  $table["VKU-Einträge"] = $vku_count . " (Teilweise betroffen)";
  
  $dbq = db_query("SELECT count(*) as count FROM lk_vku_lizenzen WHERE nid='". $nid ."'");

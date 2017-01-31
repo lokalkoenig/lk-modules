@@ -254,7 +254,66 @@ class PageKampagne extends PageInterface {
 
     return $kampagnen;  
   }
-  
+
+  /**
+   * Loads the GIF-Parts from an Online-Medium
+   *
+   * @param array $medium
+   */
+  private function loadGIF(&$medium){
+    $gif = new \LK\Kampagne\GIFExtractor();
+
+    while(list($key, $val) = each($medium->field_medium_varianten["und"])){
+      $array = $gif -> toArray($val);
+      $medium->field_medium_varianten["und"][$key]['gif'] = $array;
+    }
+  }
+
+  /**
+   * Loads the settings to suppress certain VKU-Pages
+   * 
+   * @param /stdClass $node
+   * @param array $page
+   */
+  private function _vku_load_vku_settings($node, $page = ['data_serialized' => []]){
+
+    if(!isset($page["data_serialized"]) OR !$page["data_serialized"]){
+        $data = array();
+    }
+    else {
+      $data = unserialize($page["data_serialized"]);
+    }
+
+    $node -> vku_hide = false;
+
+    if($data AND isset($data["desc"]) AND $data["desc"] == 1){
+      $node -> vku_hide = true;
+    }
+
+    // Parse Medien
+    while(list($key, $media) = each($node-> medien)):
+      $node -> medien[$key] -> vku_hide = false;
+      $node -> medien[$key] -> vku_hide_varianten = false;
+
+      if($node -> medien[$key]-> media_type === 'online'){
+        $this ->loadGIF($node -> medien[$key]);
+      }
+
+      // Allgemeine Beschreibung
+      if(isset($data["media_" . $media -> id]) AND $data["media_" . $media -> id] == 1){
+        $node -> medien[$key] -> vku_hide_varianten = true;
+      }
+
+      if(isset($data["media_" . $media -> id]) AND $data["media_" . $media -> id . "_overview"] == 1){
+        $node -> medien[$key] -> vku_hide = true;
+      }
+
+    endwhile;
+    
+    return $node;
+  }
+
+
   /**
    * Gets back the Output of the Kampagne
    * 
@@ -267,17 +326,22 @@ class PageKampagne extends PageInterface {
     // added for Testing purposes
     if(isset($page['node'])){
       $node = $page['node'];
+      $node = $this -> _vku_load_vku_settings($page['node']);
     }
     else {
       $nid = $page["data_entity_id"];
-      $node = node_load($nid); 
+      $node = $this -> _vku_load_vku_settings(node_load($nid), $page);
     }
     
     include $module_dir .'/b-medias.php';
   }
   
-  function getOutputPPT(){
-    
-  }
   
+  function getOutputPPT($page, $ppt) {
+      $nid = $page["data_entity_id"];
+      $node = $this -> _vku_load_vku_settings(node_load($nid), $page);
+
+      $obj = new \LK\PPT\Pages\RenderNode($ppt);
+      $obj->render($node);
+  }
 }

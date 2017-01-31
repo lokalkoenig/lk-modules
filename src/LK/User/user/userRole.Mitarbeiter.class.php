@@ -65,16 +65,16 @@ class Mitarbeiter extends User {
         return $this -> user_data -> uid;
     }
     
-    function isTestAccount(){
-        $verlag = $this ->getVerlagObject();
-        
-        if(!$verlag){
-            return false;
-        }
-        else {
-            $verlag -> isTestAccount();
-        }
+  function isTestAccount(){
+    $verlag = $this ->getVerlagObject();
+
+    if(!$verlag){
+      return false;
     }
+    else {
+      return $verlag -> isTestAccount();
+    }
+  }
     
    function getVerlag(){
        return $this -> verlag;

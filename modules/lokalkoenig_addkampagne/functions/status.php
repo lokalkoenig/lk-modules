@@ -10,7 +10,7 @@ function lokalkoenig_addkampagne_stats($node){
   $res = $dbq -> fetchObject();
   
   $stats["Anzahl von erworbenen Lizenzen"]  = $res -> count; 
-  $count = get_nid_in_vku_count($node -> nid);
+  $count = \LK\VKU\VKUManager::getNidInVKUCount($node -> nid);
   
   $stats["Anzahl der Kampagne in allen Verkaufsdokumenten"]  = $count;
   

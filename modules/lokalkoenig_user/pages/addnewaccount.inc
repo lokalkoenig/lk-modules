@@ -107,8 +107,8 @@ function lk_user_add_vuegr_ma_submit($form, $form_state){
      cache_clear_all();
      
      $redirect = "user/" . $verlag . "/struktur";
-     $account = _lk_user($account, true);
-     profile2_save($account -> profile["mitarbeiter"], 'mitarbeiter');  
+     //$account = _lk_user($account, true);
+     profile2_save($account -> profile["mitarbeiter"], 'mitarbeiter');
      
      lk_note('user', 'Account von ' . $account -> name . " (Pwd: ". $pwd ."/Email: ". $account -> mail .") wurde erstellt.");
       
@@ -305,16 +305,16 @@ function lk_user_add_ma($form, &$form_state, $verlag, $team){
     $ausgaben = array();
 
     if($team){
-        $team_obj = \LK\get_team($team);
-        $leiter = \LK\get_user($team_obj ->getLeiter());
-        $basis = _lk_user($leiter);
-        $ausgaben = $team_obj -> getAusgaben();
-        
-        if(!$basis){
-            drupal_goto("user/" . $verlag . "/struktur");
-        }
+      $team_obj = \LK\get_team($team);
+      $leiter = \LK\get_user($team_obj ->getLeiter());
+      $basis = user_load($leiter->getUid());
+      $ausgaben = $team_obj -> getAusgaben();
+
+      if(!$basis){
+          drupal_goto("user/" . $verlag . "/struktur");
+      }
    
-        drupal_set_title('Neuen Mitarbeiten in Team "'. $team_obj -> getTitle() .'" anlegen');
+      drupal_set_title('Neuen Mitarbeiten in Team "'. $team_obj -> getTitle() .'" anlegen');
     }
    
     

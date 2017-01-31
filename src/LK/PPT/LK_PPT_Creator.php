@@ -70,6 +70,15 @@ class LK_PPT_Creator {
     var $oMasterSlide = null;
     var $oSlideLayout = null;
     
+    
+    function setVKU(\VKUCreator $vku){
+      $this -> vku = $vku;
+      $account = \LK\get_user($this->vku->getAuthor());
+      $this -> settings = \LK\VKU\VKUManager::getVKU_RenderSettings($account);
+
+    }
+
+
     /**
      * Constructur
      * Sets basic Settings
@@ -77,21 +86,9 @@ class LK_PPT_Creator {
      * @param Integer $vku_id
      * @return \LK_PPT
      */
-    function __construct($vku_id) {
-        $this -> vku = new \VKUCreator($vku_id);
-        $account = \LK\get_user($this->vku->getAuthor());
-        
-        // Get common VKU Settings
-        $this -> settings = \LK\VKU\VKUManager::getVKU_RenderSettings($account);
+    function __construct() {
         $this -> start_time = microtime();
-        
-        // https://github.com/PHPOffice/PHPPresentation/issues/266
-        
         $this -> ppt = new PhpPresentation();
-        
-        //$this -> oMasterSlide =  $this -> ppt->getAllMasterSlides()[0];
-        //$this -> oSlideLayout =  $this -> oMasterSlide->getAllSlideLayouts()[0];
-        
         return $this;
     }
     
@@ -146,30 +143,7 @@ class LK_PPT_Creator {
         
        return \LK\Files\FileGetter::get($img_url);
     }
-    
-    /**
-     * Adds all the necessary Slides based on the Configuration
-     */
-    function process(){
-        $pages = $this -> vku ->getPages();
-       
-         while(list($id, $page) = each($pages)){
-             // ppt_render_node_kampagne 
-             $cn = "LK\PPT\Pages\Render" . ucfirst($page["data_module"]);
-             $obj = new $cn($this);
-             $obj -> render($page); // namespace LK\PPT;
-         }
-    }
-    
-    
-    /**
-     * 
-     */
-    function testNode($node){
-        $cn = "LK_PPT_render_node";
-        $obj = new LK_PPT_render_node($this);
-        $obj -> render($node);
-    }    
+   
     /**
      * Creates a Text
      * 
@@ -233,12 +207,11 @@ class LK_PPT_Creator {
      * @return String
      */
     public function write($dir, $filename){
-        
-          $xmlWriter = IOFactory::createWriter($this -> ppt, 'PowerPoint2007');
-          ob_clean();
-          $xmlWriter->save($dir . '/' . $filename . ".pptx");
-          $this -> clear();
-          return  $filename . ".pptx";      
+      $xmlWriter = IOFactory::createWriter($this -> ppt, 'PowerPoint2007');
+      ob_clean();
+      $xmlWriter->save($dir . '/' . $filename . ".pptx");
+      $this -> clear();
+      return  $filename . ".pptx";      
     }
     
     /**

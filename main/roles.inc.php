@@ -27,17 +27,61 @@ function lk_user_is_in_verlag($uid, $verlag_id){
 return false;
 }
 
+/**
+ * Gets back the Active ID
+ * @deprecated
+ */
+ function vku_get_active_id(){
+ global $user;
+
+    return \LK\VKU\VKUManager::getActiveVku($user -> uid);
+ }
+
+
 
 /**
  * Gives back yes or no
  * if the Kampagne can be purchased
- * 
+ *
  * @param int $nid
- * @param int $uid
  * @return boolean
  */
+function lk_can_purchase($nid){
+  return lk_user_can_purchase($user -> uid, $nid);
+}
+
+/**
+ * Gets back the information if the Kampagne
+ * can be purchased
+ *
+ * @param int $uid
+ * @param int $nid
+ * @return boolean
+ */
+function lk_user_can_purchase($uid, $nid){
+  $account = \LK\get_user($uid);
+  $kampagne = new \LK\Kampagne\Kampagne(node_load($nid));
+  $manager = new LK\Kampagne\Manager\Access($kampagne, $account);
+  return $manager->hasPurchaseAccess();
+}
+
+/**
+ * Gets back Access-Information
+ * 
+ * @deprecated
+ * @param int $uid
+ * @param int $nid
+ * @return type
+ */
+function na_check_user_has_access($uid, $nid){
+  $account = \LK\get_user($uid);
+  $kampagne = new \LK\Kampagne\Kampagne(node_load($nid));
+  $manager = new LK\Kampagne\Manager\Access($kampagne, $account);
+  return $manager ->getPurchaseAccessInformation();
+}
+
 function lk_kampagne_can_purchase($nid, $uid){
-  return \LK\Kampagne\AccessInfo::userHasAccessToKampagne($uid, $nid);
+  return lk_can_purchase($nid);
 }
 
 

@@ -55,7 +55,6 @@ function vku_form_vku_edit_kampagne($form, $form_state, $vku_id, $seite_id, $sho
     $seite = $vku ->getPage($seite_id);
     $node = node_load($seite["data_entity_id"]);
     
-    _vku_load_vku_settings_node($node, $seite);
     
     if($seite["data_serialized"]){
          $settings = unserialize($seite["data_serialized"]);

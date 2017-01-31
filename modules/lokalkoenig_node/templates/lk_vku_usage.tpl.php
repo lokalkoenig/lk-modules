@@ -5,10 +5,7 @@
    </div>
    
    <div class="col-xs-11">
-      <?php if(!lk_is_moderator($account)) : ?>
-        <strong>Verwendung dieser Kampagne in Verkaufsunterlagen Ihres Verlages</strong>
-      <?php endif; ?>
-      
+      <strong>Verwendung dieser Kampagne in Verkaufsunterlagen Ihres Verlages</strong>
       <ul>
       <?php foreach($entries as $e) :?>
          <li>
@@ -18,22 +15,15 @@
                 print 'Ihnen in <strong>' . l("Verkaufsunterlage: " . $e -> vku_title, "user/" . $account -> uid . "/vku/" . $e -> vku_id . "/details") . '</strong>';
               }
               else {
-                if(lk_is_moderator($account)){
-                    print _format_user($e -> uid) . ' in <strong>' . l("Verkaufsunterlage: " . $e -> vku_title, "user/" . $account -> uid . "/vku/" . $e -> vku_id . "/details") . '</strong>';
+                print _format_user($e -> uid);
+
+                if($e -> ausgaben){
+                  print ' für folgende Ausgaben ' . implode(" ", $e -> ausgaben);
                 }
                 else {
-                    print _format_user($e -> uid);
-                    
-                    if($e -> ausgaben){
-                        print ' für folgende Ausgaben ' . implode(" ", $e -> ausgaben);
-                    }
-                    else {
-                    print ' in folgenden Ausgaben ' . \LK\user_ausgaben_f($e -> uid);  //implode(" ", $e -> ausgaben); 
-                    }
-                    
-                    // Additional Information
-                 }    
+                  print ' in folgenden Ausgaben ' . \LK\user_ausgaben_f($e -> uid);  //implode(" ", $e -> ausgaben); 
                 }
+              }
              ?>
          </li>
       <?php endforeach; ?>

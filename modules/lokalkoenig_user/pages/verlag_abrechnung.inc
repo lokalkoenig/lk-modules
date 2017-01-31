@@ -253,8 +253,9 @@ return $options;
 
 function lokalkoenig_team_stats_abrechnung_page($team_id){
     
-  $v = lk_get_verlag_from_team($team_id);
-  
+  $team = \LK\get_team($team_id);
+  $v = $team->getVerlag();
+
     // First-Month - Get From Lizenzen-Tabelle
    $options = _lk_get_monthes_abrechnung(
     array("lizenz_verlag_uid='".  $v . "'", 
@@ -318,7 +319,7 @@ function lokalkoenig_team_stats_abrechnung_page($team_id){
    //drupal_set_title("Abrechnung");
    
    
-   $tables = _lk_verlag_abrechnung(_lk_user($v), $have, $excel, $team_id);
+   $tables = _lk_verlag_abrechnung($v, $have, $excel, $team_id);
    
     $output = '<div class="well clearfix">
       <div class="pull-right" style="width: 400px;">'. render($form) .'</div>
@@ -439,7 +440,7 @@ function lokalkoenig_user_stats_page_abrechnung($verlag){
    drupal_set_title("Abrechnung");
    
    
-   $tables = _lk_verlag_abrechnung($verlag, $have, $excel);
+   $tables = _lk_verlag_abrechnung(user_load($verlag), $have, $excel);
    
     $output = '<div class="well clearfix">
       <div class="pull-right" style="width: 400px;">'. render($form) .'</div>
@@ -597,7 +598,8 @@ function _lk_verlag_abrechnung($verlag, $have, $excel, $team_id = 0){
         
       }
       else{
-        $title = strip_tags(format_team($key));
+        $team = \LK\get_team($key);
+        $title = $team ->getTitle();
       }
       
       $overall = array(); 

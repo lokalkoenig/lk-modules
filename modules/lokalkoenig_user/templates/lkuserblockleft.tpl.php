@@ -36,8 +36,6 @@ global $user;
     }
   
 
-$account = _lk_user($account);
-
 // Show Userpicture
 if($verlag = $accessed -> getVerlag()):
     $obj = \LK\get_user($verlag);
@@ -76,15 +74,15 @@ endif;
     print lklink('&nbsp;Dashboard', 'user/' . $account -> uid . '/dashboard','home'); 
     
     if(!$accessed -> isAgentur()):
-            $vkuscount = vku_active_user_notfinal_count($account -> uid);
+      $vkuscount = \LK\VKU\VKUManager::getNotfinalCount($account -> uid);
       
-            if($vkuscount):
-               print lklink('<span class="badge pull-right">'. $vkuscount .'</span>Verkaufsunterlagen', 'user/' . $account -> uid . '/vku','cloud-download');
-            else:
-               print lklink('Verkaufsunterlagen', 'user/' . $account -> uid . '/vku','cloud-download');
-            endif;
+      if($vkuscount):
+        print lklink('<span class="badge pull-right">'. $vkuscount .'</span>Verkaufsunterlagen', 'user/' . $account -> uid . '/vku','cloud-download');
+      else:
+        print lklink('Verkaufsunterlagen', 'user/' . $account -> uid . '/vku','cloud-download');
+      endif;
         
-            print lklink('Suchhistorie', 'user/' . $account -> uid . '/searches','search');
+      print lklink('Suchhistorie', 'user/' . $account -> uid . '/searches','search');
     else:
           print lklink('Abrechnung', 'user/' . $account -> uid . '/agenturabrechnung','euro');
     endif;
