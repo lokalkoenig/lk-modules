@@ -14,6 +14,12 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
   var $LOG_CATEGORY = 'VKU Editor Verlag';
   var $document;
 
+
+  function __construct() {
+    parent::__construct(1);
+    $this->addPreset('OnlineMediumCollection', '\\LK\\VKU\\Editor\\Presets\\OnlineMediumCollection');
+  }
+
   /**
    * Gets the Editor-Template
    *
@@ -42,6 +48,8 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     return parent::getEditorTemplate($variables);
   }
 
+
+
   /**
    * Gets the current Account
    *
@@ -57,6 +65,35 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
    */
   function setAccount(\LK\User $account){
     $this->account = $account;
+  }
+
+  /**
+   * Gets the Documents per Preset and Verlag
+   *
+   * @param \LK\Verlag $verlag Verlag-Account
+   * @param string $preset
+   * @param int $status
+   * @return array
+   */
+  function getDocumentsPerVerlagPreset($preset, $status = 1){
+
+    $array = [];
+    $dbq = db_query("SELECT * FROM " . Document::TABLE . " "
+            . "WHERE document_vorlage=1 AND uid=:uid AND document_preset=:preset "
+            . "AND status=:status ORDER BY document_title ASC",
+    [
+      ':uid' => $this ->getAccount()->getUid(),
+      ':preset' => $preset,
+      ':status' => $status,
+    ]);
+
+    while($data = $dbq -> fetchObject()){
+      $document = new Document((array)$data);
+      $template_data = $document ->getTemplateData();
+      $array[] = $template_data;
+    }
+
+    return $array;
   }
 
 
@@ -125,8 +162,7 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     $callback['values']-> layout = $document -> getLayout();
     $callback['values']-> preset = $document -> getPreset();
     $callback['values']-> content = $document -> getContent();
-    $callback['values']-> sample = $values -> sample;
-
+    $callback['options']['sample'] = $values -> sample;
 
     $html = array();
     $layouts = $preset -> getAvailableLayouts();

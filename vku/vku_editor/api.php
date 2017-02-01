@@ -39,7 +39,13 @@ function vku_editor_api_cb(){
   if(isset($_GET['preset']) && is_string($_GET['preset'])){
       $manager ->createNewPreset($_GET['preset']);
   }
-  
+
+  // Preset-Action
+  if(isset($_POST['action']) && is_string($_POST['action']) && $_POST['action'] == 'preset-action'){
+    $preset = $manager ->loadPreset($_POST['values']['preset']);
+    $preset -> performCallback($_POST);
+  }
+
   if(isset($_POST['action']) && is_string($_POST['action']) && $_POST['action'] == 'remove-document'){
     $manager -> removeDocument((int)$_POST['id']);
   }

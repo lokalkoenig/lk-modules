@@ -32,9 +32,8 @@ function nodeadd2vku(link, form){
        url = jQuery(link).attr('href'); 
         
     }
-    
-     
-     
+
+
      jQuery.ajax({
       url : url,
       type: "post",
@@ -42,9 +41,8 @@ function nodeadd2vku(link, form){
       success: function(data, textStatus, jqXHR){
           jQuery('#vku_cart .count').html(data.total);
           
-          
-          
           if(data.added == 1) {
+            track('vku', 'added', data.nid);
             jQuery('a.addvkujs[nid=' +  data.nid +']').parent("li").addClass('hover');
             lk_add_js_modal_optin('Ihre Verkaufsunterlage', data.msg + '<br /><br /><a href="' + data.link_vku + '" class="btn btn-success"><span class="glyphicon glyphicon-shopping-cart"></span> Verkaufsunterlagen jetzt generieren</a> <a href="#" class="btn btn-primary pull-right close" data-dismiss="modal"><span class="glyphicon glyphicon-search"></span> Weitersuchen</a>', '', '');
           }

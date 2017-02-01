@@ -17,7 +17,7 @@
   <table class="table table-hover">
   <thead>
     <tr>
-      <th class="headline">Veröffentlichte Dokumente</th>
+      <th class="headline">Aktive Dokumente</th>
       <th>Erstellt</th>
       <th>Letzte Bearbeitung</th>
       <th width="160">&nbsp;</th>
@@ -41,9 +41,9 @@
             </td>
             <td class="small"><?= date('d.m.Y', $document['document_created']); ?></td>
             <td class="small"><?= date('d.m.Y', $document['document_changed']); ?></td>
-            <td>
+            <td class="small">
               <a href="#" class="btn-document-edit" data-edit-id="<?= $document['id']; ?>">Bearbeiten</a> /
-              <a href="#" class="btn-document-remove" data-edit-id="<?= $document['id']; ?>">Löschen</a> /
+              <a href="#" class="btn-document-remove" data-edit-id="<?= $document['id']; ?>">Löschen</a><br />
               <a href="#" class="btn-document-toggle" data-edit-id="<?= $document['id']; ?>">Deaktivieren</a>
             </td>
           </tr>
@@ -64,10 +64,10 @@
               </td>
               <td class="small"><?= date('d.m.Y', $document['document_created']); ?></td>
               <td class="small"><?= date('d.m.Y', $document['document_changed']); ?></td>
-              <td>
+              <td class="small">
                 <a href="#" class="btn-document-edit" data-edit-id="<?= $document['id']; ?>">Bearbeiten</a> /
                 <a href="#" class="btn-document-remove" data-edit-id="<?= $document['id']; ?>">Löschen</a> /
-                <a href="#" class="btn-document-toggle" data-edit-id="<?= $document['id']; ?>">Veröffentlichen</a>
+                <a href="#" class="btn-document-toggle" data-edit-id="<?= $document['id']; ?>">Aktivieren</a>
               </td>
             </tr>
 
@@ -97,7 +97,6 @@
   }
 
   table tr th.headline  {
-    color: green;
     width: 40%;
   }
 

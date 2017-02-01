@@ -23,8 +23,12 @@ class RemoveOldVKU {
     foreach($dbq as $all){
       $vku = new VKUCreator($all -> vku_id);
       if($vku -> is()){
-          $vku ->logCron("Cron-Delete VKU-ID " . $all -> vku_id . ", Zuletzt geändert am: " . format_date($all -> vku_changed, 'short'));
-          $vku -> remove();
+        $log = new \LK\Log\Debug("Cron-Delete VKU-ID " . $all -> vku_id . ", Zuletzt geändert am: " . format_date($all -> vku_changed, 'short'));
+        $log ->setVku($vku);
+        $log ->setCategory('cron');
+        $log->save();
+
+        $vku -> remove();
       }
     }
 
@@ -35,8 +39,12 @@ class RemoveOldVKU {
     foreach($dbq2 as $all){
       $vku = new VKUCreator($all -> vku_id);
       if($vku -> is()){
-          $vku ->logCron("Cron-Delete nicht benutze VKU " . $all -> vku_id . ", Zuletzt geändert am: " . format_date($all -> vku_changed, 'short'));
-          $vku -> remove();
+        $log = new \LK\Log\Debug("Cron-Delete nicht benutze VKU " . $all -> vku_id . ", Zuletzt geändert am: " . format_date($all -> vku_changed, 'short'));
+        $log ->setVku($vku);
+        $log ->setCategory('cron');
+        $log->save();
+
+        $vku -> remove();
       }
     }
   }  
