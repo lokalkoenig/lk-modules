@@ -1,6 +1,13 @@
 <?php
 
+/**
+ * HOOK_views_data
+ *
+ * @return array
+ */
 function lokalkoenig_merkliste_views_data() {
+  
+  $data = [];
   $data['lk_lastviewed']['table']['group'] = ('Last Viewed');
   $data['lk_lastviewed']['table']['base'] = array(
     'field' => 'id',
@@ -52,9 +59,6 @@ function lokalkoenig_merkliste_views_data() {
       'label' => ('User ID'),
     ),
   );
-  
-
-  
 
   $data['lk_lastviewed']['lastviewed_time'] = array(
     'title' => ('Datum des Eintrags'), 

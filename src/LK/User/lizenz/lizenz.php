@@ -291,7 +291,15 @@ class Lizenz {
     if($this -> data -> lizenz_verlag_uid && lk_is_moderator()){
      $verlag = \LK\get_user($this -> data -> lizenz_verlag_uid);
      $array['Verlag'] = (string)$verlag;
+
+     if($this -> data -> plz_sperre_id){
+        $manager = new \LK\Kampagne\SperrenManager();
+        $sperre = $manager ->getSperre($this -> data -> plz_sperre_id);
+        $date = strtotime($sperre->entity->field_plz_sperre_bis['und'][0]['value']);
+        $array['Lizenz gültig'] = format_date($date) . " <small>(Ablauf der Sperre)</small>";
+      }
     }
+
 
     $ausgaben = $this ->getAusgaben();
     $ausgaben_formatted = array();

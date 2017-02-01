@@ -83,7 +83,20 @@ class VKUManager {
     
     return 0;  
   }
-  
+
+  /**
+   * Creates a new VKU for a User
+   *
+   * @param \LK\User $account
+   * @param array $options
+   * @return \VKUCreator
+   */
+  public static function createEmptyVKU(\LK\User $account, $options = []){
+    $options['uid'] = $account ->getUid();
+    $vku = new \VKUCreator('new', $options);
+    return new \VKUCreator($vku ->getId());
+  }
+
   /**
   * Returns back settings for the current VKU
   * Can be used by PPT and PDF output

@@ -1,8 +1,16 @@
 <?php
+/**
+ * @file Flush history
+ * @path /history/flush
+ */
 
+use LK\Merkliste\History\UserManager as HistoryManager;
+
+/**
+ * Flush the User-History
+ */
 function lokalkoenig_merkliste_flush_history(){
-global $user;
-  db_query("DELETE FROM lk_lastviewed WHERE uid='". $user -> uid ."'");  
+  HistoryManager::getInstance(\LK\current())->flush();
   drupal_set_message("Ihr Verlauf wurde gelöscht.");
   drupal_goto('history');   
 }

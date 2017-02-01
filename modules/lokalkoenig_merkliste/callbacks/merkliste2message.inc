@@ -1,6 +1,14 @@
 <?php
+/**
+ * @file Send callback
+ * @path merkliste/send/%
+ */
 
-
+/**
+ * Sends a ML to another user
+ *
+ * @param int $tid
+ */
 function lokalkoenig_merkliste_ajax_callback_send($tid){
   
   $manager = new \LK\Merkliste\UserMerkliste();
@@ -12,7 +20,6 @@ function lokalkoenig_merkliste_ajax_callback_send($tid){
   
   $to = array();
   $choosen_ma = (array)$_POST["ma"];
-  
   $subject = trim(@$_POST["subject"]);
   $message = trim(@$_POST["message"]);
   
@@ -26,16 +33,16 @@ function lokalkoenig_merkliste_ajax_callback_send($tid){
    
   foreach($choosen_ma as $useruid){
     if(!in_array($useruid, $possibile)){
-         drupal_set_message("Eine enerlaubte Auswahl wurde entdeckt.", 'error');
-         drupal_goto($merkliste ->getUrl());
+      drupal_set_message("Eine enerlaubte Auswahl wurde entdeckt.", 'error');
+      drupal_goto($merkliste ->getUrl());
     }
     
     $to[] = $useruid; 
   }
   
   if(count($to) == 0){
-     drupal_set_message("Sie haben keine Empfänger ausgewählt.", 'error');
-     drupal_goto($merkliste ->getUrl());  
+    drupal_set_message("Sie haben keine Empfänger ausgewählt.", 'error');
+    drupal_goto($merkliste ->getUrl());
   }
   
   // Send to everybody

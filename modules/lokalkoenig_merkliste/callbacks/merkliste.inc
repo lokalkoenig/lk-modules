@@ -10,6 +10,7 @@ function lokalkoenig_merkliste_show_entries($tid = 0){
   
   drupal_set_title('Merkliste');  
   $manager = new \LK\Merkliste\UserMerkliste();
+
   if(!$tid){
     $kampagnen = $manager ->getUserKampagnen();
     $output = [];
@@ -49,6 +50,6 @@ function lokalkoenig_merkliste_show_entries($tid = 0){
       'name' => $merkliste ->getName(), 
       'merkliste' => $merkliste, 
       'nodes' => implode('', $output), 
-      'merkliste_id' => $merkliste ->getId()
+      'merkliste_id' => $merkliste ->getId(),
   ]);
 }

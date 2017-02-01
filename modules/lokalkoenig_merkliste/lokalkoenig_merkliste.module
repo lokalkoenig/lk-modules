@@ -5,7 +5,7 @@ require_once __DIR__ . "/lokalkoenig_merkliste.blocks.inc";
 require_once __DIR__ . "/views/views_data.inc";
 
 /**
- * @implements HOOK_init
+ * HOOK_init
  */
 function lokalkoenig_merkliste_init(){
   
@@ -15,48 +15,59 @@ function lokalkoenig_merkliste_init(){
   }
   
   $categories = \LK\Merkliste\UserMerkliste::getMerklisten();
-  drupal_add_js(array('merkliste' => array('categories' => $categories)), array('type' => 'setting'));
+  drupal_add_js(['merkliste' => ['categories' => $categories]], ['type' => 'setting']);
   drupal_add_js(drupal_get_path('module', 'lokalkoenig_merkliste') .'/js/merkliste.js', 'file');
 }
 
-
+/**
+ * HOOK_theme
+ *
+ * @return array
+ */
 function lokalkoenig_merkliste_theme(){
-   $themes = array();
-   
-    $themes["lk_merkliste_block_nav"] = array(
-            'template' => 'templates/lk_merkliste_block_nav', // your template file called custompage.tpl.phü
-            'variables'=> array('count_ml' => 0, 'count_lv' => 0));  
-                  
-    $themes["lk_merkliste_history"] = array(
-            'template' => 'templates/lk_merkliste_history', // your template file called custompage.tpl.phü
-            'variables'=> array());     
-  
-  $themes["lk_merkliste_actions"] = array(
-            'template' => 'templates/lk_merkliste_actions', // your template file called custompage.tpl.phü
-            'variables'=> array('term' => NULL));     
-   
-    $themes["lk_merkliste_navigation"] = [
-      'template' => 'templates/lk_merkliste_navigation', // your template file called custompage.tpl.phü
-      'variables'=> array('links' => [])
-    ];       
-   
-return $themes;
+  $themes = array();
+
+  $themes["lk_merkliste_block_nav"] = [
+    'template' => 'templates/lk_merkliste_block_nav',
+    'variables'=> ['count_ml' => 0, 'count_lv' => 0],
+  ];
+
+  $themes["lk_merkliste_actions"] = [
+    'template' => 'templates/lk_merkliste_actions',
+    'variables'=> ['term' => NULL],
+  ];
+
+  $themes["lk_merkliste_navigation"] = [
+    'template' => 'templates/lk_merkliste_navigation', // your template file called custompage.tpl.phü
+    'variables'=> array('links' => [])
+  ];
+
+  return $themes;
 }            
 
+/**
+ * HOOK_search_api_solr_query_alter
+ *
+ * @global stdClass $user
+ * @global array $preserv_fs
+ * @param array $query
+ * @param array $snd
+ */
 function lokalkoenig_merkliste_search_api_solr_query_alter($query, $snd) {
 global $user, $preserv_fs;
 
   if(lk_is_agentur()){
-     $query['params']['fq'][1] = 'is_author:"'. $user -> uid .'"'; 
+    $query['params']['fq'][1] = 'is_author:"'. $user -> uid .'"';
   }
 
   if($preserv_fs){
     if(is_array($preserv_fs)){
-        foreach($preserv_fs as $item){
-          $query['params']['fq'][] = 'im_' . $item;
-        }
+      foreach($preserv_fs as $item){
+        $query['params']['fq'][] = 'im_' . $item;
+      }
     }
   }
+
   // Need to Delete, because of visibility issues
   if(isset($query['params']['fq'][1]) && $query['params']['fq'][1] == 'is_status:"1"'){
     unset($query['params']['fq'][1]);
@@ -65,7 +76,8 @@ global $user, $preserv_fs;
 
 /**
  * Loads ML to the Kampagne
- * 
+ * HOOK_kampagne_load
+ *
  * @param \stdClass $node
  */
 function lokalkoenig_merkliste_kampagne_load($node){
@@ -79,40 +91,50 @@ function lokalkoenig_merkliste_kampagne_load($node){
   
   $kampagnen = \LK\Merkliste\UserMerkliste::getKampagnen();
   if(in_array($node -> nid, $kampagnen)){
-     $node -> merkliste = true;
-     $node -> merkliste_id = 1;
-     $node -> merkliste_terms = '';
-     $node -> merkliste_title = '';
+    $node -> merkliste = true;
+    $node -> merkliste_id = 1;
+    $node -> merkliste_terms = '';
+    $node -> merkliste_title = '';
   }
 }
 
-function _lk_get_history_count($user){
-  $dbq = db_query("SELECT count(*) as count FROM lk_lastviewed WHERE uid='". $user -> uid ."'");
-  $result = $dbq -> fetchObject();
-  return $result -> count;
-}
-
-
+/**
+ * Alters the insert of a message with Nodes
+ * HOOK_privatemsg_message_insert
+ *
+ * @param stdClass $message
+ */
 function lokalkoenig_merkliste_privatemsg_message_insert($message){  
   if(isset($message -> nids)){
     foreach($message -> nids as $nid){
-       $message->field_msg_kampagnen['und'][]['nid'] = $nid;
+      $message->field_msg_kampagnen['und'][]['nid'] = $nid;
     }
   }
 }
 
 /**
- * Alters the Message-Form
- * 
- * @param type $form
- * @param type $form_state
- * @param type $form_id
+ * Alters the Message-Form, to add a ML
+ * HOOK_form_alter
+ *
+ * @param array $form
+ * @param array $form_state
+ * @param string $form_id
  */
 function lokalkoenig_merkliste_form_alter(&$form, &$form_state, $form_id){
+
+  if($form_id === 'views_exposed_form' && isset($form_state['view']) && $form_state['view'] -> name === 'last_viewed'){
+    $form['#prefix'] =
+        '<a href="'. url('history/flush') .'" optintitle="Verlauf wirklich zurücksetzen" optin="Sind Sie sicher, dass Sie den kompletten Verlauf unwideruflich löschen möchten?" class="optindelete pull-right btn btn-success">
+            <span class="glyphicon glyphicon-chevron-right"></span> Verlauf zurücksetzen
+        </a>
+        <h4>Zuletzt angesehene Kampagnen</h4>'
+        . '<p>Hier sehen Sie Ihren Verlauf der aufgerufenen Kampagnen.</p>';
+  }
 
   if($form_id == 'privatemsg_new' && isset($_GET["ml"])){
     $manager = new \LK\Merkliste\UserMerkliste();
     $merkliste = $manager->loadMerkliste($_GET["ml"]);
+
     if(!$merkliste){
       return ;
     }

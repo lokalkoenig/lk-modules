@@ -244,6 +244,8 @@ class User {
                 
                 $this -> profile["mitarbeiter"] -> field_ausgabe["und"] = $newvalue;   
                 profile2_save($this -> profile["mitarbeiter"]);
+
+                $this -> current_ausgaben = NULL;
             }
         }
     }

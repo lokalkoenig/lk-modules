@@ -4,10 +4,9 @@
 /**
  * Removes a Merkliste
  *
- * @path /merkliste/%/remove
+ * @path /merkliste/%/remove, /merkliste/%/save
  * @param int $tid
  */
-
 function lokalkoenig_merkliste_ajax_callback(){
 
   $nid = 0;
@@ -26,8 +25,8 @@ function lokalkoenig_merkliste_ajax_callback(){
   $manager = new \LK\Merkliste\UserMerkliste();
 
   $response = [
-      'error' => 0,
-      'message' => '',
+    'error' => 0,
+    'message' => '',
   ];
 
   $node = node_load($nid);

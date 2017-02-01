@@ -1,6 +1,7 @@
 <?php
 
 namespace LK\Kampagne\Manager;
+use LK\Merkliste\History\UserManager as HistoryManager;
 
 class KampagnenView {
 
@@ -55,6 +56,7 @@ class KampagnenView {
     $this -> setDefaults();
     $kampagne = $this->getKampagne();
     $account = $this->getAccount();
+    $this -> getFormatInformation();
 
     if(!$node -> status || $account -> isAgentur()){
       $node -> merkliste_can = $node -> vku_can = false;
@@ -65,11 +67,9 @@ class KampagnenView {
     }
 
     $this -> addRecomendLinks();
-    $this -> getFormatInformation();
     $this -> getVKULinks();
     $this -> getMerklisteLinks();
     $this -> getAlerts();
-
     $this->getAccessInfo();
 
     if($view_mode === 'full'){
@@ -257,16 +257,9 @@ class KampagnenView {
 
   /**
    * Tracks the Node view for the current user
-   *
-   * @global type $user
    */
   private function trackNodeView(){
-    $nid = $this->getKampagne()->getNid();
-    $uid = $this->getAccount()->getUid();
-
-    $this->setAction('view-kampagne', $nid);
-    db_query("DELETE FROM lk_lastviewed WHERE uid='". $uid ."' AND nid='". $nid ."'");
-    db_query("INSERT INTO lk_lastviewed SET uid='". $uid ."', nid='". $nid ."', lastviewed_time='". time() ."'");
+    HistoryManager::getInstance($this->getAccount())->logView($this->getKampagne());
   }
 
   /**
