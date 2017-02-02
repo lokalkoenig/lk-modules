@@ -14,7 +14,6 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
   var $LOG_CATEGORY = 'VKU Editor Verlag';
   var $document;
 
-
   function __construct() {
     parent::__construct(1);
     $this->addPreset('OnlineMediumCollection', '\\LK\\VKU\\Editor\\Presets\\OnlineMediumCollection');
@@ -176,6 +175,23 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     $callback['layouts'] = implode('', $html);
 
     $this ->sendJson($callback);
+  }
+
+
+  protected function _getUserDocument(\LK\User $account, $id){
+
+    $dbq = db_query("SELECT * FROM " . Document::TABLE . " WHERE document_vorlage=0 AND uid=:uid AND id=:id",[
+        ':uid' => $account ->getUid(),
+        ':id' => $id,
+    ]);
+
+    $data = $dbq -> fetchObject();
+    if(!$data){
+      return false;
+    }
+
+    $this -> document = new Document((array)$data);
+    return $this -> document;
   }
 
   /**

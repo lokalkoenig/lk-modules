@@ -64,6 +64,7 @@ class PageManager {
     
     $obj = $this->getModule($data['data_module']);
     if(!$obj){
+      dpm($id);
       return false;
     }
     
@@ -302,7 +303,7 @@ class PageManager {
       $item["id"] = $child -> id;
       $item["title"] = $page["data_class"];
       
-      $return = $this-> getModuleConfiguration($cid, $vku, $item);
+      $return = $this-> getModuleConfiguration($child -> id, $vku, $item);
       if(!$return){
         continue;
       }  
@@ -322,21 +323,9 @@ class PageManager {
    * @param type $items
    * @return boolean
    */
-  function getModuleConfiguration($cid, $vku, $items){
-    $seite = null;
-    
-    $pages = $vku->getPages();
-    foreach($pages as $page):
-      if($page["data_category"] == $cid){
-        $seite = $page;
-      }
-    endforeach;
-    
-    if(!$seite){
-      unset($items[$cid]);
-      return false;
-    }
-    
+  function getModuleConfiguration($id, $vku, $items){
+    $seite = $vku->getPage($id);
+ 
     $document = $this->getModule($seite["data_module"]);
     if(!$document){
       return false;
@@ -392,7 +381,6 @@ class PageManager {
     while($all = $dbq -> fetchObject()){
       
       $cid = $all -> id;
-      
       $structure[$cid] = $default;
       $structure[$cid]["type"] = $all -> category;
       $structure[$all -> id]["cid"] = $all -> id;
@@ -423,7 +411,10 @@ class PageManager {
         $structure[$all -> id]["pages"] = $pages_count;
       }
       elseif(in_array($all -> category, ['other', 'title', 'kampagne'])){
-        $return = $this-> getModuleConfiguration($cid, $vku, $structure[$cid]);
+        
+        $dbq2 = db_query('SELECT id FROM lk_vku_data WHERE data_category=:cat', [':cat' => $cid]);
+        $all2 = $dbq2 -> fetchObject();
+        $return = $this-> getModuleConfiguration($all2 -> id, $vku, $structure[$cid]);
         
         if(!$return){
           unset($structure[$cid]);

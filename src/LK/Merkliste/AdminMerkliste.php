@@ -14,7 +14,7 @@ class AdminMerkliste extends Manager\MerklistenManager {
    * @param type $uid
    */
   function __construct($uid = 0) {
-    parent::__construct($uid);
+    $this->setUserId($uid);
   }
   
   /**

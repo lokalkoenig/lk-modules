@@ -49,7 +49,9 @@ class Document {
   if(isset($data['id'])){
     $this -> id = $data['id'];
     unset($data['id']);
-        
+    $this-> data = $data;
+   }
+   else {
     $this-> data = $data;
    }
       

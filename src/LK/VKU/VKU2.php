@@ -111,7 +111,7 @@ class VKU2 {
                     
           // delete
           if($child["status"] == 2){
-            $pagemanager->removePage($vku, $id, $child);
+            $pagemanager->removePage($vku, $pid2, $child);
             $obj["item-remove"] = $pid2;
             continue;
           } 
@@ -150,7 +150,7 @@ class VKU2 {
       }
       // delete item
       elseif($item["status"] == 2){
-        $vku ->removePage($pid);
+        $pagemanager->removePage($vku, $pid, []);
         continue;
       }
       // nothing but update

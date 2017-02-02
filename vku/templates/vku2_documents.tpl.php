@@ -13,7 +13,7 @@
                             <div id="collapsePrint" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingPrint">
                                 <div class="well well-white"> 
                                     <?php while(list($key, $val) = each($print)): ?>
-                                         <div class="item dropable dropable-print" data-title="<?php print $val; ?>" id="<?php print $key; ?>">
+                                  <div class="item dropable dropable-print" data-title="<?php print strip_tags($val); ?>" id="<?php print $key; ?>">
                                              <?php print $val; ?>
                                          </div>
                                     <?php endwhile; ?>
@@ -37,7 +37,7 @@
                       <div id="collapseOnline" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOnline">
                           <div class="well well-white"> 
                           <?php while(list($key, $val) = each($online)): ?>
-                                <div class="item dropable dropable-online" data-title="<?php print $val; ?>" id="<?php print $key; ?>">
+                                <div class="item dropable dropable-online" data-title="<?php print strip_tags($val); ?>" id="<?php print $key; ?>">
                                     <?php print $val; ?>
                                 </div>
                            <?php endwhile; ?>
@@ -148,7 +148,7 @@
                        <div id="collapseSonstiges" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingSonstiges">
                            <div class="well well-white"> 
                             <?php while(list($key, $val) = each($sonstiges)): ?>
-                                 <div class="item dropable dropable-general" data-title="<?php print $val; ?>" id="<?php print $key; ?>">
+                                 <div class="item dropable dropable-general" data-title="<?php print strip_tags($val); ?>" id="<?php print $key; ?>">
                                      <?php print $val; ?>
                                  </div>
                             <?php endwhile; ?>
