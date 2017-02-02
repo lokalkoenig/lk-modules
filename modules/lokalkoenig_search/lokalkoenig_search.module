@@ -32,7 +32,7 @@ function _lk_get_recomend_count(){
 }
 
 function lokalkoenig_search_init(){
-  
+
   if(in_array(arg(0), array("suche",'suche-grid'))){
       pathtitle('search');
   }
@@ -40,8 +40,35 @@ function lokalkoenig_search_init(){
   if(in_array(arg(2), array('searches'))){
      lk_set_icon('th-large'); 
   }
+
+  $current = \LK\current();
+  if(!$current || $current ->isAgentur()){
+    return ;
+  }
+
+  drupal_add_js(['search' => ['search_path' => url('suche'),'suggest_path' => url('search/callback')]], ['type' => 'setting']);
+  drupal_add_js(drupal_get_path('module', 'lokalkoenig_search') .'/js/search_autocomplete.js', 'file');
+  drupal_add_library('system', 'ui.autocomplete');
 }
 
+/**
+ * HOOK_menu
+ *
+ * @return array
+ */
+function lokalkoenig_search_menu(){
+
+  $items = [];
+  $items['search/callback'] = [
+    'access callback' => 'lk_vku_access',
+    'page callback' => 'lokalkoenig_search_ajax_cb',
+    'file' => 'callbacks/search_terms_suggest.inc',
+    'title' => 'Search Ajax Callback',
+    'type' => MENU_CONTEXT_NONE,
+  ];
+
+  return $items;
+}
 
 /**
  * If the current page is the Search-Page

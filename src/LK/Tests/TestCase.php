@@ -33,6 +33,9 @@ abstract class TestCase {
         $this -> output .= $html;
     }
 
+    function getForm(){
+      return [];
+    }
 
     protected function printLine($title, $value){
         $this -> lines[] = array($title, $value);

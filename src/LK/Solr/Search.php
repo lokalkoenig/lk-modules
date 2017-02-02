@@ -1,6 +1,7 @@
 <?php
 
 namespace LK\Solr;
+use Solarium\Client as SOLRClient;
 
 /**
  * EXAMPLE USAGE
@@ -16,55 +17,53 @@ namespace LK\Solr;
  */
 class Search {
     
-    private $solr = null;
-    private $term = null;
-    
-    /**
-     * Constructor of the class
-     */
-    function __construct() {
-        $this -> solr = apachesolr_drupal_query("select");
-        $this -> solr -> addParam('fq','index_id:default_node_index');
-        $this -> solr -> addParam('fl','item_id');
-    }   
-    
+  private $client = null;
+  private $query = null;
+
+  /**
+   * Constructor of the class
+   */
+  function __construct() {
+
+    // Loads the Server from the DRUPAL-SEARCH-API
+    $server = search_api_server_load(1);
+    $config = [
+      'endpoint' => [
+          'localhost' => [
+              'host' => $server->options['host'],
+              'port' => $server->options['port'],
+              'path' => $server->options['path'],
+          ]
+      ]
+    ];
+
+    $this -> client = new SOLRClient($config);
+    $this -> query = $this -> client->createQuery(\Solarium\Client::QUERY_SELECT);
+    $this ->addParam('fq', 'index_id:default_node_index');
+  }
+
+    private function addParam($key, $val){
+      $this -> query -> addParam($key, $val);
+    }
+
     /**
      * Sets the limit for the Results
      * 
      * @param Int $limit
      */
     public function setLimit($limit){
-        $this -> solr -> addParam('rows', $limit);
+        $this -> addParam('rows', $limit);
     }
-    
-    public static function escape($value, $version = 0) {
-        $replacements = array();
-
-        $specials = array('+', '-', '&&', '||', '!', '(', ')', '{', '}', '[', ']', '^', '"', '~', '*', '?', ':', "\\");
-        // Solr 4.x introduces regular expressions, making the slash also a special
-        // character.
-        if ($version >= 4) {
-          $specials[] = '/';
-        }
-
-        foreach ($specials as $special) {
-          $replacements[$special] = "\\$special";
-        }
-
-    return strtr($value, $replacements);
-    }
-    
-    
+ 
     /**
      * Sets the search term
      * 
      * @param String $term
      */
     public function setSearchTerm($term){
-       //$sanitized = \InterNations\Component\Solr\Util::sanitize($term); 
-        $this -> term = $term;
-        $this -> solr -> addParam('qf','tm_field_kamp_suche^1.0');
-        $this -> solr -> addParam('q','"'. $term .'"');
+      $this -> term = $term;
+      $this -> addParam('qf','tm_field_kamp_suche^1.0');
+      $this -> addParam('q','"'. $term .'"');
     }
     
     /**
@@ -80,7 +79,7 @@ class Search {
         
        if(isset($query['f'])){
           foreach ($query['f'] as $f):
-            $this -> solr -> addParam('fq','im_' . $f);
+            $this -> addParam('fq','im_' . $f);
           endforeach;
       }        
               
@@ -95,7 +94,7 @@ class Search {
      */
     function addTimestamp($timestamp){
        $date = date('c', $timestamp);
-       $this ->solr ->addParam('fq', "ds_created:[". $date ."Z TO NOW]");
+       $this ->addParam('fq', "ds_created:[". $date ."Z TO NOW]");
     }
     
     /**
@@ -104,9 +103,8 @@ class Search {
      * @param type $nid
      */
     function excludeNode($nid){
-       $this ->solr ->addParam('fq', '-item_id:"'. $nid .'"');
+       $this ->addParam('fq', '-item_id:"'. $nid .'"');
     }
-    
     
     /**
      * Gets the number of results
@@ -114,10 +112,48 @@ class Search {
      * @return Int
      */
     public function getCount(){
-        $response = $this->callSOLR();
-        return $response -> numFound;
+      $this -> addParam('fl','item_id');
+      $response = $this->callSOLR();
+      return $response['response']['numFound'];
     }
-    
+
+
+    public function autocompleteKeyword($term){
+
+      $params = [
+        'spellcheck' => 'true',
+        'facet' => 'true',
+        'facet.mincount' => 1,
+        'start' => 0,
+        'facet.prefix' => strtolower($term),
+        'facet.limit' => 10,
+        'spellcheck.q' => '',
+        'qf' => 'tm_field_kamp_suche^40',
+        'facet.field' => 'spell',
+        'wt' => 'json',
+        'json.nl' => 'map',
+        'rows' => 0,
+      ];
+  
+      while(list($key, $val) = each($params)){
+        $this -> addParam($key, $val);
+      }
+
+      $response = $this->callSOLR();
+
+      $results = [];
+      $items = $response['facet_counts']['facet_fields']['spell'];
+      while(list($key, $val) = each($items)){
+        $search = new \LK\Solr\Search();
+        $search ->setSearchTerm($key);
+        $count = $search ->getCount();
+        $results[$key] = $count;
+      }
+
+      // Sort for count
+      arsort($results);
+      return $results;
+    }
     
     /**
      * Gets the number of nodes 
@@ -126,17 +162,17 @@ class Search {
      * @return Array
      */
     public function getNodes(){
-       $response = $this -> callSOLR();  
-       $nodes = array();
-       foreach ($response->docs as $doc):
-         if(isset($doc-> entity_id)){
-           $nodes[] = $doc-> entity_id;
-         }  
-         elseif(isset($doc-> item_id)) {
-           $nodes[] = $doc-> item_id;
-         }
-       endforeach;
-    return $nodes;   
+      $this -> addParam('fl','item_id');
+      
+      // get the Response
+      $response = $this -> callSOLR();
+
+      $nodes = array();
+      foreach ($response['response']['docs'] as $doc):
+        $nodes[] = $doc['item_id'];
+      endforeach;
+
+      return $nodes;
     }
     
     
@@ -149,13 +185,12 @@ class Search {
      */
     public function moreLikeThis($nid, $count = 5){
       
-      $this ->solr ->addParam('mlt.minwl', "3");
-      $this ->solr ->addParam('mlt.fl', "tm_field_kamp_suche");
-      $this ->solr ->addParam('qt', "mlt");
-      $this ->solr ->addParam('mlt.boost', true);
-      $this ->solr ->addParam('q', 'item_id:"'. $nid .'"');
-      
-      $this->setLimit($count);
+      $this -> addParam('mlt.minwl', "3");
+      $this -> addParam('mlt.fl', "tm_field_kamp_suche");
+      $this -> addParam('qt', "mlt");
+      $this -> addParam('mlt.boost', true);
+      $this -> addParam('q', 'item_id:"'. $nid .'"');
+      $this -> setLimit($count);
       
     return $this->getNodes();  
     }
@@ -168,56 +203,34 @@ class Search {
      */
     public function setSort($name, $dir = 'DESC'){
         
-        $sn = $name;
+      $sn = $name;
       
-        $translate = [
-            'field_kamp_beliebtheit' => 'is_field_kamp_beliebtheit',
-            'search_api_relevance' => 'score',
-            'created' => 'ds_created'
-        ];
+      $translate = [
+          'field_kamp_beliebtheit' => 'is_field_kamp_beliebtheit',
+          'search_api_relevance' => 'score',
+          'created' => 'ds_created'
+      ];
         
-        if(isset($translate[$name])):
-            $sn = $translate[$name];            
-        endif;
-        
-        $this -> solr->setSolrsort($sn, $dir);
+      if(isset($translate[$name])):
+        $sn = $translate[$name];
+      endif;
+
+      $this -> query->addSort($sn, $dir);
     }
-    
-   /**
-    * Calls the SOLR
-    * 
-    * @return stdClass
-    */ 
-   protected function callSOLR(){
-      //$query->addFilter('bundle', (article OR page));
-      //$query->removeFilter('bundle');
-      //$query->addParam('fq', "bundle:(article OR page)");
-      //$query->addParam('fq', "field_date:[1970-12-31T23:59:59Z TO NOW]");
-      
-      
-      //utf8_encode($this -> term)
-      $resp = $this -> solr->search(); 
-       
-      /**
-       * SAMPLE Query
-       * webapp=/solr path=/select params={facet.missing=false
-       * &f.im_field_kamp_anlass.facet.limit=50
-       * &facet=true
-       * &sort=score+desc&
-       * facet.mincount=1&
-       * facet.limit=10
-       * &qf=tm_field_kamp_suche^1.0&f.is_field_kamp_preisnivau.facet.limit=50&f.im_field_kamp_format.facet.limit=50&f.im_field_kamp_kommunikationsziel.facet.limit=50&json.nl=map&wt=json&rows=10&fl=item_id,score&start=0&facet.sort=count&q="sommer"&facet.field=im_field_kamp_kommunikationsziel&facet.field=is_field_kamp_preisnivau&facet.field=im_field_kamp_format&facet.field=im_field_kamp_anlass&facet.field=im_field_kamp_themenbereiche&f.im_field_kamp_themenbereiche.facet.limit=50&fq=*:*+AND+-(is_author:"11")&fq=index_id:default_node_index} hits=32 status=0 QTime=13
-       */
-      
-      return $resp -> response;
+
+    /**
+     * Make a call to SOLR
+     *
+     * @return array
+     */
+  private function callSOLR(){
+    $response = $this -> client-> execute($this -> query);
+    $data = $response -> getData();
+
+    if(isset($_GET['solr_debug'])){
+      dpm($data);
     }
+
+    return $data;
+  }
 }
-
-/**
-webapp=/solr 
- * path=/select params={mlt.minwl=3&mlt.fl=taxonomy_names&mlt.mintf=1&
- * mlt.maxwl=15&mlt.maxqt=20&json.nl=map&wt=json&rows=4&mlt.mindf=1&
- * fl=entity_id,entity_type,label,path,url&start=0&
- * q=id:9js266/node/301&qt=mlt&fq=bundle:(kampagne)} status=0 QTime=60
-
-*/

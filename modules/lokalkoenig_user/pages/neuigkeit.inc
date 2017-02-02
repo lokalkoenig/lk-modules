@@ -447,8 +447,7 @@ function neuigkeit_form_alter(&$form, &$form_state){
   $form['#submit'][]  = '_neuigkeit_form_alter_submit';
   $form['#validate'][]  = '_neuigkeit_form_alter_validate';
   
-  //$form['field_suchwort']['#attributes']['class'][] = 'apachesolr-autocomplete';
-  $form['field_suchwort']['und'][0]['value']['#attributes']['class'][] = 'apachesolr-autocomplete unprocessed';
+  $form['field_suchwort']['und'][0]['value']['#attributes']['class'][] = 'lk-autocomplete-text';
   //dpm($form);
   
   $form['field_message_option']['#access']  = false;

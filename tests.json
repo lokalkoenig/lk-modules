@@ -9,6 +9,7 @@
        "LK\\Alert\\Test\\AlertTest": "SOLR: Alert Test",
        "LK\\Solr\\Tests\\MLTTest": "SOLR: Check More like this",
        "LK\\Stats\\Tests\\Actions": "ACTIONS",
-       "LK\\Admin\\Tests\\UserAccess": "User Access"
+       "LK\\Admin\\Tests\\UserAccess": "User Access",
+       "LK\\Solr\\Tests\\Autocomplete": "Autocomplete SOLR Test"
     }]  
 }
