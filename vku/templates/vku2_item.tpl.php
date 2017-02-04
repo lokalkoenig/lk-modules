@@ -41,6 +41,10 @@
                         <?php if($item["preview"]): ?>    
                             <li class="action-preview" data-sid="<?php print $sid; ?>" data-preview-title="<?php print strip_tags($item["title"]); ?>" data-preview-url="<?php print url("vku/". $vku -> getId() ."/preview/" . $item["id"]); ?>"><a href="#" class="btn btn-default btn-sm" data-action="preview">Vorschau</a></li>
                         <?php endif; ?>
+
+                        <?php if($item['edit-handler']): ?>
+                         <li class="action-edit"><?= $item['edit-handler']; ?></li>
+                        <?php endif; ?>
                     </ul>
                 </div>
     

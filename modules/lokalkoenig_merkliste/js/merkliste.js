@@ -1,4 +1,9 @@
 function track(eventCategory, eventAction, eventLabel){
+
+  if(typeof eventLabel === 'undefined'){
+    eventLabel = '';
+  }
+
   if(typeof ga === 'undefined'){
     console.log('Track ['+ eventCategory +'/' + eventAction +' ('+ eventLabel +')]');
   }

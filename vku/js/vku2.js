@@ -484,7 +484,7 @@ var vku_base_dropables_save = function(drop, element){
     
 var vku_base_dropables = function(){
     
-   if(jQuery(".vku-items .drop-zone").droppable("instance") != 'undefined'){
+   if(jQuery(".vku-items .drop-zone").data("ui-draggable")){
       jQuery(".vku-items .drop-zone").droppable( "destroy" );
       jQuery(".vku-items .drop-zone-print").droppable( "destroy" );
       jQuery(".vku-items .drop-zone-online").droppable( "destroy" );
@@ -712,7 +712,12 @@ var vku_general_listener = function(){
      
      jQuery( ".vku-items" ).on( "click", ".btn-actions a", function() {
          state = jQuery(this).attr('data-action');
-         var sid = jQuery(this).parent().parent().attr('data-sid');
+         
+       if(!state){
+         return ;
+       }
+
+       var sid = jQuery(this).parent().parent().attr('data-sid');
          
          
          

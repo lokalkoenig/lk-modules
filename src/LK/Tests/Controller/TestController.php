@@ -22,6 +22,8 @@ class TestController {
     if(isset($_GET['case']) AND isset($array['cases'][0][$_GET['case']])):
       $case = $_GET['case'];
       $test = new $case($_GET);
+      $GLOBALS['LK_LOG'] = FALSE;
+
       $rendered .= $test -> run();
       
       if(method_exists($test, 'getForm')){
@@ -29,6 +31,16 @@ class TestController {
       }
       
       lk_set_subtitle($array['cases'][0][$_GET['case']]);
+
+      if(isset($GLOBALS['LK_LOG_RUN'])){
+        drupal_set_message('<strong>Logbuch</strong>', 'warning');
+
+        foreach($GLOBALS['LK_LOG_RUN'] as $message){
+          drupal_set_message($message, 'warning');
+        }
+
+        dpm($GLOBALS['LK_LOG_RUN']);
+      }
     endif;
 
     

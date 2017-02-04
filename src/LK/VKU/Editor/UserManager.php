@@ -19,8 +19,18 @@ class UserManager extends Manager {
 
   function __construct(\LK\User $account) {
     parent::__construct();
-    
+
     $this -> setMaAccount($account);
+    $this->setDocumentMode('user');
+  }
+
+  /**
+   * Gets the Editor Account
+   *
+   * @return \LK\User
+   */
+  function getEditorAccount(){
+    return $this->getMaAccount();
   }
 
   /**
@@ -65,6 +75,17 @@ class UserManager extends Manager {
     return false;
   }
 
+  function loadEditDocument($id){
+    $document = $this->getDocumentMitarbeiter($id);
+
+    if($document){
+      $this->sendDocument($document, ['verlagsmodus' => 0]);
+    }
+   
+    $this->sendError("Das Dokument konnte nicht geladen werden. [". $id ."]");
+  }
+
+
   /**
    * Clones a Document for individual usage
    *
@@ -89,7 +110,7 @@ class UserManager extends Manager {
    * @return \LK\VKU\Editor\Document
    */
   public function getDocumentMitarbeiter($id){
-    return $this -> _getUserDocument($this->getMaAccount(), $id);
+    return $this -> _getUserDocument($this->getMaAccount(), $id, 0);
   }
 
   public function getDocument($id){
@@ -106,8 +127,7 @@ class UserManager extends Manager {
     $array = [];
 
     foreach($documents as $document){
-      $array['vku_documents-' . $document['id']] = $document['document_title'] . '<br />'
-              . '<small><span class="prodid"><span class="glyphicon glyphicon-pencil"></span>&nbsp;&nbsp;<span class="hidden">(</span>Editierbar<span class="hidden">es Dokument)</span></span></small>';
+      $array['vku_documents-' . $document['id']] = '<span class="prodid" title="Dieses Dokument können Sie bearbeiten"><span class="glyphicon glyphicon-pencil"></span></span>&nbsp;&nbsp;' . $document['document_title'];
     }
 
     return $array;

@@ -30,17 +30,6 @@ class Autocomplete extends TestCase {
       '#default_value' => $this->search_param,
     ];
 
-    $checked = FALSE;
-    if(isset($_GET['solr_debug']) && $_GET['solr_debug']){
-      $checked = TRUE;
-    }
-
-    $form['solr_debug'] = [
-      '#title' => 'Debug SOLR',
-      '#type' => 'checkbox',
-      '#default_value' => $checked,
-    ];
-
     return $form;
   }
 
@@ -51,10 +40,11 @@ class Autocomplete extends TestCase {
     $this->printLine('Search: ' . $this->search_param, 'See Output');
 
     $search = new \LK\Solr\Search();
+    $search ->enableDebug();
     $response = $search ->autocompleteKeyword($this->search_param);
 
     while(list($key, $val) = each($response)){
-      $this->printLine($val['keyword'], $val['count']);
+      $this->printLine($key, $val);
     }    
   }
 }

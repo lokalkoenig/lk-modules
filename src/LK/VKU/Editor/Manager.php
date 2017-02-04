@@ -13,10 +13,31 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
   var $account;
   var $LOG_CATEGORY = 'VKU Editor Verlag';
   var $document;
+  var $document_mode = 'verlag';
 
   function __construct() {
     parent::__construct(1);
+    
+    EditorLoader::enable();
     $this->addPreset('OnlineMediumCollection', '\\LK\\VKU\\Editor\\Presets\\OnlineMediumCollection');
+  }
+
+  /**
+   * Sets the Editor-Flag
+   *
+   * @param string $mode
+   */
+  function setDocumentMode($mode){
+    $this->document_mode = $mode;
+  }
+
+  /**
+   * Gets the Account for the Editor-Template
+   *
+   * @return \LK\User
+   */
+  function getEditorAccount(){
+    return $this ->getAccount();
   }
 
   /**
@@ -27,13 +48,14 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
    */
   function getEditorTemplate($variables = []){
 
-    $verlag = $this->getAccount();
+    $account = $this->getEditorAccount();
 
-    $variables = [
-      'pxeditid' => 'verlag-' . $verlag->getUid() . '-' . time()
+    $variables += [
+      'pxeditid' => $this-> document_mode . '-' . $account->getUid() . '-' . time()
     ];
 
-    $defaults = \LK\VKU\VKUManager::getVKU_RenderSettings($verlag);
+    $defaults = \LK\VKU\VKUManager::getVKU_RenderSettings($account);
+
     $style = 'ppt_logos';
 
     $variables['footer_logos'] = [];
@@ -127,20 +149,14 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
   }
 
   /**
-   * Loads an Document as Verlag
+   * Sends back a Document to the JS
    *
-   * @param \LK\Verlag $verlag
-   * @param int $id
+   * @param Document $document
+   * @param array $settings
    */
-  function loadDocumentVerlag(\LK\Verlag $verlag, $id){
-
-    $document = $this->getDocumentVerlag($verlag, $id);
-    if(!$document){
-      $this->sendError('Das Dokument wurde nicht mehr gefunden.');
-    }
+  function sendDocument(\LK\VKU\Editor\Document $document, $settings = []){
 
     $preset = $this->loadPreset($document -> getPreset());
-
     $values = $callback['values'] = $preset -> getDefaultValues();
     $callback['options'] = $preset -> getOptions();
 
@@ -163,6 +179,10 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     $callback['values']-> content = $document -> getContent();
     $callback['options']['sample'] = $values -> sample;
 
+    while(list($key, $val) = each($settings)){
+      $callback['options'][$key] = $val;
+    }
+    
     $html = array();
     $layouts = $preset -> getAvailableLayouts();
 
@@ -177,14 +197,31 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     $this ->sendJson($callback);
   }
 
+  /**
+   * Loads an Document as Verlag
+   *
+   * @param \LK\Verlag $verlag
+   * @param int $id
+   */
+  function loadDocumentVerlag(\LK\Verlag $verlag, $id){
 
-  protected function _getUserDocument(\LK\User $account, $id){
+    $document = $this->getDocumentVerlag($verlag, $id);
+    if(!$document){
+      $this->sendError('Das Dokument wurde nicht mehr gefunden.');
+    }
 
-    $dbq = db_query("SELECT * FROM " . Document::TABLE . " WHERE document_vorlage=0 AND uid=:uid AND id=:id",[
+    $this ->sendDocument($document);
+  }
+
+
+  protected function _getUserDocument(\LK\User $account, $id, $vorlage = 1){
+    
+    $dbq = db_query("SELECT * FROM " . Document::TABLE . " WHERE document_vorlage=:vorlage AND uid=:uid AND id=:id",[
         ':uid' => $account ->getUid(),
         ':id' => $id,
+        ':vorlage' => $vorlage,
     ]);
-
+   
     $data = $dbq -> fetchObject();
     if(!$data){
       return false;

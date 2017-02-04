@@ -1,20 +1,12 @@
 <?php
 
-
-    // nid
-    // vku
-    // nid
-    // message
-    //     
-    // verlag
-    // team
-    // lizenz
-    // 
-    // request_time
-    // category   | debug+cron |verlag|kampagne
-    // context [user, verlag, merkliste, url]
-
 namespace LK\Log;
+
+if(!isset($GLOBALS['LK_LOG'])){
+  $GLOBALS['LK_LOG'] = true;
+}
+
+$GLOBALS['LK_LOG_RUN'] = [];
 
 /**
  * Description of Log
@@ -62,12 +54,19 @@ abstract class LogInterface {
     }
     
     final function save(){
-        // Do whatever save
-        $data = $this -> data;
-        $data["context"] = serialize($this -> context);
-        db_insert(LogInterface::DB_TABLE)->fields($data)->execute(); 
-    
-    return $data['message'];    
+
+      // Do whatever save
+      $data = $this -> data;
+      $data["context"] = serialize($this -> context);
+
+      if($GLOBALS['LK_LOG']){
+        db_insert(LogInterface::DB_TABLE)->fields($data)->execute();
+      }
+      else {
+        $GLOBALS['LK_LOG_RUN'][] = $data['message'];
+      }
+
+      return $data['message'];
     }
     
     final function setVku(\VKUCreator $vku){

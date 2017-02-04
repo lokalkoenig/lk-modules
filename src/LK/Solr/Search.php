@@ -19,6 +19,7 @@ class Search {
     
   private $client = null;
   private $query = null;
+  private $debug = FALSE;
 
   /**
    * Constructor of the class
@@ -40,6 +41,13 @@ class Search {
     $this -> client = new SOLRClient($config);
     $this -> query = $this -> client->createQuery(\Solarium\Client::QUERY_SELECT);
     $this ->addParam('fq', 'index_id:default_node_index');
+  }
+
+  /**
+   * Enables Debug
+   */
+  function enableDebug(){
+    $this->debug=TRUE;
   }
 
     private function addParam($key, $val){
@@ -227,10 +235,10 @@ class Search {
     $response = $this -> client-> execute($this -> query);
     $data = $response -> getData();
 
-    if(isset($_GET['solr_debug'])){
+    if($this->debug){
       dpm($data);
     }
-
+   
     return $data;
   }
 }

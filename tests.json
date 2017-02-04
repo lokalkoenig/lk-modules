@@ -5,11 +5,11 @@
        "LK\\Tests\\PPTTest": "VKU Test PPT",
        "LK\\Kampagne\\Tests\\GIFExtractorTest": "GIF Extractor Test",
        "LK\\Admin\\Tests\\UserCheckup": "Check all Users",
-       "LK\\Tests\\TestSolr": "SOLR: Solr Search Test",
+        "LK\\Stats\\Tests\\Actions": "ACTIONS",
+       "LK\\Admin\\Tests\\UserAccess": "User Access",
+       "LK\\Solr\\Tests\\TestSolr": "SOLR: Solr Search Test (Date)",
        "LK\\Alert\\Test\\AlertTest": "SOLR: Alert Test",
        "LK\\Solr\\Tests\\MLTTest": "SOLR: Check More like this",
-       "LK\\Stats\\Tests\\Actions": "ACTIONS",
-       "LK\\Admin\\Tests\\UserAccess": "User Access",
-       "LK\\Solr\\Tests\\Autocomplete": "Autocomplete SOLR Test"
+       "LK\\Solr\\Tests\\Autocomplete": "SOLR: Autocomplete Test"
     }]  
 }

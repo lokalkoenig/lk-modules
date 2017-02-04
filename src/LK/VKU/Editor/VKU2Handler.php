@@ -26,6 +26,7 @@ class VKU2Handler extends \LK\VKU\PageInterface {
     $item["preview"] = true;
     $item["orig-id"] = 'vku_documents-' . $page["data_class"];
     $item["pages"] = 1;
+    $item['edit-handler'] = '<a href="#" class="btn-document-edit" data-edit-id="' . $page["data_entity_id"] . '"><span class="prodid"><span class="glyphicon glyphicon-pencil" style="top: 1px;"></span>&nbsp;&nbsp;Bearbeiten</span></a>';
 
     $manager = $this->getDocumentHandler();
     $document = $manager->getDocument($page["data_class"]);

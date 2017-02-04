@@ -44,8 +44,9 @@ return $items;
  * @param array $page
  */
 function vku_editor_page_alter(&$page) {
-  
-  if(arg(2) == 'vku_editor'){
+
+  // Verlagsmodus
+  if(arg(2) == 'vku_editor' && \LK\VKU\Editor\EditorLoader::isLoaded()){
     $manager = new \LK\VKU\Editor\Manager();
     $account = \LK\get_user(arg(1));
     
@@ -57,8 +58,19 @@ function vku_editor_page_alter(&$page) {
         '#weight' => -10,
         '#markup' => $html
       );
-     } 
-    }
+    } 
+  }
+
+  // MA-Modus
+  if(arg(0) == 'vku' && \LK\VKU\Editor\EditorLoader::isLoaded()){
+     $manager = new \LK\VKU\Editor\UserManager(\LK\current());
+
+      $html = $manager-> getEditorTemplate();
+      $page['page_bottom']['vku_editor'] = array(
+        '#weight' => -10,
+        '#markup' => $html
+      );
+  }
 }
 
 /**

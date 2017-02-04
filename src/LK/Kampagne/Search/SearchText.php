@@ -7,7 +7,7 @@ namespace LK\Kampagne\Search;
  *
  * @author Maikito
  */
-class SearchText extends LK\Kampagne\Kampagne {
+class SearchText extends \LK\Kampagne\Kampagne {
 
   function __construct(\stdClass $node) {
     parent::__construct($node);
@@ -20,7 +20,7 @@ class SearchText extends LK\Kampagne\Kampagne {
   */
   function getSearchString(){
 
-    $node = $this -> node;
+    $node = $this ->getNode();
     $content = array();
     $content[] = $node -> title;
     $content[] = $node -> field_sid['und'][0]['value'];

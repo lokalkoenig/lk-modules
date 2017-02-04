@@ -20,6 +20,7 @@ class PageManager {
    'deactivate' => false,
    'single_toggle' => false,
    'id' => 0,
+   'edit-handler' => '',
    'orig-id' => '',
    'pages' => 1,
    'kampagne' => false,

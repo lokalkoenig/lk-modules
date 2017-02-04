@@ -24,12 +24,10 @@ $pdf->SetFont(VKU_FONT,'B',45);
 
 $bild = null;
 
-if($prof['main']->field_profile_bild['und'][0]['uri']){
+if(isset($prof['main']->field_profile_bild['und'][0]['uri']) && $prof['main']->field_profile_bild['und'][0]['uri']){
    $url = ($prof['main']->field_profile_bild['und'][0]['uri']);
    $bild = image_style_url('image-framed', $url); 
 }   
-   
-
 
 $layout = $pdf -> verlag_contact_layout;
 

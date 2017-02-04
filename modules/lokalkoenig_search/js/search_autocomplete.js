@@ -31,22 +31,20 @@
         }
       });
 
-      if( $( ".lk-autocomplete-text").length){
-        $( ".lk-autocomplete-text").data("ui-autocomplete")._renderItem = function (ul, item) {
-         return $("<li></li>")
-             .data("item.autocomplete", item)
-             .append("<a>" + item.label + "</a>")
-             .appendTo(ul);
-         };
-      }
-      
-
-
-     $( ".lk-autocomplete-search").autocomplete({
+    if( $( ".lk-autocomplete-text").length){
+      $( ".lk-autocomplete-text").data("ui-autocomplete")._renderItem = function (ul, item) {
+       return $("<li></li>")
+           .data("item.autocomplete", item)
+           .append("<a>" + item.label + "</a>")
+           .appendTo(ul);
+       };
+    }
+ 
+    $( ".lk-autocomplete-search").autocomplete({
       delay: 500,
       minLength: 3,
       source: function( request, response ) {
-        track('suche', 'keyword', request.term);
+        track('ac-suche', 'keyword', request.term);
         var keyword = request.term;
 
         $.ajax({
@@ -58,12 +56,11 @@
           success: function( data ) {
             if(data.length === 0){
               // @TODO maybe later
-              track('suche', 'no-results', keyword);
+              track('ac-suche', 'no-results', keyword);
               return ;
             }
             
-            track('suche', 'show-results', keyword);
-
+            track('ac-suche', 'show-results', keyword);
             $('.search-info-text').hide();
             $('.search-results ul li').remove();
 
@@ -80,6 +77,7 @@
      // Search-Bar
     $("#searchbegin:not(.open)").focus(function(){
       $('#searchbegin').addClass('open');
+      track('ac-suche', 'open');
 
       $("#searchbegin").animate({
             width: "+=150"}, 300, function() {
@@ -87,7 +85,6 @@
       });
     });
   });
-
 }( jQuery ));
 
 

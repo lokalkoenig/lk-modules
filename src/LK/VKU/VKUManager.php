@@ -105,12 +105,13 @@ class VKUManager {
   * @return array
   */
   public static function getVKU_RenderSettings(\LK\User $account){
-    
+
     if($account ->isModerator()){
       $verlag = \LK\get_user(LK_TEST_VERLAG_UID);
     }
-    
-    $verlag = $account ->getVerlagObject();
+    else {
+      $verlag = $account ->getVerlagObject();
+    }
     
     $array = array(
         'font' => 'lato',
