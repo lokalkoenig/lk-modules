@@ -1,35 +1,5 @@
 <?php
 
-
-// Empfehlung Löschen
-function _lokalkoenig_send_mid_delete($mid){
-global $user;
-
-  $error = NULL;
-
-  //$mid = (int)$mid;
-  $dbq = db_query("SELECT * FROM lk_recommendation WHERE uid='". $user -> uid ."' AND id='". $mid ."'");
-  $all = $dbq -> fetchObject();
-  
-  if(!$all) {
-      $error = 'Ein Fehler ist aufgetreten. Die Empfehlung konnte nicht gelöscht werden.';
-  }
-  
-  db_query("DELETE FROM lk_recommendation WHERE uid='". $user -> uid ."' AND id='". $mid ."'"); 
-  
-  if($error){
-    drupal_set_message($error, 'error');
-  }
-  else {
-    drupal_set_message('Die Empfehlung wurde gelöscht.');
-  }
-  
-  drupal_goto("user/" . $user -> uid . "/dashboard");
-  drupal_exit();
-}
-
-
-
 function _lokalkoenig_node_send_send(){
   
   $return["error"] = 0;

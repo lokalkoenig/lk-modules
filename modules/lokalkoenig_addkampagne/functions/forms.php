@@ -423,8 +423,8 @@ function _form_edit_tax_branchen(&$form){
  
   
  
-  $form['field_kamp_themenbereiche']['und']['#default_value'] = implode(";", $returns);
-  $form['field_kamp_anlass']['und']['#default_value'] = implode(";", explode(",", $form['field_kamp_anlass']['und']['#default_value']));
+  $form['field_kamp_themenbereiche']['und']['#default_value'] = implode(",", $returns);
+  $form['field_kamp_anlass']['und']['#default_value'] = implode(",", explode(",", $form['field_kamp_anlass']['und']['#default_value']));
 }
 
 

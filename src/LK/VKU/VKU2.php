@@ -75,7 +75,7 @@ class VKU2 {
       $obj["vku_title"] = 'Ohne Titel';
     }
     
-    $this->sendJSON($obj);
+    //$this->sendJSON($obj);
   }
   
   public function saveVKUPages(){

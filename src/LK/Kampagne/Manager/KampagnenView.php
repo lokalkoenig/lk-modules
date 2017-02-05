@@ -60,6 +60,11 @@ class KampagnenView {
 
     if(!$node -> status || $account -> isAgentur()){
       $node -> merkliste_can = $node -> vku_can = false;
+
+      if(!$account ->isAgentur()){
+        $this ->setSperreInfo("Die Kampagne ist im Moment nicht online.");
+      }
+
       return ;
     }
     elseif(!$kampagne->canPurchase()){

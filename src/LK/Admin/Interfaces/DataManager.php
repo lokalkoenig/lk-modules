@@ -7,14 +7,35 @@ namespace LK\Admin\Interfaces;
  *
  * @author Maikito
  */
-interface DataManager {
+abstract class DataManager {
+
+   var $manager = null;
+
+  /**
+   * Constructor
+   *
+   * @param \LK\Admin\Data\DataManager $manager
+   */
+  final function __construct(\LK\Admin\Data\DataManager $manager) {
+    $this->manager = $manager;
+  }
+
+  /**
+   * Get the Data-Manager
+   *
+   * @return \LK\Admin\Data\DataManager
+   */
+  final function getManager(){
+    return $this->manager;
+  }
+
 
   /**
    * Removes the User-Data
    * 
    * @param \LK\User $acccount
    */
-  function removeUserData(\LK\User $acccount);
+  abstract function removeUserData(\LK\User $acccount);
 
   /**
    * Get User-Data
@@ -22,7 +43,7 @@ interface DataManager {
    * @param \LK\User $acccount
    * @return int
    */
-  function getUserDataCount(\LK\User $acccount);
+  abstract function getUserDataCount(\LK\User $acccount);
 
   /**
    * Get the count of a Node
@@ -30,12 +51,12 @@ interface DataManager {
    * @param \LK\Kampagne\Kampagne $kampagne
    * @return int
    */
-  function getKampagnenCount(\LK\Kampagne\Kampagne $kampagne);
+  abstract function getKampagnenCount(\LK\Kampagne\Kampagne $kampagne);
 
   /**
    * Removes the Data
    *
    * @param \LK\Kampagne\Kampagne $kampagne
    */
-  function removeKampagnenData(\LK\Kampagne\Kampagne $kampagne);
+  abstract function removeKampagnenData(\LK\Kampagne\Kampagne $kampagne);
 }

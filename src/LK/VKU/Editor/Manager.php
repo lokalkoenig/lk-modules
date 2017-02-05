@@ -428,9 +428,12 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
    *
    * @param type $message
    */
-  function sendSuccess($message){
+  function sendSuccess($message, $additional = []){
     $this->logNotice($message);
-    $this ->sendJson(['message' => $message]);
+    
+    $additional['message'] = $message;
+    $this ->sendJson($additional);
+    exit;
   }
 
   function getCategoriesAvailable(\LK\User $account){

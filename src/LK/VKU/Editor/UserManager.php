@@ -75,11 +75,38 @@ class UserManager extends Manager {
     return false;
   }
 
+
+  /**
+   * Saves the Document
+   *
+   * @param array $data
+   * @return Document
+   */
+  function saveMitarbeiterDocument($data){
+
+    $document = $this->getDocumentMitarbeiter($data['id']);
+    if(!$document){
+      $this->sendError("Fehler beim Speichern");
+    }
+
+    $document ->setLayout($data['layout']);
+    $document ->setContent($data['content']);
+    $document ->setFootnote($data['footnote']);
+    $document ->setPageTitle($data['page_title']);
+    $document ->save();
+  
+    $this->sendSuccess("Das Dokument <em>" . $data['page_title'] . "</em> wurde erfolgreich gespeichert.", ['page_title' => $data['page_title']]);
+  }
+
+
+
   function loadEditDocument($id){
     $document = $this->getDocumentMitarbeiter($id);
 
     if($document){
-      $this->sendDocument($document, ['verlagsmodus' => 0]);
+      // "change_layout": 1,
+      //  "change_input": 1,
+      $this->sendDocument($document, ['verlagsmodus' => 0, 'change_layout' => 0, 'change_input' => 0]);
     }
    
     $this->sendError("Das Dokument konnte nicht geladen werden. [". $id ."]");

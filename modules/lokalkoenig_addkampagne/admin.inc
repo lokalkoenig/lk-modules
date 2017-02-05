@@ -182,11 +182,12 @@ global $user;
     if(isset($possibilities['published']["active"])){
     
         $form["intmark_stats"]['#weight'] = -20;
-        $form["intmark_stats"]['#markup'] = '<div class="well"><big>Hinweis:</big><br />
+        $form["intmark_stats"]['#markup'] = '<div class="well well-white"><h4>Hinweis:</h4>
         
-        Diese Kampagne ist online. Sofern die Kampagne offline genommen wird, werden auch bestimmte verknüften Daten gelöscht. Kampagnen mit Lizenzen sollten nicht verändert werden, die Lizenzen bestehen aber weiter.
+        <p>Diese Kampagne ist online. Sofern die Kampagne offline genommen wird, werden auch bestimmte verknüften Daten gelöscht.
+        Kampagnen mit Lizenzen sollten nicht verändert werden, die Lizenzen bestehen aber weiter.</p>
         
-        '. _show_remove_stats($node -> nid) .'
+        '. _show_remove_stats($node) .'
         
         </div><hr />' ;
         
@@ -273,15 +274,22 @@ global $user;
 }
 
 
-function _show_remove_stats($nid){
- 
+function _show_remove_stats($node){
+
+  $manager = new \LK\Admin\Data\DataManager();
+  $kampagne = new \LK\Kampagne\Kampagne($node);
+  $stats = $manager -> getKampagneStats($kampagne);
+
+  return \LK\UI\DataList::render($stats);
+
+  /**
  $table = array();
  $dbq = db_query("SELECT count(*) as count FROM lk_lastviewed WHERE nid='". $nid ."'");
  $all = $dbq -> fetchObject();
  
  $table["Kampagnen History"] = $all -> count;
  
- $manager = new \LK\Merkliste\AdminMerkliste($user -> uid);
+ $manager = new \LK\Merkliste\AdminMerkliste(0);
  $table["Merkliste"] = $manager->getGeneralKampagnenCount($nid);
   
  $vku_count = \LK\VKU\VKUManager::getNidInVKUCount($node -> nid);
@@ -298,6 +306,5 @@ function _show_remove_stats($nid){
  }
  
  $return .= '</ul>';
- 
-return $return; 
+return $return; */
 }

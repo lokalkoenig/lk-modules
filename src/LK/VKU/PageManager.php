@@ -86,7 +86,7 @@ class PageManager {
   }
   
   
-  function addNewPage(\VKUCreator $vku, $cid, $module, $id, $children){
+  function addNewPage(\VKUCreator $vku, $cid, $module, $id, $children = []){
     
     $insert = [];
     $insert['vku_id'] = $vku ->getId();
@@ -98,6 +98,7 @@ class PageManager {
     $insert['data_delta'] = 0;
     $insert['data_active'] = 1;
     $insert['data_category'] = $cid;
+
     $obj = $this->getModule($module);
     
     if(!$obj){

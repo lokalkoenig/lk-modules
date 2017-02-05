@@ -1,47 +1,41 @@
 <?php
 
-namespace LK\Merkliste\Manager;
+namespace LK\Merkliste\History;
 use LK\Admin\Interfaces\DataManager;
-use LK\Merkliste\AdminMerkliste;
-
 /**
- * Description of UserManager
+ * Description of Manager
  *
  * @author Maikito
  */
-class UserManager implements DataManager {
-  
+class HistoryDataManager extends DataManager {
+
   function removeUserData(\LK\User $acccount){
-    
-    $merkliste = new AdminMerkliste($acccount ->getUid());
-    $terms = $merkliste ->getTerms();
-    
-    while(list($key, $val) = each($terms)){
-      $merkliste ->removeMerkliste($key);
-    }
-    
-    return count($merkliste);  
+    $num_deleted = db_delete('lk_lastviewed')
+      ->condition('uid', $acccount ->getUid())
+      ->execute();
+
+    return ['History' => $num_deleted];
   }
   
   function getUserDataCount(\LK\User $acccount){
-    $merkliste = new AdminMerkliste($acccount ->getUid());
-    return $merkliste ->getTermsCount();
+    $dbq = db_query('SELECT count(*) as count FROM lk_lastviewed WHERE uid=:uid', [':uid' => $acccount ->getUid()]);
+    $all = $dbq -> fetchObject();
+
+    return ['History' => $all -> count];
   }
   
   function getKampagnenCount(\LK\Kampagne\Kampagne $kampagne){
-
-
-
     $dbq = db_query('SELECT count(*) as count FROM lk_lastviewed WHERE nid=:nid', [':nid' => $kampagne ->getNid()]);
     $all = $dbq -> fetchObject();
-    return $all -> count;
+
+    return ['History' => $all -> count];
   }
   
   function removeKampagnenData(\LK\Kampagne\Kampagne $kampagne){
     $num_deleted = db_delete('lk_lastviewed')
       ->condition('nid', $kampagne ->getNid())
       ->execute();
-    return $num_deleted;  
-  }
 
+    return ['History' => $num_deleted];
+  }
 }

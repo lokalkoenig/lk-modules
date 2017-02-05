@@ -51,6 +51,8 @@ class Vorlage {
           $copy ->removeCategory($item);
       }  
 
+      $pagemanager = new \LK\VKU\PageManager();
+
       $entries = $vorlage ->getCategoryByName('print');
       $vorlage_catgegory_print = $vorlage -> getCategory($entries[0]);
 
@@ -73,10 +75,11 @@ class Vorlage {
               $cid = $category_online;
           }    
           else {
-              // we add an new Category and the Page
-              $cid = $copy -> setDefaultCategory($catgegory -> category, $catgegory -> sort_delta);
+            // we add an new Category and the Page
+            $cid = $copy -> setDefaultCategory($catgegory -> category, $catgegory -> sort_delta);
           }
-
+        
+          // Allow Modules to influence the result
           $serialized = null;
           if($page["data_serialized"]){
             $serialized = unserialize($page["data_serialized"]);

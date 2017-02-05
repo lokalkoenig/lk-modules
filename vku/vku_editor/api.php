@@ -37,7 +37,13 @@ function vku_editor_api_cb(){
   if($action === 'load-document' && isset($_REQUEST['id'])){
     $manager ->loadEditDocument($_REQUEST['id']);
   }
-
+  
+  // All
+  if($action && $action === 'save-document'){
+    $data = $_POST;
+    $manager -> saveMitarbeiterDocument($data);
+  }
+ 
   // save Document
   // Preset-Action
  }

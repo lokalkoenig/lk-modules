@@ -73,6 +73,11 @@ class Kampagne {
    * @return boolean
    */
   function canPurchase(){
+   
+    if(!$this -> node -> status){
+      return false;
+    }
+
     return (bool)$this -> node -> plzaccess;    
   }
 

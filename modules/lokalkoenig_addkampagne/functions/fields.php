@@ -152,14 +152,8 @@ function computed_field_field_kamp_pdf_pages_compute(&$entity_field, $entity_typ
 global $totalpages;
     
   $nid = $entity -> nid;
-  //$entity_field[0]["value"] = '0';
-  
-  
-  if($entity -> status == 0) {
-     //$entity_field[0]["value"] = '0'; 
-  }
-  else {
-    
+ 
+  if($entity -> status == 1) {
     $totalpages = 0;
     $node = node_load($nid);
     
@@ -170,22 +164,17 @@ global $totalpages;
        } 
     }
     
-    $pdf = \LK\PDF\PDF_Loader::load();
-    $module_dir = 'sites/all/modules/lokalkoenig/vku/pages/';
-   
-    require($module_dir.'b-medias.php');
-    
+    $pdf = \LK\PDF\PDF_Loader::renderTestNode($node, false);
+    $totalpages = $pdf -> PageNo();
+
     if($totalpages){
-        $entity_field[0]["value"] = $totalpages;
+      $entity_field[0]["value"] = $totalpages;
     }
   }
 }
 
 
 function computed_field_field_medium_file_type_compute(&$entity_field, $entity_type, $entity, $field, $instance, $langcode, $items){
- 
- 
-  
  $value = $entity->field_medium_source['und'][0]['fid'];
  $file = file_load($value);
  

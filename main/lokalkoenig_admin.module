@@ -52,7 +52,7 @@ function lokalkoenig_admin_form_alter(&$form, &$form_state, $form_id){
     $form["entities"]['#access'] = false; 
   }
   
-  if(arg(0) == "kampagnen" AND $form_id == 'views_exposed_form' AND isset($form["field_kamp_status_value"])){
+  if(arg(0) == "backoffice" && arg(1) === 'kampagnen' && $form_id == 'views_exposed_form' && isset($form["field_kamp_status_value"])){
     unset($form["field_kamp_status_value"]["#size"]);
     $form["field_kamp_status_value"]["#type"] = 'select';
     $form["field_kamp_status_value"]["#options"] = [

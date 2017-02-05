@@ -323,15 +323,6 @@ function lokalkoenig_user_dashboard_menu(){
       'page callback' => 'notify_support_submit',
       'title' => 'Support',
       'type' => MENU_CONTEXT_NONE);
-   
-   $items['msg/delete/%'] = array(
-      'access callback' => 'lk_vku_access',
-      'file' => 'pages/send.inc',
-      'page arguments' => array(2),
-      'page callback' => '_lokalkoenig_send_mid_delete',
-      'title' => 'Empfehlung löschen',
-      'type' => MENU_CONTEXT_NONE); 
-      
   
   $items['node/%node/send'] = array(
       'access callback' => 'lk_vku_access',

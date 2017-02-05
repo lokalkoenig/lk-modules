@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * LK: 7101 / Delete {system} records for long-lost modules. (2017-02-04)
+ */
+function lokalkoenig_admin_update_7101() {
+
+  $modules = [
+    'lokalkoenig_settings',
+    'jquery_ajax_load',
+    'imagcache_actions',
+    'apachesolr',
+    'apachesolr_term',
+    'devel_themer',
+    'entity_example',
+    'imagemagick',
+    'imagcache_actions',
+    'imagemagick_advanced',
+    'modal_forms',
+    'shadowbox',
+    'solr_devel',
+    'tablefield',
+    'edit'
+  ];
+
+  db_delete('system')
+    ->condition('name', $modules, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+};
+
+
+/**
+ * LK: 7102 / Remove orphaned DB-Tables (2017-02-04)
+ */
+function lokalkoenig_admin_update_7102() {
+
+  $db = [
+    'lk_searchindex',
+    'lk_vku_nid',
+    'lk_recommendation',
+  ];
+
+  db_query('DROP TABLE IF EXISTS ' . implode(',', $db));
+
+  if (module_exists('search')) {
+    module_disable(array('search'));
+    drupal_uninstall_modules(array('search'));
+  }
+
+  if (module_exists('search')) {
+    module_disable(array('search'));
+    drupal_uninstall_modules(array('search'));
+  }
+
+  if (module_exists('apachesolr')) {
+    module_disable(array('apachesolr'), true);
+    drupal_uninstall_modules(array('search'), TRUE);
+  }
+};
