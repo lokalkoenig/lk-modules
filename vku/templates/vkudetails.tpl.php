@@ -116,7 +116,7 @@
 <script>
       //
       jQuery('.form-checkboxes input[type=checkbox]').each(function(){
-          if(jQuery(this).attr('checked')){
+          if(jQuery(this).is(":checked")){
              jQuery('label[for=' + jQuery(this).attr('id') + ']').addClass('checked');
           }
           else {
@@ -128,7 +128,7 @@
       jQuery('.form-checkboxes input[type=checkbox]').hide();
       
       jQuery('.form-checkboxes input[type=checkbox]').click(function(){
-          if(jQuery(this).attr('checked')){
+          if(jQuery(this).is(":checked")){
              jQuery('label[for=' + jQuery(this).attr('id') + ']').addClass('checked');
           }
           else {

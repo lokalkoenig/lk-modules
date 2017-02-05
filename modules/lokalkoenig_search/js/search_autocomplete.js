@@ -79,9 +79,8 @@
       $('#searchbegin').addClass('open');
       track('ac-suche', 'open');
 
-      $("#searchbegin").animate({
-            width: "+=150"}, 300, function() {
-            $('.showtext').show(500, 'swing');
+      $("#searchbegin").animate({width: "300px"}, 300, function() {
+            $('.showtext').fadeIn();
       });
     });
   });

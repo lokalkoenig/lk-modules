@@ -96,7 +96,7 @@ global $user;
   switch($page){
     case 'edit':
       if(!lk_is_mitarbeiter()){                                   
-          drupal_goto("user/" . $v . "/ausgaben", array("query" => array("action" => "editteam", "team" => $team_id)));
+          drupal_goto("user/" . $verlag_obj ->getUid() . "/ausgaben", array("query" => array("action" => "editteam", "team" => $team_id)));
           drupal_exit();
       }
     
