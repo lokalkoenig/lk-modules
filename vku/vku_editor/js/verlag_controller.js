@@ -23,6 +23,8 @@ $(document).ready(function($){
     var editor = PXEdit();
     var id = $(this).data('edit-id');
 
+    $('#vku-editor-verlag-documents').click();
+
     editor.loadDocument({'action': 'load-document', 'id': id}, function(){
       editor.performAjax({'action': 'update-documents'}, function(data){
           $('#vku-editor-verlag-documents').html(data.documents);
@@ -37,6 +39,8 @@ $(document).ready(function($){
      var editor = PXEdit();
      var id = $(this).data('edit-id');
 
+     $('#vku-editor-verlag-documents').click();
+
      editor.performAjax({'action': 'toggle-state', 'id': id}, function(data){
           $('#vku-editor-verlag-documents').html(data.documents);
           editor.createMessage(data.message, 2500);
@@ -47,6 +51,8 @@ $(document).ready(function($){
 
    $('#vku-editor-verlag-documents').on('click', '.btn-document-remove', function(){
      var editor = PXEdit();
+     $('#vku-editor-verlag-documents').click();
+
      var id = $(this).data('edit-id');
      editor.performAjax({'action': 'load-document', 'id': id}, function(data){
           editor.options.id = data.options.id;

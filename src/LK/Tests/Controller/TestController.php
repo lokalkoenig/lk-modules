@@ -39,7 +39,7 @@ class TestController {
           drupal_set_message($message, 'warning');
         }
 
-        dpm($GLOBALS['LK_LOG_RUN']);
+        //dpm($GLOBALS['LK_LOG_RUN']);
       }
     endif;
 

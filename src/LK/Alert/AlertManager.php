@@ -74,33 +74,55 @@ class AlertManager {
         }       
     }
     
-    public function listAlerts(\LK\User $account){
-      
+    
+    /**
+     * Loads Users alters
+     * 
+     * @param \LK\User $account
+     * @return array
+     */
+    public function getUserAlerts(\LK\User $account){
       // Show existing Alters
       $query = new \EntityFieldQuery();
       $query->entityCondition('entity_type', 'alert')
-      ->entityCondition('bundle', 'alert')
-      ->propertyCondition('uid', $account -> uid)->propertyOrderBy('changed', 'DESC');
+        ->entityCondition('bundle', 'alert')
+        ->propertyCondition('uid', $account ->getUid())->propertyOrderBy('changed', 'DESC');
 
       $result = $query->execute();
 
+      $alters = [];
+
+       if(isset($result["alert"])){
+        foreach($result["alert"] as $alert_entity){
+          $alters[] = $alert_entity -> id;
+        }
+       }
+
+       return $alters;
+    }
+
+
+    /**
+     * List all Alters for the User
+     *
+     * @param \LK\User $account
+     * @return string
+     */
+    public function listAlerts(\LK\User $account){
+      
+      $alerts = $this->getUserAlerts($account);
       $this ->UI_Table_setHeader(array('Suche', 'Angelegt', 'Kampagnen', ''));
       $count = 0;
-     if(isset($result["alert"])){
-       foreach($result["alert"] as $alert_entity){
-         
-            $alert = $this ->loadAlert($alert_entity -> id);
 
-            if(!$alert){
-                continue ;
-            }
-            $this -> UI_Table_addRow(array($alert ->getTitle() . '<br /><small><a href="'. $alert -> getSearchLink() .'">Suchergebnisse öffnen</a></small>', 
-                date("d.m.Y", $alert ->getCreated()), 
-                $alert ->getCount(), '<a class="btn btn-sm btn-danger optindelete" href='. $alert ->getRemoveLink() .' optintitle="Alert löschen" optin="Sind Sie sicher?">Alert löschen</a>'));
-            $count++;        
-        }
-     }  
-
-     return theme('alerts_overview', array("account" => $account, 'count' => $count, "table" => $this->UI_Table_render())); 
+      foreach($alerts as $alert_id){
+        $alert = $this ->loadAlert($alert_id);
+        $this -> UI_Table_addRow(array($alert ->getTitle() . '<br /><small><a href="'. $alert -> getSearchLink() .'">Suchergebnisse öffnen</a></small>',
+               date("d.m.Y", $alert ->getCreated()), 
+               $alert ->getCount(),
+              '<a class="btn btn-sm btn-danger optindelete" href='. $alert ->getRemoveLink() .' optintitle="Alert löschen" optin="Sind Sie sicher?">Alert löschen</a>'));
+        $count++;        
+      }
+    
+      return theme('alerts_overview', array("account" => $account, 'count' => $count, "table" => $this->UI_Table_render()));
     }
 }

@@ -104,9 +104,14 @@ class UserManager extends Manager {
     $document = $this->getDocumentMitarbeiter($id);
 
     if($document){
-      // "change_layout": 1,
-      //  "change_input": 1,
-      $this->sendDocument($document, ['verlagsmodus' => 0, 'change_layout' => 0, 'change_input' => 0]);
+      $settings = ['verlagsmodus' => 0, 'change_layout' => 0, 'change_input' => 0];
+
+      if($document ->getPreset() === "OpenDokument"){
+        $settings['change_layout'] = 1;
+        $settings['change_input'] = 1;
+      }
+
+      $this->sendDocument($document, $settings);
     }
    
     $this->sendError("Das Dokument konnte nicht geladen werden. [". $id ."]");
@@ -151,7 +156,26 @@ class UserManager extends Manager {
     $verlag = $this->getAccount();
 
     $documents = $this -> getDocumentsPerVerlag($verlag, $category, 1);
+    $has_online_medium = FALSE;
     $array = [];
+
+    if($category === 'online'){
+      $new_documents = [];
+
+      foreach($documents as $document){
+        if($document['document_preset'] === "OnlineMedium"){
+          $has_online_medium = TRUE;
+          continue;
+        }
+        
+        $new_documents[] = $document;
+      }
+      
+      $documents = $new_documents;
+      if($has_online_medium):
+        //$array['vku_documents-online'] = '<span class="prodid" title="Dieses Dokument können Sie bearbeiten"><span class="glyphicon glyphicon-pencil"></span></span>&nbsp;&nbsp;Online-Medien';
+      endif;
+    }
 
     foreach($documents as $document){
       $array['vku_documents-' . $document['id']] = '<span class="prodid" title="Dieses Dokument können Sie bearbeiten"><span class="glyphicon glyphicon-pencil"></span></span>&nbsp;&nbsp;' . $document['document_title'];

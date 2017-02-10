@@ -179,12 +179,12 @@ function lokalkoenig_node_node_access($node, $op, $account) {
  */
 function lokalkoenig_node_node_load($nodes, $types) {
   $types_we_want_to_process = array('kampagne');
-  if (count(array_intersect($types_we_want_to_process, $types))) {
-    while(list($nid, $node) = each($nodes)):
-        new \LK\Kampagne\Kampagne($node);
-    
-    endwhile;
-  }
+  
+  while(list($nid, $node) = each($nodes)):
+    if($node -> type === 'kampagne'){
+      new \LK\Kampagne\Kampagne($node);
+    }
+  endwhile;
 }
 
 /**

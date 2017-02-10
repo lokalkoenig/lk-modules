@@ -440,7 +440,7 @@ function lokalkoenig_user_stats_page_abrechnung($verlag){
    drupal_set_title("Abrechnung");
    
    
-   $tables = _lk_verlag_abrechnung(user_load($verlag), $have, $excel);
+   $tables = _lk_verlag_abrechnung(user_load($verlag ->uid), $have, $excel);
    
     $output = '<div class="well clearfix">
       <div class="pull-right" style="width: 400px;">'. render($form) .'</div>
@@ -496,6 +496,9 @@ function _lk_verlag_abrechnung($verlag, $have, $excel, $team_id = 0){
     $fn =  $title = $have -> year;
     
   }
+
+  kpr($verlag);
+  
 
   $table[0]["rows"][] = array("Bestellte Lizenzen", $have -> count);
   

@@ -8,7 +8,7 @@ $(document).ready(function($){
     var reference = this;
 
     editor.loadDocument({'action': 'load-document', 'id': id}, function(data){
-      $(reference).closest('.entry-item').find('.page-title').text(data.page_title);
+      $(reference).closest('.entry-item').find('.page-title').html('(<span>'+ data.page_title +'</span>)');
     });
 
     return false;

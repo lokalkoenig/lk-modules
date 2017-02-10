@@ -31,19 +31,16 @@ class VKU2Handler extends \LK\VKU\PageInterface {
     $manager = $this->getDocumentHandler();
     $document = $manager->getDocumentMitarbeiter($page["data_entity_id"]);
     $item["title"] = $document ->getTitle();
-    $item["additional_title"] = '<small class="page-title">(' . $document ->getPageTitle() . ')</small>';
+    $item["additional_title"] = '<small class="page-title page-title-text-overflow">(<span>' . $document ->getPageTitle() . '</span>)</small>';
    
     return $item;
   }
   
   function getPossibilePages($category, \LK\User $account){
-
-    if(!$account ->isModerator()){
-      return false;
-    }
-    
     $manager = $this ->getDocumentHandler();
-    return $manager->getDocumentsPerCategory($category);
+    $documents = $manager->getDocumentsPerCategory($category);
+
+    return $documents;
   }
 
   function saveNewItem(array $item){
@@ -79,10 +76,10 @@ class VKU2Handler extends \LK\VKU\PageInterface {
     $pdf->AddPage();
     $pdf -> SetTopMargin(30);
     $pdf -> SetLeftMargin(25);
-    $pdf -> SetRightMargin(120);
+    $pdf -> SetRightMargin(25);
     $pdf -> Ln(15);
-    $pdf->SetFont(VKU_FONT,'B',28);
-    $pdf->MultiCell(0, 0, $document ->getTitle(), 0, 'L', 0); 
+    $pdf->SetFont(VKU_FONT,'B',22);
+    $pdf->MultiCell(0, 0, $document ->getPageTitle(), 0, 'L', 0);
   }
   
   function getOutputPPT($page, $ppt) {

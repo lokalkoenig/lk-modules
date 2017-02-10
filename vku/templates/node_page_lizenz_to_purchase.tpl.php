@@ -2,7 +2,7 @@
   <a class="btn btn-lg btn-blue-arrow pull-left" href="#" id="purchase-show-link" onclick="jQuery('#purchaselink').toggle('slow'); return false;">
     Direktdownload <span class="glyphicon glyphicon-chevron-right"></span>
   </a>
-  <div style="display: none; background: #eeeeee; height: auto;" id="purchaselink">
+  <div style="display: none; background: #eeeeee; height: auto; margin-left: 200px; padding: 2px; " id="purchaselink">
     <h4 style="padding: 4px 4px; padding-left: 20px;">Wollen Sie diese Kampagne jetzt kostenpflichtig herunterladen?<br />
     <?php
 
@@ -10,7 +10,7 @@
       ?>
         <div style=" font-size: 16px; margin-top: 15px;">
           <div class ="row clearfix">
-            <div class="col-xs-9">Sie bestellen die Kampagne für folgende Ausgaben: ' . implode(" ", $ausgaben) . '</div>
+            <div class="col-xs-9">Sie bestellen die Kampagne für folgende Ausgaben: <?= implode(" ", $ausgaben); ?></div>
             <div class="col-xs-3 text-center"><a class="btn btn-sm btn-primary" href="<?php print url($link, ['query' => drupal_get_destination()])?>"><span class="glyphicon glyphicon-globe"></span> Ausgaben wechseln</a></div>
           </div>
         </div>

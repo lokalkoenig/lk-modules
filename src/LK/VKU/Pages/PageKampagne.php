@@ -126,6 +126,7 @@ class PageKampagne extends PageInterface {
     
     $item['data_entity_id'] = $item['data_class'];
     $item['data_class'] = 'kampagne';
+    $item['data_module'] = 'node';
     
     $save = array(); 
     foreach($item['children'] as $child){

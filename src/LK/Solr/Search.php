@@ -40,8 +40,11 @@ class Search {
 
     $this -> client = new SOLRClient($config);
     $this -> query = $this -> client->createQuery(\Solarium\Client::QUERY_SELECT);
+    $this -> query -> setFields(['item_id']);
     $this ->addParam('fq', 'index_id:default_node_index');
   }
+
+
 
   /**
    * Enables Debug
@@ -73,7 +76,12 @@ class Search {
       $this -> addParam('qf','tm_field_kamp_suche^1.0');
       $this -> addParam('q','"'. $term .'"');
     }
+
     
+    function addFacet($f){
+       $this -> query-> addFilterQuery(array('key' => md5($f), 'query'=>'im_' . $f));
+    }
+
     /**
      * Adds an query from the normal Search results pages
      * 
@@ -87,7 +95,7 @@ class Search {
         
        if(isset($query['f'])){
           foreach ($query['f'] as $f):
-            $this -> addParam('fq','im_' . $f);
+            $this ->addFacet($f);
           endforeach;
       }        
               
@@ -102,7 +110,7 @@ class Search {
      */
     function addTimestamp($timestamp){
        $date = date('c', $timestamp);
-       $this ->addParam('fq', "ds_created:[". $date ."Z TO NOW]");
+       $this -> query-> addFilterQuery(array('key'=>'time', 'query' => "ds_created:[". $date ."Z TO NOW]"));
     }
     
     /**
@@ -120,7 +128,6 @@ class Search {
      * @return Int
      */
     public function getCount(){
-      $this -> addParam('fl','item_id');
       $response = $this->callSOLR();
       return $response['response']['numFound'];
     }
@@ -170,8 +177,6 @@ class Search {
      * @return Array
      */
     public function getNodes(){
-      $this -> addParam('fl','item_id');
-      
       // get the Response
       $response = $this -> callSOLR();
 
@@ -236,7 +241,7 @@ class Search {
     $data = $response -> getData();
 
     if($this->debug){
-      dpm($data);
+      kpr($data);
     }
    
     return $data;

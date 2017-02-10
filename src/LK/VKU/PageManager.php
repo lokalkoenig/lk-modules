@@ -222,6 +222,7 @@ class PageManager {
       if(!$obj){
         continue;
       }
+
       $items += $obj ->getPossibilePages($category, $account);
     }
     

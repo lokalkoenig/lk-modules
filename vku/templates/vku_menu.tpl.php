@@ -22,7 +22,7 @@ if(!$vkus): ?>
     $title = strip_tags($copy ->getTitleTrimmed());
     $link = url($copy ->url());
     $nodes = $copy ->getKampagnen();
-    $kampagnen= count($nodes);
+    $kampagnen = count($nodes);
 ?>
 
 <div class="btn-group-vku " data-vku-count="<?php print count($vkus); ?>" data-nid="<?php print implode(",", $nodes); ?>">  

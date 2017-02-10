@@ -206,15 +206,25 @@ function vku_editor_verlag_documents_themed(\LK\Verlag $verlag){
   foreach($items as $item){
     $allowed[] = $item['option'];
   }
-  
+
+  $presets = $manager->getPresetsAvailable();
+
   $array = [];
   while(list($key, $val) = each($categories)){
     $array[$key] = [
         'title' => $val, 
         'documents' => $manager ->getDocumentsPerVerlag($verlag, $key),
         'documents_unpublished' => $manager ->getDocumentsPerVerlag($verlag, $key, 0),
-        //'presets' => []
+        'presets' => [],
     ];
+    
+    // Aggregate presets
+    reset($presets);
+    while(list($key2, $val2) = each($presets)){
+     if($val2['category'] === $key){
+       $array[$key]['presets'][$key2] = $val2;
+     } 
+    }
   }
   
   return theme('vku_editor_verlag_documents', [

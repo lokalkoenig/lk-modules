@@ -206,7 +206,17 @@ class Document {
   function setFootnote($footnote){
     return $this->setData('document_footnote', $footnote);
   }
-  
+
+   /**
+   * Gets the footnote
+   *
+   * @param string $footnote
+   * @return $this
+   */
+  function getFootnote(){
+    return $this->data['document_footnote'];
+  }
+
   /**
    * Set the present
    * 

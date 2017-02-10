@@ -58,3 +58,12 @@ function lokalkoenig_admin_update_7102() {
     drupal_uninstall_modules(array('search'), TRUE);
   }
 };
+
+/**
+ * Rename 'Default' profile to 'Standard.' [2017-02-06]
+ */
+function lokalkoenig_admin_update_7103() {
+  
+    variable_set('install_profile', 'standard');
+  
+}

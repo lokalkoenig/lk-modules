@@ -16,7 +16,10 @@ function vku_editor_vku2_add_module(){
 
   $current = \LK\current();
   if(!$current ->isModerator()){
-    return [];
+    $verlag = $current ->getVerlagObject();
+    if(!$verlag || !$verlag ->getVerlagSetting('vku_editor', false)){
+      return [];
+    }
   }
 
   drupal_add_library('vku_editor', 'vku_inlace_editor');

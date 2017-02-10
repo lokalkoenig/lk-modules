@@ -166,21 +166,15 @@ global $user;
   lk_log_kampagne($form["#nid"], "Kampagnenstatus auf " . $action . " geändert.");
 
   $node = node_load($form["#nid"]);
-
-  $url = url("node/" . $form["#nid"], array("absolute" => true));
-  
   $msg = "Hallo LK-Admins,\n";
   $msg .= 'der Benutzer ' . $user -> name . " (". url("user/" . $user -> uid, array("absolute" => true)) .") hat soeben eine Kampagne eingestellt und benötigt eine Freigabe.\n\n";
   $msg .= 'Kampagne: ' . $node -> title . " (". url("node/" . $node -> nid, array("absolute" => true)) .")";
-  $msg .= "---\nDas ist eine System-Nachricht, bitte nicht darauf antworten.".
-  
-  
-  // Allen Admins eine Nachricht zukommen lassen
-  
-  
-  
-  
-  privatemsg_new_thread(array(user_load(11)),  "Die Kampagne " . $node -> title . " benötigt Ihre Moderation", $msg);              
+  $msg .= "---\nDas ist eine System-Nachricht, bitte nicht darauf antworten.";
+
+  $account = user_load(11);
+  privatemsg_new_thread(array($account),
+    "Die Kampagne " . $node -> title . " benötigt Ihre Moderation",
+    $msg);
 
   _lk_set_kampagnen_status($form["#nid"], $action); 
   drupal_set_message("Ihre Kampagen wurde eingereicht und wird umgehend geprüft. Sie erhalten eine E-Mail, sobald die Kampagne freigeschalten wird."); 
@@ -190,8 +184,9 @@ global $user;
 function lk_kampagnen_submit_form_validate($form, &$form_state){
   
   // Redirect if is not Checked  
-  if(!$form_state["values"]["check"]) drupal_goto("node/" . $form["#nid"]);
-
+  if(!$form_state["values"]["check"]) {
+    drupal_goto("node/" . $form["#nid"]);
+  }
 }
 
 

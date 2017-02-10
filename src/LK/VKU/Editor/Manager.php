@@ -168,6 +168,7 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     $callback['options']['title'] = $document ->getTitle();
     $callback['options']['id'] = $document ->getId();
     $callback['options']['page_title'] = $document ->getPageTitle();
+    $callback['options']['footnote_value'] = $document ->getFootnote();
 
     if(!$callback['options']['page_title']){
       $callback['options']['page_title'] = $callback['options']['title'];
@@ -177,7 +178,7 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     $callback['values']-> layout = $document -> getLayout();
     $callback['values']-> preset = $document -> getPreset();
     $callback['values']-> content = $document -> getContent();
-    $callback['options']['sample'] = $values -> sample;
+    $callback['options']['sample_data'] = $values -> sample;
 
     while(list($key, $val) = each($settings)){
       $callback['options'][$key] = $val;
@@ -406,10 +407,10 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
            'category' => 'sonstiges',
         ],
 
-       'OnlineMediumCollection' => [
-           'title' => 'Online Medien Kollektion',
-           'category' => 'online',
-        ],
+       //'OnlineMediumCollection' => [
+       //    'title' => 'Online Medien Kollektion',
+       //    'category' => 'online',
+       // ],
     ];
   }
 

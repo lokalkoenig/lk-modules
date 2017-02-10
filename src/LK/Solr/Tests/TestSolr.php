@@ -30,7 +30,7 @@ class TestSolr extends TestCase {
    *
    * @return array
    */
-  function getForm(){
+  function _getForm(){
 
     $form['term'] = [
       '#title' => 'Suchwort',
@@ -49,13 +49,17 @@ class TestSolr extends TestCase {
     $search = new Search();
     $search->enableDebug();
 
-    $search -> setSearchTerm($term);
-    $this -> printLine('Suche nach', $term . " GET param term");
+    //$search -> setSearchTerm($term);
+    //$this -> printLine('Suche nach', $term . " GET param term");
+
+    $search -> addFacet('field_kamp_themenbereiche:3995');
+    $search -> addFacet('field_kamp_anlass:8368');
+    //$search ->setSearchTerm("Sommer");
     $count = $search ->getCount();
     $this -> printLine('Kampagnen', $count);
 
-    $date = time() - 60 * 60 * 24 * 365;
-    $this -> printLine('Suche nach', $term . " und Datum (". format_date($date) .")");
+    $date = time() - 60 * 60 * 24 * 365 * 2;
+    $this -> printLine('', "Aktuelle Suche und Datum (". format_date($date) .")");
     $search ->addTimestamp($date);
 
     $count2 = $search -> getCount();
