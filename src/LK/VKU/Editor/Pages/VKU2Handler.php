@@ -1,5 +1,7 @@
 <?php
-namespace LK\VKU\Editor;
+namespace LK\VKU\Editor\Pages;
+use LK\VKU\Pages\Interfaces\PageInterface;
+use LK\VKU\Editor\UserManager;
 
 $GLOBALS['vku_document_manager'] = NULL;
 
@@ -8,7 +10,7 @@ $GLOBALS['vku_document_manager'] = NULL;
  *
  * @author Maikito
  */
-class VKU2Handler extends \LK\VKU\PageInterface {
+class VKU2Handler extends PageInterface {
 
   private function getDocumentHandler(){
 
@@ -19,6 +21,14 @@ class VKU2Handler extends \LK\VKU\PageInterface {
     return $GLOBALS['vku_document_manager'];
   }
 
+  /**
+   * Gets the Implementation for the Frontend
+   *
+   * @param \VKUCreator $vku
+   * @param array $item
+   * @param array $page
+   * @return array
+   */
   function getImplementation(\VKUCreator $vku, $item, $page){
     $item["delete"] = true;
     $item["id"] = $page["id"];
@@ -30,12 +40,24 @@ class VKU2Handler extends \LK\VKU\PageInterface {
 
     $manager = $this->getDocumentHandler();
     $document = $manager->getDocumentMitarbeiter($page["data_entity_id"]);
+
+    if(!$document){
+      return FALSE;
+    }
+
     $item["title"] = $document ->getTitle();
     $item["additional_title"] = '<small class="page-title page-title-text-overflow">(<span>' . $document ->getPageTitle() . '</span>)</small>';
    
     return $item;
   }
-  
+
+  /**
+   * Gets the possibile Pages per Category
+   *
+   * @param string $category
+   * @param \LK\User $account
+   * @return array
+   */
   function getPossibilePages($category, \LK\User $account){
     $manager = $this ->getDocumentHandler();
     $documents = $manager->getDocumentsPerCategory($category);
@@ -54,7 +76,22 @@ class VKU2Handler extends \LK\VKU\PageInterface {
   }
 
 
-  function updateItem(\VKUCreator $vku, $pid, array $item){ }
+  /**
+   * Clones an MA-Document
+   *
+   * @param \VKUCreator $vku
+   * @param array $items
+   *
+   * @return array
+   */
+  function renewItem(\VKUCreator $vku, $items) {
+    $handler = $this->getDocumentHandler();
+    $document = $handler->getDocumentMitarbeiter($items['data_entity_id']);
+    $new_document = $handler->cloneDocument($document);
+    $items['data_entity_id'] = $new_document->getId();
+    
+    return $items;
+  }
 
   /**
    * Removes a Document
@@ -62,12 +99,18 @@ class VKU2Handler extends \LK\VKU\PageInterface {
    * @param \VKUCreator $vku
    * @param int $pid
    */
-  function removeItem(\VKUCreator $vku, $pid){
-    $page = $vku ->getPage($pid);
+  function removeItem(\VKUCreator $vku, $pid, array $item){
     $manager = $this->getDocumentHandler();
-    $manager ->removeDocument($page['data_entity_id']);
+    $manager ->removeDocument($item['data_entity_id']);
   }
-  
+
+
+  /**
+   * Implements an PDF
+   *
+   * @param array $page
+   * @param \PDF $pdf
+   */
   function getOutputPDF($page, $pdf) {
 
     $manager = $this->getDocumentHandler();
@@ -81,8 +124,7 @@ class VKU2Handler extends \LK\VKU\PageInterface {
     $pdf->SetFont(VKU_FONT,'B',22);
     $pdf->MultiCell(0, 0, $document ->getPageTitle(), 0, 'L', 0);
   }
-  
-  function getOutputPPT($page, $ppt) {
-    
-  }
+
+
+  function getOutputPPT($page, $ppt) { }
 }

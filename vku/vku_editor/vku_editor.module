@@ -26,6 +26,6 @@ function vku_editor_vku2_add_module(){
   drupal_add_js(drupal_get_path('module', 'vku_editor'). '/js/ma_controller.js');
 
   return [
-    'vku_documents' => '\\LK\\VKU\\Editor\\VKU2Handler',
+    'vku_documents' => '\\LK\\VKU\\Editor\\Pages\\VKU2Handler',
   ]; 
 }

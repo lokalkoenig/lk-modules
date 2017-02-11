@@ -230,6 +230,8 @@ class VKUCreator {
   function logVerlagEvent($message, $context = []){
     $log = new \LK\Log\Verlag($message);
     $log ->setVku($this)->save();
+
+    return $message;
   }
   
   /**

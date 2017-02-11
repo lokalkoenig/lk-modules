@@ -2,7 +2,7 @@
 
 
 function _vku_generate_final_vku($vku){
-  $manager = new \LK\VKU\PageManager();
+  $manager = new \LK\VKU\Export\Manager();
   return $manager ->finalizeVKU($vku);
 }
 

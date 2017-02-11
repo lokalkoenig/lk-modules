@@ -191,10 +191,6 @@ ul.dropdown-menu-vku .item.active .hide-active {
      color: White;
 }
 
-.modal-lk .modal-content {
-    border-radius: 0;
-}
-
 .btn-group-vku .dropdown-toggle {
     background: transparent;
     position: absolute;

@@ -1,7 +1,7 @@
 <?php
 
 namespace LK\VKU\Pages;
-use LK\VKU\PageInterface;
+use LK\VKU\Pages\Interfaces\PageInterface;
 
 /**
  * Description of PageDefault
@@ -29,11 +29,7 @@ class PageDefault extends PageInterface {
   function updateItem(\VKUCreator $vku, $pid, array $item){ 
     // do nothing
   }
-  
-  function removeItem(\VKUCreator $vku, $pid){ 
-    // do nothing
-  }
-  
+
   function getImplementation(\VKUCreator $vku, $item, $page){
  
     if(!isset($this -> titles[$page["data_class"]])){
@@ -55,7 +51,7 @@ class PageDefault extends PageInterface {
       $item["container"] = false;
       $item["empty_shown"] = true;
     }
-    
+
     return $item;  
   }
   

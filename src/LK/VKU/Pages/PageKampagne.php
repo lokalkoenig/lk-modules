@@ -5,7 +5,7 @@
  */
 
 namespace LK\VKU\Pages;
-use LK\VKU\PageInterface;
+use LK\VKU\Pages\Interfaces\PageInterface;
 
 /**
  * Description of PageKampagne
@@ -22,7 +22,12 @@ class PageKampagne extends PageInterface {
    * @return type
    */
   function getImplementation(\VKUCreator $vku, $item, $page){
-    
+
+    $node = \node_load($page["data_entity_id"]);
+    if(!$node || $node -> status === 0){
+      return false;
+    }
+ 
     $default_kampagne = $item;
     $default_kampagne["single_toggle"] = true;
     $default_kampagne["deactivate"] = true;
@@ -35,7 +40,7 @@ class PageKampagne extends PageInterface {
     $item["id"] = $page["id"];
     $item["cid"] = $page["data_category"];
     
-    $node = \node_load($page["data_entity_id"]);
+    
     $kampagne = new \LK\Kampagne\Kampagne($node);
     $sid = $kampagne->getSID();
     
@@ -80,17 +85,6 @@ class PageKampagne extends PageInterface {
             
     $item["pages"] = $pages_count;
     return $item;  
-  }
-  
-  
-  /**
-   * Removes the item from the VKU
-   * 
-   * @param \VKUCreator $vku
-   * @param type $pid
-   */
-  function removeItem(\VKUCreator $vku, $pid){
-    ;
   }
   
   /**

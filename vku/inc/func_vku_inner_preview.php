@@ -12,6 +12,7 @@
  */
 
 function vku_show_line_item_preview($vku_id, $line_item){
+
   $vku = \LK\VKU\VKUManager::getVKU($vku_id, true);
   
   if(!$vku){
@@ -28,6 +29,6 @@ function vku_show_line_item_preview($vku_id, $line_item){
     die("Sie haben keinen Zugriff");
   }
   
-  $pagemanager = new \LK\VKU\PageManager();
+  $pagemanager = new \LK\VKU\Export\Manager();
   $pagemanager ->generatePDF($vku, $line_item, true);
 }

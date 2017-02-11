@@ -544,7 +544,7 @@ a.btn-restore {
 
 .part-title {
    font-size: 110%; 
-   line-height: 44px;    
+   padding-top: 10px;
 }
 
 
@@ -1147,11 +1147,17 @@ button#save-all {
     padding-top: 20px;
 }
 
+.part-title .page-title.page-title-text-overflow  {
+  white-space: nowrap;
+}
+
 .part-title .page-title.page-title-text-overflow > span {
   display: inline-block;
   max-width: 125px;
   overflow: hidden;
   white-space: nowrap;
-  line-height: 0.9;
-  text-overflow: ellipsis; 
+  line-height: normal;
+  text-overflow: ellipsis;
+  position: relative;
+  top: 2.5px;
 }

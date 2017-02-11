@@ -1,6 +1,6 @@
 <?php
 
-use LK\VKU\Vorlage;
+use LK\VKU\Vorlage\Vorlage;
 use LK\VKU\PageManager;
 
 namespace LK\VKU;
@@ -10,7 +10,7 @@ namespace LK\VKU;
  *
  * @author Maikito
  */
-class VKU2 {
+class VKU2 extends PageManager {
   
   use \LK\Log\LogTrait;
   use \LK\Stats\Action;
@@ -18,26 +18,14 @@ class VKU2 {
   var $LOG_CATEGORY = 'VKU2';
   var $vku = null;
   var $response = [];
-  var $pagemanager = null;
-  
+
   function __construct(\VKUCreator $vku, $response) {
+    parent::__construct();
+
     $this->vku = $vku;
     $this->response = $response;
   }
   
-  /**
-   * Gets the PageManager
-   * 
-   * @return \LK\VKU\PageManager
-   */
-  private function getPageManager(){
-    
-    if(!$this->pagemanager){
-      $this -> pagemanager = new PageManager();
-    }
-      
-    return $this->pagemanager;  
-  }
   /**
    * Checks the given Signature of the Response
    * and may sends back an Signature-Error
@@ -84,7 +72,6 @@ class VKU2 {
     $replace_sid = null;
     $vku = $this->getVKU();
     $obj = $this->getResponse();
-    $pagemanager = $this->getPageManager();
     
     foreach($obj["data"] as $item){
       $sid = $item["sid"];
@@ -93,7 +80,7 @@ class VKU2 {
       $pid = $items[1];
     
       // Load Container
-      $category = $vku -> getDefaultCategory($cid);
+      $category = $this->_getCategoryData($cid);
       
       // Mainly print & online
       if($category && in_array($category -> category, array('print', 'online'))){
@@ -111,19 +98,19 @@ class VKU2 {
                     
           // delete
           if($child["status"] == 2){
-            $pagemanager->removePage($vku, $pid2, $child);
+            $this->removePage($vku, $pid2);
             $obj["item-remove"] = $pid2;
             continue;
-          } 
+          }
+          // new
           elseif($child["status"] == 3){
-            $data = $pagemanager->addNewPage($vku, $cid, $items2[0], $items2[1], $child); 
-            $id = db_insert('lk_vku_data')->fields($data)->execute();
+            $id = $this->addNewPage($vku, $cid, $items2[0], $items2[1], $child);
             $replace_sid =  $child["sid"];
             $new = $cid . "-" . $id;
             $pid2 = $id;
           }
           else {
-            $pagemanager->updatePage($vku, $id, $child);
+            $this->updatePage($vku, $id, $child);
           }          
           
           $sid2 = $cid . '-' . $pid2; 
@@ -133,30 +120,27 @@ class VKU2 {
         continue;
       }
       
-      // other - items
-      
       // new item
       if($item["status"] == 3){
-        $cid = $vku ->setDefaultCategory('other', 0);
-        $data = $pagemanager->addNewPage($vku, $cid, $items[0], $items[1], $item); 
+        $cid = $this -> addCategory($vku, 'other', 0);
+        $id = $this->addNewPage($vku, $cid, $items[0], $items[1], $item);
         $replace_sid =  $sid;
-        $id = db_insert('lk_vku_data')->fields($data)->execute();
-        $sid = $cid . "-" . $id; 
+        $sid = $cid . "-" . $id;
         $new = $sid;
       }
       // disable
       elseif($item["status"] === 0){
-        $vku ->setPageStatus($pid, false);
+        $this ->setPageStatus($pid, 0);
       }
       // delete item
       elseif($item["status"] == 2){
-        $pagemanager->removePage($vku, $pid, []);
+        $this->removePage($vku, $pid);
         continue;
       }
       // nothing but update
       else {
-        $vku ->setPageStatus($pid, true);
-        $pagemanager->updatePage($vku, $pid, $item);
+        $this -> setPageStatus($pid, 1);
+        $this-> updatePage($vku, $pid, $item);
       }
       
       $line[$sid] = array();
@@ -166,7 +150,7 @@ class VKU2 {
     $this -> saveDeltaPages($line);
     
     $vku_updated = new \VKUCreator($vku ->getId());
-    $pages = $pagemanager ->generatePageConfiguration($vku_updated);
+    $pages = $this ->generatePageConfiguration($vku_updated);
     
     $response = [];
     $response["replace"] = null;
@@ -183,8 +167,8 @@ class VKU2 {
 
           // PID can be 0 on print or online
           if($pid === $val["id"]){
-              $response["replace_sid"] = $replace_sid;
-              $response["replace"] = theme("vku2_item", array("item" => $val, 'vku' => $vku_updated));
+            $response["replace_sid"] = $replace_sid;
+            $response["replace"] = theme("vku2_item", array("item" => $val, 'vku' => $vku_updated));
           }   
           else {
             while(list($key2, $val2) = each($pages[$key]["children"])){
@@ -201,9 +185,6 @@ class VKU2 {
     $this->sendJSON($response);
   }
     
-    
-    
-    
   /**
    * Saves the Delta-Position
    * 
@@ -213,7 +194,7 @@ class VKU2 {
    
    $cid_order = 0;
    $page_order = 0;
-   $vku = $this->getVKU();
+   $vku = $this -> getVKU();
    
    // save order
     while(list($key, $val) = each($line)){
@@ -221,11 +202,11 @@ class VKU2 {
       $cid = $explode[0];
       $pid = $explode[1];
     
-      $vku -> setDefaultCategoryOrder($cid, $cid_order);
+      $this -> setCategoryOrder($cid, $cid_order);
       $cid_order++;
             
       if($pid){
-        $vku -> setPageOrder($pid, $page_order);
+        $this -> setPageOrder($pid, $page_order);
         $page_order++;
       }
             
@@ -234,7 +215,8 @@ class VKU2 {
         foreach($val as $item){
           $explode = explode("-", $item);   
           $pid2 = $explode[1];
-          $vku -> setPageOrder($pid2, $page_order);
+
+          $this -> setPageOrder($pid2, $page_order);
           $page_order++;
         }
       }
@@ -255,15 +237,17 @@ class VKU2 {
       $vku ->setStatus('active');
       $vku ->isCreated();
     }
-        
     if(!empty($obj["template"])){
-      $new_vku = Vorlage::takeOver($vku, $obj["template"]);
-      
-      $manager = $this->getPageManager();
-      $pages = $manager->generatePageConfiguration($new_vku);
+      $new_vku = \LK\VKU\Vorlage\Vorlage::takeOver($vku, $obj["template"]);
+      $pages = $this->generatePageConfiguration($new_vku);
+
       $generated = theme("vku2_items", array("items" => $pages, 'vku' => $new_vku));
       $obj["renew_items"] = $generated;
-    }    
+    }
+
+    if($vku ->getStatus() !== 'template'){
+      $this->sendJSON($obj);
+    }
   }
   
   /**

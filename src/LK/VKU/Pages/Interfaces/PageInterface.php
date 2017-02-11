@@ -1,5 +1,5 @@
 <?php
-namespace LK\VKU;
+namespace LK\VKU\Pages\Interfaces;
 
 /**
  * Description of PageInterface
@@ -11,9 +11,9 @@ abstract class PageInterface {
   protected $pagemanager = null;
   var $pdf_pages_dir = null;
   
-  function __construct(PageManager $pagemanager) {
+  function __construct(\LK\VKU\PageManager $pagemanager) {
     $this->pagemanager = $pagemanager;
-    $this -> pdf_pages_dir = __DIR__ .'/../../../vku/pages';
+    $this -> pdf_pages_dir = 'sites/all/modules/lokalkoenig/vku/pages';
   }
   
   /**
@@ -37,10 +37,23 @@ abstract class PageInterface {
 
   abstract function saveNewItem(array $item);
   
-  abstract function updateItem(\VKUCreator $vku, $pid, array $item);
+  function updateItem(\VKUCreator $vku, $pid, array $item){
+    
+  }
   
-  abstract function removeItem(\VKUCreator $vku, $pid);
+  function removeItem(\VKUCreator $vku, $pid, array $item){
+  
+  }
 
+  /**
+   * Renew a page, copy from a Vorlage
+   *
+   * @param \VKUCreator $vku
+   * @param array $items
+   */
+  function renewItem(\VKUCreator $vku, $items){
+    return $items;
+  }
 
   /**
    * Generates a PDF Output of the page

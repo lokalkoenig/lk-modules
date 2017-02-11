@@ -6,8 +6,10 @@ namespace LK\VKU;
  *
  * @author Maikito
  */
-class PageManager {
-  
+class PageManager extends Data\VKUDataManipulator {
+
+  use \LK\Log\LogTrait;
+
   var $default_options = [
    'has_children' => false, 
    'delete' => false, 
@@ -30,8 +32,8 @@ class PageManager {
   ];
   
   var $modules = [
-      'default' => '\\LK\\VKU\\Pages\\PageDefault',
-      'node' => '\\LK\\VKU\\Pages\\PageKampagne',
+    'default' => '\\LK\\VKU\\Pages\\PageDefault',
+    'node' => '\\LK\\VKU\\Pages\\PageKampagne',
   ];
   
   var $save_dir = "sites/default/private/vku";
@@ -50,158 +52,6 @@ class PageManager {
     }
   }
   
-  /**
-   * Removes the current Page
-   * 
-   * @param \VKUCreator $vku
-   * @param type $module
-   * @param type $id
-   * @param type $item
-   * @return boolean
-   */
-  function removePage(\VKUCreator $vku, $id, $item){
-    
-    $data = $vku->getPage($id);
-    
-    $obj = $this->getModule($data['data_module']);
-    if(!$obj){
-      dpm($id);
-      return false;
-    }
-    
-    $obj ->removeItem($vku, $id);
-    $vku->removePage($id);
-  }
-  
-  
-  function updatePage(\VKUCreator $vku, $id, $item){
-    
-    $data = $vku->getPage($id);
-    $obj = $this->getModule($data['data_module']);
-    if(!$obj){
-      return false;
-    }
-    
-    return $obj ->updateItem($vku, $id, $item);
-  }
-  
-  
-  function addNewPage(\VKUCreator $vku, $cid, $module, $id, $children = []){
-    
-    $insert = [];
-    $insert['vku_id'] = $vku ->getId();
-    $insert['data_module'] = $module;
-    $insert['data_class'] = $id;
-    $insert['data_created'] = time();
-    $insert['data_entity_id'] = 0;
-    $insert['data_serialized'] = null;
-    $insert['data_delta'] = 0;
-    $insert['data_active'] = 1;
-    $insert['data_category'] = $cid;
-
-    $obj = $this->getModule($module);
-    
-    if(!$obj){
-      return false;
-    }
-    
-    return $obj ->saveNewItem($insert);
-  }
-  
-  /**
-   * Generates a Sample Kampagne
-   */
-  function generateSampleKampagne($pdf, $node){
-    $obj = $this->getModule('node');
-    $obj ->getOutputPDF(['node' => $node, 'data_serialized' => ''], $pdf);
-  }
-  
-  
-  /**
-   * Gets back a generated PDF from the VKU
-   * @param \VKUCreator $vku
-   * @param $line_item optional-page-id
-   * @param boolean $output direct
-   */
-  function generatePDF(\VKUCreator $vku, $line_item = 0, $output = false){
-    
-    $pdf = \LK\PDF\PDF_Loader::getPDF($vku ->getAuthor()); 
-    $pages = $vku -> getPages();
-    
-    while(list($key, $page) = each($pages)){
-      if(!$page["data_active"]) {
-          continue;
-      }
-      
-      if($line_item && $line_item != $key){
-        continue;
-      }
-      
-      $mod = $this->getModule($page["data_module"]);
-      if($mod){
-        $mod->getOutputPDF($page, $pdf);
-      }
-    }
-    
-    if($output){
-      \LK\PDF\PDF_Loader::output($pdf);
-    }
-    
-    return $pdf;  
-  }
-
-  /**
-   * Gets back a generated PDF from the VKU
-   * @param \VKUCreator $vku
-   * @param $line_item optional-page-id
-   * @param boolean $output direct
-   */
-  function generatePPTX(\VKUCreator $vku, $line_item = 0){
-
-    $ppt = \LK\PPT\PPTX_Loader::load();
-    $ppt ->setVKU($vku);
-    $pages = $vku -> getPages();
-
-    while(list($key, $page) = each($pages)){
-      if(!$page["data_active"]) {
-          continue;
-      }
-
-      if($line_item && $line_item != $key){
-        continue;
-      }
-
-      $mod = $this->getModule($page["data_module"]);
-      if($mod){
-        $mod->getOutputPPT($page, $ppt);
-      }
-    }
-
-    return $ppt;
-  }
-
-
-  function finalizeVKU(\VKUCreator $vku){
-    $pdf = $this->generatePDF($vku);
-    $fn = $vku -> getId() . ".pdf";
-    $file_path = $this->save_dir .'/'. $fn;
-    $pdf->Output($file_path, 'F');
-
-    // PPTX
-    if(\vku_is_update_user_ppt()):
-      $pptx = $this->generatePPTX($vku);
-      $file_pptx = \LK\PPT\PPTX_Loader::save($pptx, $this->save_dir, $vku ->getId());
-      $vku -> set('vku_ppt_filename', $file_pptx);
-      $file_size = filesize($this->save_dir . '/' . $file_pptx);
-      $vku -> set('vku_ppt_filesize', $file_size);
-    endif;
-
-    $vku -> set("vku_ready_filename", $fn);
-    $vku -> set("vku_ready_time", time()); 
-    $vku -> set("vku_ready_filesize", filesize($file_path)); 
-    
-    return true;
-  }
   
   
   /**
@@ -291,23 +141,24 @@ class PageManager {
     
    return $categories;
   }
-  
-  
+
   private function getCategoryChildren($cid, \VKUCreator $vku){
     $default = $this->getDefaultOptions();
     
     $children = [];
     $dbq2 = db_query("SELECT id FROM lk_vku_data WHERE data_category='". $cid ."' ORDER BY data_delta ASC");
     foreach($dbq2 as $child){
-      $page = $vku ->getPage($child -> id);
+      $page = $this->_getPageData($child -> id);
                 
       $item = $default;
       $item["cid"] = $cid;
       $item["id"] = $child -> id;
-      $item["title"] = $page["data_class"];
+      $item["title"] = $page -> data_class;
       
       $return = $this-> getModuleConfiguration($child -> id, $vku, $item);
       if(!$return){
+        // we have a Broken Page
+        $this->removeBrokenID($vku, $child -> id);
         continue;
       }  
       
@@ -316,8 +167,7 @@ class PageManager {
   
     return $children;
   }
-  
-  
+
   /**
    * Gets a Module Configuration from a Callback
    * 
@@ -327,14 +177,18 @@ class PageManager {
    * @return boolean
    */
   function getModuleConfiguration($id, $vku, $items){
-    $seite = $vku->getPage($id);
- 
-    $document = $this->getModule($seite["data_module"]);
+    $seite = $this->_getPageData($id);
+
+    if(!$seite){
+      return FALSE;
+    }
+
+    $document = $this->getModule($seite -> data_module);
     if(!$document){
-      return false;
+      return FALSE;
     }
     
-    return $document ->getImplementation($vku, $items, $seite);
+    return $document ->getImplementation($vku, $items, (array)$seite);
   }
   
   
@@ -342,14 +196,14 @@ class PageManager {
    * Gets a Module
    * 
    * @param type $module
-   * @return boolean|\LK\VKU\PageInterface
+   * @return boolean|\LK\VKU\Pages\Interfaces\PageInterface
    */
   protected function getModule($module){
     
     if($module === 'kampagne'){
       $module = 'node';
     }
-    
+
     // Module must be propagated
     if(!isset($this->modules[$module])){
       return FALSE;
@@ -367,6 +221,23 @@ class PageManager {
   return $obj;   
   }
   
+  
+  /**
+   * Removes a Broken Item from the VKU-Creator-Instance
+   * 
+   * @param \VKUCreator $vku
+   * @param type $id
+   */
+  private function removeBrokenID(\VKUCreator $vku, $id){
+    
+    $data = $this->_getPageData($id);
+    if($data){
+      // Remove the Page
+      $this->logError('Remove broken page ' . $data -> id . "/". $data -> data_category ." (". $data -> data_module ."/". $data -> data_class .")", ['vku' => $vku]);
+      $this->_removePage($vku, $data -> id);
+    }
+  }
+
   /**
    * Gets the current PageConfiguration
    * 
@@ -417,16 +288,24 @@ class PageManager {
         
         $dbq2 = db_query('SELECT id FROM lk_vku_data WHERE data_category=:cat', [':cat' => $cid]);
         $all2 = $dbq2 -> fetchObject();
-        $return = $this-> getModuleConfiguration($all2 -> id, $vku, $structure[$cid]);
-        
-        if(!$return){
-          unset($structure[$cid]);
+
+        if(!$all2) {
+          dpm($cid);
         }
+
+        $return = $this-> getModuleConfiguration($all2 -> id, $vku, $structure[$cid]);
+
+        // We have a broken Configuration
+        if(!$return):
+          $this->removeBrokenID($vku, $all2 -> id);
+          unset($structure[$cid]);
+          continue;
+        endif;
         
         $structure[$all -> id] = $return;
       } 
     }
-    
+  
     return $structure;
   }
 }

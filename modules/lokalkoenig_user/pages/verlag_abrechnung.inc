@@ -497,9 +497,6 @@ function _lk_verlag_abrechnung($verlag, $have, $excel, $team_id = 0){
     
   }
 
-  kpr($verlag);
-  
-
   $table[0]["rows"][] = array("Bestellte Lizenzen", $have -> count);
   
   $extras = array();

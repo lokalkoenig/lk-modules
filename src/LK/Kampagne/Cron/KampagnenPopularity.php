@@ -4,20 +4,29 @@ namespace LK\Kampagne\Cron;
 
 /**
  * Description of KampagnenPopularity
+ * Updates Popularity of Node
  *
  * @author Maikito
  */
 class KampagnenPopularity {
-  
+
+  /**
+   * Runs the cron
+   */
   public static function executeCron(){
     
     $updates = array();
-    $dbq = db_query("SELECT nid FROM node WHERE type='kampagne' ORDER BY RAND() LIMIT 50");
+    $dbq = db_query("SELECT nid FROM node WHERE type='kampagne' AND status='1' ORDER BY RAND() LIMIT 50");
     foreach($dbq as $all){
         $node = node_load($all -> nid);
         $beliebt =  self::getPoularity($node);
+        $value = 0;
 
-        if($node -> field_kamp_beliebtheit['und'][0]['value'] != $beliebt){
+        if(isset($node -> field_kamp_beliebtheit['und'][0]['value'])){
+          $value = $node -> field_kamp_beliebtheit['und'][0]['value'];
+        }
+
+        if($value != $beliebt){
             db_query("UPDATE field_data_field_kamp_beliebtheit SET field_kamp_beliebtheit_value='". $beliebt ."' WHERE entity_id='". $node -> nid ."'");
             $updates[] = $node -> nid;
         }
@@ -29,6 +38,12 @@ class KampagnenPopularity {
     }
   }
   
+  /**
+   * Gets the Popularity points of a node
+   *
+   * @param \stdClass $node
+   * @return int
+   */
   public static function getPoularity(\stdClass $node){
     //  1 Punkt in History
     $points = 0;

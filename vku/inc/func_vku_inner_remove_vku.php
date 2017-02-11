@@ -1,25 +1,22 @@
 <?php
 
+/**
+ * Removes a VKU
+ * 
+ * @path /vku/$vku_id/id
+ * @param int $vku_id
+ */
 function _vku_delete_data($vku_id){
-global $user;
 
-	$vku = new VKUCreator($vku_id);
+  $vku = \LK\VKU\VKUManager::getVKU($vku_id, true);
 
-	if(!$vku -> is() OR !$vku ->hasAccess()){
-            drupal_goto("vku");
-	}
+  if(!$vku || !$vku -> isActiveStatus()){
+    drupal_goto("vku");
+  }
 
-	$author = $vku -> getAuthor();
-        
-        if(!$vku -> isActiveStatus()){
-            drupal_goto($vku -> url());
-        }
-	
-        $msg = $vku ->logEvent("remove", "Die Verkaufsunterlage (". $vku_id . ") wurde gelöscht.");
-        drupal_set_message($msg);
-        $vku ->setStatus('deleted');
-    
-	drupal_goto('user/' . $author . "/vku");
+  $author = $vku -> getAuthor();
+  $msg = $vku ->logEvent("remove", "Die Verkaufsunterlage (". $vku_id . ") wurde gelöscht.");
+  drupal_set_message($msg);
+  $vku ->setStatus('deleted');
+  drupal_goto('user/' . $author . "/vku");
 }
-
-?>

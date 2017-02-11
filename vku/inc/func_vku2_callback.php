@@ -12,17 +12,14 @@ function _vku2_callback($vku_id){
     
     // Preview
     if(isset($_GET["preview"]) AND $_GET["preview"] == 1){
-      $pagemanager = new \LK\VKU\PageManager();
+      $pagemanager = new \LK\VKU\Export\Manager();
       $pdf = $pagemanager ->generatePDF($vku, 0, true);
     }
     
     $manager = new \LK\VKU\VKU2($vku, $_POST['save']);
     $manager ->checkSignature();
     
-    // VKU-Title & Template-Title
-    if(isset($obj["vku_template_title"]) AND $vku -> getStatus() == 'template'){
-      $manager -> saveTemplateData();
-    }
+    
     
     // Save Title
     if($obj["type"] == 'title'){
@@ -30,6 +27,12 @@ function _vku2_callback($vku_id){
     }
     
     if($obj["type"] == 'save'){
+
+      // VKU-Title & Template-Title
+      if(isset($obj["vku_template_title"]) AND $vku -> getStatus() == 'template'){
+        $manager -> saveTemplateData();
+      }
+
       $manager->saveVKUPages();
     }
     
@@ -78,9 +81,11 @@ function _vku2_callback($vku_id){
     
     if($obj["type"] == "finalize" AND $obj["error"] == 0){
       // Create PDF
-      $manager = new \LK\VKU\PageManager();
-      $pdf = $manager ->finalizeVKU($vku_updated);
-      if(!$pdf OR !$ppt){
+      $export_manager = new \LK\VKU\Export\Manager();
+      $pdf = $export_manager ->finalizeVKU($vku_updated);
+
+
+      if(!$pdf){
         $obj["error"] = 1;
         $obj["msg"] = 'Die Verkaufsunterlage konnte nicht generiert werden.';
       }
@@ -105,7 +110,9 @@ function _vku2_callback($vku_id){
             $obj["ppt_download_size"] = format_size($vku_updated -> get("vku_ppt_filesize"));
         endif;
        }    
-    }    
+    }
+
+
     
     // Nothing happend
     $manager->sendJSON($obj);
