@@ -9,7 +9,27 @@ namespace LK\Admin\Interfaces;
  */
 abstract class DataManager {
 
-   var $manager = null;
+  var $manager = null;
+
+  /**
+   * Removes the Data when the Node is set Offline
+   *
+   * @return boolean
+   */
+  function removeOnDisableKampagne(){
+    return false;
+  }
+
+  protected function count($table, array $where){
+
+    $arr = [];
+    foreach($where as $key => $item) {
+        $arr[] = $key."='". $item. "'";
+    }
+
+    $dbq = db_query("SELECT count(*) as count FROM " . $table . " WHERE " . implode(' AND ', $arr));
+    return $dbq->fetchObject()->count;
+  }
 
   /**
    * Constructor
@@ -35,7 +55,9 @@ abstract class DataManager {
    * 
    * @param \LK\User $acccount
    */
-  abstract function removeUserData(\LK\User $acccount);
+  function removeUserData(\LK\User $acccount){
+    return [];
+  }
 
   /**
    * Get User-Data
@@ -43,20 +65,27 @@ abstract class DataManager {
    * @param \LK\User $acccount
    * @return int
    */
-  abstract function getUserDataCount(\LK\User $acccount);
+  function getUserDataCount(\LK\User $acccount){
+    return [];
+  }
 
   /**
    * Get the count of a Node
    *
    * @param \LK\Kampagne\Kampagne $kampagne
-   * @return int
+   * @return array
    */
-  abstract function getKampagnenCount(\LK\Kampagne\Kampagne $kampagne);
+  function getKampagnenCount(\LK\Kampagne\Kampagne $kampagne){
+    return [];
+  }
 
   /**
    * Removes the Data
    *
    * @param \LK\Kampagne\Kampagne $kampagne
+   * @return array
    */
-  abstract function removeKampagnenData(\LK\Kampagne\Kampagne $kampagne);
+  function removeKampagnenData(\LK\Kampagne\Kampagne $kampagne){
+    return [];
+  }
 }

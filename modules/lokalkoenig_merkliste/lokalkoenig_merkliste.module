@@ -155,8 +155,5 @@ function lokalkoenig_merkliste_form_alter(&$form, &$form_state, $form_id){
  * HOOK_lk_data_management
  */
 function lokalkoenig_merkliste_lk_data_management(){
-  return [
-    '\\LK\\Merkliste\\History\\HistoryDataManager',
-    '\\LK\\Merkliste\\Manager\\MerklistenDataManager',
-  ];
+  return [];
 }

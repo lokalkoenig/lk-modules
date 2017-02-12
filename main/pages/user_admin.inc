@@ -5,15 +5,48 @@ use LK\Admin\UserManagerMaintanance;
 /**
  * 
  * 
- * @param stdClass $account
+ * @param stdClass $account_user
  * @return string
  */
-function lokalkoenig_user_info($account){
+function lokalkoenig_user_info($account_user){
+
+  drupal_set_title("Usermanager");
+  lk_set_icon('tasks');
+
+  $account = \LK\get_user($account_user -> uid);
+  $manager = new \LK\Admin\Data\DataManager();
+  $array = $manager ->getUserStats($account);
+  $stats = \LK\UI\DataList::render($array);
+  
+  $links_rendered = [];
+  
+  if($manager -> canChangeUserState()){
+    if($account ->getStatus()){
+      $links[] = array("link" => url("user/" . $account ->getUid(). "/info", array("query" => array("action" => "deactivate"))),
+            "class" => "btn btn-sm btn-warning",
+            "title" => "Benutzer deaktivieren");
+    }
+    else {
+      $links[] = array("link" => url("user/" . $account ->getUid(). "/info", array("query" => array("action" => "activate"))),
+            "class" => "btn btn-sm btn-primary",
+            "title" => "Benutzer aktivieren");
+    }
+
+    foreach($links as $link){
+      $links_rendered[] = '<a href="'. $link["link"] .'" class="btn-sm '. $link["class"] .'">' . $link["title"] .'</a>';
+    }
+  }
+  else {
+    $links_rendered[] = '<p><small>Der Status des Users kann im Moment nicht verändert werden.</small></p>';
+  }
+
+  return '<div class="well well-white"><h4>Übersicht</h4>'. $stats .'<hr />'. implode(' ', $links_rendered) .'</div>';
+
+
   $user_account = \LK\get_user($account);
   $maintance = new UserManagerMaintanance($user_account);
     
-  drupal_set_title("Usermanager");
-  lk_set_icon('tasks');
+ 
     
   $stats = $maintance -> listStats();
   $table = '<table class="table">';

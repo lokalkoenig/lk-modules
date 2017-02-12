@@ -12,34 +12,28 @@ use LK\Merkliste\AdminMerkliste;
 class MerklistenDataManager extends DataManager {
 
   function removeUserData(\LK\User $acccount){
-    
     $merkliste = new AdminMerkliste($acccount ->getUid());
     $terms = $merkliste ->getTerms();
     
     while(list($key, $val) = each($terms)){
       $merkliste ->removeMerkliste($key);
     }
-    
-    return count($merkliste);  
   }
   
   function getUserDataCount(\LK\User $acccount){
     $merkliste = new AdminMerkliste($acccount ->getUid());
-    return $merkliste ->getTermsCount();
+    return ['Merklisten' => $merkliste ->getTermsCount()];
   }
   
   function getKampagnenCount(\LK\Kampagne\Kampagne $kampagne){
     $merkliste = new AdminMerkliste();
     $count = $merkliste ->getGeneralKampagnenCount($kampagne ->getNid());
-
     return ['Merklisten' => $count];
   }
 
   function removeKampagnenData(\LK\Kampagne\Kampagne $kampagne){
-    $num_deleted = db_delete('lk_lastviewed')
+    db_delete('lk_lastviewed')
       ->condition('nid', $kampagne ->getNid())
       ->execute();
-    return $num_deleted;  
   }
-
 }
