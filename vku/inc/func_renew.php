@@ -11,27 +11,40 @@ function _vku_renew_vku($account, $vku_id){
   $vku = \LK\VKU\VKUManager::getVKU($vku_id, TRUE);
   $current = \LK\current();
 
-  if(!$vku || !$vku -> is()){
+  if(!$vku){
     drupal_set_message("Die Verkaufsunterlage ist nicht mehr valide.");
     drupal_goto("user/" . $current ->getUid(). '/vku');
     drupal_exit();
   }
 
+  // Remove PLZ-Sperren from
+  $vku ->removePLZSperren();
+  
   $vkustatus = $vku -> getStatus();
   $vkuauthor = $vku -> getAuthor();
 
-  $page_manager = new \LK\VKU\Vorlage\Vorlage();
+  if(vku_is_update_user()){
+    $page_manager = new \LK\VKU\Vorlage\Vorlage();
 
-  // Create a new VKU
-  $settings = [
-    'uid' => $current->getUid(),
-    'vku_title' => $vku -> get('vku_title', false),
-    'vku_company' => $vku -> get('vku_company', false),
-    'vku_untertitel' => $vku -> get('vku_untertitel', false),
-  ];
+    // Create a new VKU
+    $settings = [
+      'uid' => $current->getUid(),
+      'vku_title' => $vku -> get('vku_title', false),
+      'vku_company' => $vku -> get('vku_company', false),
+      'vku_untertitel' => $vku -> get('vku_untertitel', false),
+    ];
 
-  $new_vku = \LK\VKU\VKUManager::createEmptyVKU($current, $settings);
-  $page_manager ->cloneVKUPages($vku, $new_vku);
+    $new_vku = \LK\VKU\VKUManager::createEmptyVKU($current, $settings);
+    $page_manager ->cloneVKUPages($vku, $new_vku);
+  }
+  else {
+    // set Status to active
+    // @VKU 1.0
+    $vku_new_id = $vku -> cloneVku();
+    $new_vku = new VKUCreator($vku_new_id);
+    $new_vku -> isCreated();
+    $new_vku ->setStatus('active');
+  }
 
   // Wenn Eigentümer dann Original als DELETED einstampfen
   if($vkuauthor === $current ->getUid()){
@@ -55,9 +68,6 @@ function _vku_renew_vku($account, $vku_id){
     drupal_exit();
   }
 
-  // set Status to active
-  // @VKU 1.0
-  $new_vku ->setStatus('active');
   drupal_goto($redirect);
   drupal_exit();
 }

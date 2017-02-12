@@ -241,7 +241,7 @@ class Search {
     $data = $response -> getData();
 
     if($this->debug){
-      kpr($data);
+      dpm($data);
     }
    
     return $data;

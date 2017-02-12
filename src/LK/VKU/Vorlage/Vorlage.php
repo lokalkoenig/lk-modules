@@ -23,7 +23,6 @@ class Vorlage extends PageManager {
    * @param \VKUCreator $new_vku
    */
   function cloneVKUPages(\VKUCreator $source, \VKUCreator $new_vku){
-    
     // save the kampagnen
     // and add them add them after the title
 

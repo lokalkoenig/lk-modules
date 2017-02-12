@@ -47,6 +47,8 @@ return false;
  * @return boolean
  */
 function lk_can_purchase($nid){
+  global $user;
+
   return lk_user_can_purchase($user -> uid, $nid);
 }
 

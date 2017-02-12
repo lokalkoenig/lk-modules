@@ -52,8 +52,6 @@ class PageManager extends Data\VKUDataManipulator {
     }
   }
   
-  
-  
   /**
    * Gets back the items for the Categories
    * 

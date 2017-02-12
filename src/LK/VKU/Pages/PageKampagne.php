@@ -50,7 +50,7 @@ class PageKampagne extends PageInterface {
     $item["title"] = '<span class="prodid">'. $sid .'</span><span class="hidden"> / </span><span calss="kampagne-title">' . $node -> title . '</span>';
     
     if(!$kampagne -> canPurchase()){
-      $item["additional_title"] .= '<small class="error">Die Kampagne kann nicht lizenziert werden.</small>'; 
+      $item["additional_title"] = '<small class="error">Die Kampagne kann nicht lizenziert werden.</small>'; 
     }
     
     $item["collapsed"] = true;

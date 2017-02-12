@@ -63,7 +63,7 @@ class Kampagne {
    * @return \stdClass
    */
   function getNode(){
-      return $this -> node;
+    return $this -> node;
   }
     
   /**
@@ -73,12 +73,12 @@ class Kampagne {
    * @return boolean
    */
   function canPurchase(){
-   
+    
     if(!$this -> node -> status){
       return false;
     }
-
-    return (bool)$this -> node -> plzaccess;    
+   
+    return $this -> node -> plzaccess;    
   }
 
   /**

@@ -20,10 +20,139 @@ class VKU2 extends PageManager {
   var $response = [];
 
   function __construct(\VKUCreator $vku, $response) {
-    parent::__construct();
-
     $this->vku = $vku;
     $this->response = $response;
+
+    parent::__construct();
+  }
+
+  function performClient(){
+
+    $this->checkSignature();
+
+    $obj = $this->getResponse();
+    $obj['error'] = 0;
+
+    $action = $this->getResponseType();
+    $vku = $this->getVKU();
+
+     // Save Title
+    if($action === 'title'){
+      $response = $this->saveTitle();
+
+      $this->sendJSON($response);
+      //if($vku -> getStatus() !== 'template'){
+      // $this->sendJSON($response);
+      //}
+    }
+
+    if($action === 'save'){
+      // VKU-Title & Template-Title
+      if(isset($obj["vku_template_title"]) AND $vku -> getStatus() == 'template'){
+        $this -> saveTemplateData();
+      }
+
+      $this->sendJSON($this->saveVKUPages());
+    }
+
+    if(in_array($action, ['savelast', 'finalize'])){
+      $response = $this->finalCheck($response);
+
+      if($response['error'] === 1 || $action === 'savelast'){
+        $this->sendJSON($response);
+      }
+
+      $this->sendJSON($this->generateExports());
+    }
+  }
+
+  /**
+   * Generates the Export
+   *
+   * @param array $obj
+   * @return array
+   */
+  private function generateExports($obj){
+
+    $vku_updated = new \VKUCreator($this->getVKU()->getId());
+
+    $export_manager = new \LK\VKU\Export\Manager();
+    $pdf = $export_manager ->finalizeVKU($vku_updated);
+
+    if(!$pdf){
+      $obj["error"] = 1;
+      $obj["msg"] = 'Die Verkaufsunterlage konnte nicht generiert werden.';
+
+      return $obj;
+    }
+
+    $vku_updated -> setStatus('ready');
+
+    // Sets the PLZ-Sperre for Short time
+    $vku_updated -> setShortPlzSperre();
+
+    // Generate PDF
+    $obj["pdf_download_link"] = \url($vku_updated ->downloadUrl());
+    $obj["pdf_download_size"] = format_size($vku_updated -> get("vku_ready_filesize"));
+
+    $obj["vku_link"] = \url($vku_updated ->url());
+    $obj["ppt_download_link"] = null;
+    $obj["ppt_download_size"] = 0;
+
+    if(vku_is_update_user_ppt()):
+      // Generate PPT
+      $obj["ppt_download_link"] = \url($vku_updated ->downloadUrlPPT());;
+      $obj["ppt_download_size"] = format_size($vku_updated -> get("vku_ppt_filesize"));
+    endif;
+
+    return $obj;
+  }
+
+  /**
+   * Checks the VKU for validity
+   *
+   * @param array $obj
+   * @return array
+   */
+  private function finalCheck($obj){
+
+    $vku_updated = new \VKUCreator($this->getVKU()->getId());
+    $obj["error"] = 0;
+
+    $nodes = $vku_updated ->getKampagnen();
+    if(count($nodes) > 3){
+      $obj["msg"] = 'Sie haben zu viele Kampagnen in Ihrer Verkaufsunterlage. Bitte reduzieren Sie die Anzahl auf maximal 3 Kampagnen.';
+      $obj["error"] = 1;
+
+      return $obj;
+    }
+    
+    // check for Kampagnen die nicht lizenziert werden können
+    foreach($nodes as $nid){
+      if(!lk_can_purchase($nid)){
+        $obj["error"] = 1;
+        $node = node_load($nid);
+        $obj["msg"] = 'Die Kampagne <strong>' . $node -> title . "</strong> kann im Moment nicht lizenziert werden. Bitte löschen Sie diese aus Ihrer Verkaufsunterlage.";
+        
+        return $obj;
+      }
+    }
+  
+    // Check for 0 Pages
+    $count = 0;
+    $pages = $vku_updated -> getPages();
+    foreach($pages as $page){
+      if($page["data_active"]){
+        $count++;
+      }
+    }
+
+    if($count == 0):
+      $obj["error"] = 1;
+      $obj["msg"] = 'Sie haben im Moment keine aktivierten Seiten in Ihrer Verkaufsunterlage.';
+    endif;
+
+    return $obj;
   }
   
   /**
@@ -31,9 +160,12 @@ class VKU2 extends PageManager {
    * and may sends back an Signature-Error
    */
   public function checkSignature(){
-    if(!isset($this->response['signature']) || $this->response['signature'] != $this->getVKU()->get("vku_changed")){
-      $this->logNotice('Signatur-Fehler gesendet gefunden und behoben in: ' . $this->getVKU());
-      $this->sendError(['signature_error' => true]);
+
+    $vku = $this->getVKU();
+
+    if(!isset($this->response['signature']) || $this->response['signature'] != $vku->get("vku_changed")){
+      $this->logNotice('Signatur-Fehler gesendet gefunden und behoben in: ' . $vku->getTitle());
+      $this->sendError(['signature_error' => true, '_false_signatue' => $vku->get("vku_changed"), '_submitted_sign' => $this->response['signature']]);
     }
   }
   
@@ -45,7 +177,12 @@ class VKU2 extends PageManager {
   function getResponse(){
     return $this->response;
   }
-  
+
+  function  getResponseType(){
+    $response = $this->getResponse();
+    return $response['type'];
+  }
+
   /**
    * Saves basic Template-Infomation
    */
@@ -62,8 +199,6 @@ class VKU2 extends PageManager {
     if(empty($obj["vku_title"])){
       $obj["vku_title"] = 'Ohne Titel';
     }
-    
-    //$this->sendJSON($obj);
   }
   
   public function saveVKUPages(){
@@ -182,7 +317,7 @@ class VKU2 extends PageManager {
       }
     }
     
-    $this->sendJSON($response);
+    return $response;
   }
     
   /**
@@ -233,7 +368,7 @@ class VKU2 extends PageManager {
     $vku->set('vku_untertitel', $obj["vku_untertitel"]);
         
     $status = $vku ->getStatus();
-    if($status == 'new'){
+    if($status === 'new'){
       $vku ->setStatus('active');
       $vku ->isCreated();
     }
@@ -245,9 +380,7 @@ class VKU2 extends PageManager {
       $obj["renew_items"] = $generated;
     }
 
-    if($vku ->getStatus() !== 'template'){
-      $this->sendJSON($obj);
-    }
+    return $obj;
   }
   
   /**
@@ -280,12 +413,19 @@ class VKU2 extends PageManager {
   
     $defaults = [
       'msg' => null,
-      'signature_error' => FALSE,  
-      'signature' => $time,
+      'test' => $arr,
+      'error' => 0,
       'changed' => format_date($time, 'short')  
     ];
-    
-    drupal_json_output($defaults + $arr);
+
+    while(list($key, $val) = each($arr)){
+      $defaults[$key] = $val;
+    }
+
+    $defaults['signature'] = $time;
+    $defaults['signature_error'] = FALSE;
+
+    drupal_json_output($defaults);
     drupal_exit();  
   }
   

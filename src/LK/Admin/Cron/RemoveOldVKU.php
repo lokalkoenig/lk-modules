@@ -15,21 +15,16 @@ class RemoveOldVKU {
    * Removes old VKU from the Database
    */
   public static function executeCron(){
-    $time = time() - (60*60*24*31); // vor einem Monat  
 
+    $manager = new \LK\VKU\Data\VKUMaintenance();
+    
+    $time = time() - (60*60*24*31); // vor einem Monat
+    $vkus = [];
     $dbq = db_query("SELECT vku_id, vku_changed "
             . "FROM lk_vku "
             . "WHERE vku_status='deleted' AND ((vku_created < '". $time ."' AND vku_changed < '". $time ."') OR vku_changed IS NULL) ORDER BY vku_id DESC");
     foreach($dbq as $all){
-      $vku = new VKUCreator($all -> vku_id);
-      if($vku -> is()){
-        $log = new \LK\Log\Debug("Cron-Delete VKU-ID " . $all -> vku_id . ", Zuletzt geändert am: " . format_date($all -> vku_changed, 'short'));
-        $log ->setVku($vku);
-        $log ->setCategory('cron');
-        $log->save();
-
-        $vku -> remove();
-      }
+      $vkus[] = $all->vku_id;
     }
 
     $time2 = time() - (60*60*24);
@@ -37,15 +32,12 @@ class RemoveOldVKU {
             . "FROM lk_vku "
             . "WHERE vku_status='new' AND vku_changed < '". $time2 ."' ORDER BY vku_id DESC");
     foreach($dbq2 as $all){
-      $vku = new VKUCreator($all -> vku_id);
-      if($vku -> is()){
-        $log = new \LK\Log\Debug("Cron-Delete nicht benutze VKU " . $all -> vku_id . ", Zuletzt geändert am: " . format_date($all -> vku_changed, 'short'));
-        $log ->setVku($vku);
-        $log ->setCategory('cron');
-        $log->save();
+      $vkus[] = $all->vku_id;
+    }
 
-        $vku -> remove();
-      }
+    foreach($vkus as $vku_id){
+      $vku = new VKUCreator($vku_id);
+      $manager->removeVKU($vku);
     }
   }  
 }

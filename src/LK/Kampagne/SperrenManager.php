@@ -125,8 +125,10 @@ class SperrenManager {
               $aggr = plz_simplyfy($plz_alt);
               db_query("INSERT INTO na_node_access_ausgaben SET nid='". $nid ."', verlag_uid='". $verlag ."', ausgaben_id='". $ausgabe_id ."', plz_gebiet_aggregated = '". $aggr ."'");
         }
-        
-        $this ->logKampagne('Setze PLZ-Sperren für Ausgaben: ' . implode(", ", $ausgaben_titles), $nid);
+
+        if($ausgaben_titles){
+          $this ->logKampagne('Setze PLZ-Sperren für Ausgaben: ' . implode(", ", $ausgaben_titles), $nid);
+        }
     }
     
     /**

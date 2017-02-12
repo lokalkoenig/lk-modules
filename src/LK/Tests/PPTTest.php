@@ -33,7 +33,7 @@ class PPTTest extends TestCase {
       $this ->printLine('VKU', $vku ->getTitle());
       $this ->printLine('Author', \LK\u($vku ->getAuthor()));
       
-      $manager = new \LK\VKU\PageManager();
+      $manager = new \LK\VKU\Export\Manager();
       $file_name = 'test-vku';
       file_prepare_directory($mydir, FILE_CREATE_DIRECTORY);
       

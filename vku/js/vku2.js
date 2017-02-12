@@ -241,27 +241,18 @@ var vku_finalize_handler = function(){
         vku2.save({type: 'finalize'}, function(reference, msg){
             jQuery('.generate-info-end').fadeOut();
             
-            if(!msg.type){
-                lk_js_modal2('Fehler', msg);
-            }    
-            else if(msg.msg){
+            if(msg.msg){
                 lk_js_modal2('Hinweis', msg.msg);
                 jQuery('.vku-generator').removeClass("vku-done");
             }
             else {
               jQuery('.vku-generator').addClass('finalized');
-                
               jQuery('.finalize-vku-wrapper').fadeOut();
               jQuery('.download-wrapper').fadeIn();
-              
-              
-              
               jQuery('.btn-pdf-download').attr('href', msg.pdf_download_link);
               jQuery('.btn-pdf-download span').html(msg.pdf_download_size);
-              
               jQuery('.btn-ppt-download').attr('href', msg.ppt_download_link);
               jQuery('.btn-ppt-download span').html(msg.ppt_download_size);
-              
               jQuery('.vku-detail-link').attr('href', msg.vku_link);
             }
         });

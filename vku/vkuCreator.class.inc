@@ -120,7 +120,7 @@ class VKUCreator {
             $this->setAction('vku-completed', $this ->getId());
           }
         
-          if($status == 'deleted'){
+          if($status === 'deleted'){
               $this -> removePLZSperren();
           }
           

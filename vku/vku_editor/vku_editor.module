@@ -17,7 +17,7 @@ function vku_editor_vku2_add_module(){
   $current = \LK\current();
   if(!$current ->isModerator()){
     $verlag = $current ->getVerlagObject();
-    if(!$verlag || !$verlag ->getVerlagSetting('vku_editor', false)){
+    if(!$verlag || !$verlag ->getVerlagSetting('vku_editor', false) || !$verlag ->getVerlagSetting('vku_2', false)){
       return [];
     }
   }

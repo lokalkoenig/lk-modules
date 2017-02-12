@@ -68,15 +68,15 @@ class PDF_Loader {
      * @return \PDF
      */
     static function renderTestNode(\stdClass $node, $output = true){
-        $pdf = self::load();
+      $pdf = self::load();
         
-        $manager = new \LK\VKU\PageManager();
-        $manager->generateSampleKampagne($pdf, $node);
+      $manager = new \LK\VKU\Export\Manager();
+      $manager->generateSampleKampagne($pdf, $node);
         
-        if($output){
-          self::output($pdf);
-        }
+      if($output){
+        self::output($pdf);
+      }
         
-        return $pdf;
+      return $pdf;
     } 
 }

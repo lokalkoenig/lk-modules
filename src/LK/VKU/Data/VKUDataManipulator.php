@@ -217,8 +217,8 @@ abstract class VKUDataManipulator {
       return false;
     }
 
-    $insert = $obj ->saveNewItem($insert);
-    return db_insert('lk_vku_data')->fields($insert)->execute();
+    $data = $obj ->saveNewItem($insert);
+    return db_insert('lk_vku_data')->fields($data)->execute();
   }
 
   /**
