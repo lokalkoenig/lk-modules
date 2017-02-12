@@ -147,8 +147,9 @@ abstract class VKUDataManipulator {
    */
   function updatePage(\VKUCreator $vku, $id, $item){
 
-    $data = $vku->getPage($id);
-    $obj = $this->getModule($data['data_module']);
+    $data = $this->_getPageData($id);
+    dpm($data);
+    $obj = $this->getModule($data -> data_module);
     if(!$obj){
       return false;
     }

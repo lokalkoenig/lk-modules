@@ -117,25 +117,11 @@ class PageKampagne extends PageInterface {
    * Adds an Item to the VKU
    */
   function saveNewItem(array $item){
-    
     $item['data_entity_id'] = $item['data_class'];
     $item['data_class'] = 'kampagne';
     $item['data_module'] = 'node';
-    
-    $save = array(); 
-    foreach($item['children'] as $child){
-      $explode = explode("-", $child["sid"]);
-      $child_id = $explode[1]; 
-       
-      if($child["status"] == 0){
-          $save[$child_id] = 1;
-      }              
-      else {
-          $save[$child_id] = 0;
-      }              
-    }
-   
-    $item['data_serialized'] = serialize($save);
+    $item['data_serialized'] = serialize([]);
+
     return $item;
  }
   

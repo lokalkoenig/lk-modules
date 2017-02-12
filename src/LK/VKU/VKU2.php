@@ -245,7 +245,7 @@ class VKU2 extends PageManager {
             $pid2 = $id;
           }
           else {
-            $this->updatePage($vku, $id, $child);
+            $this->updatePage($vku, $pid2, $child);
           }          
           
           $sid2 = $cid . '-' . $pid2; 
