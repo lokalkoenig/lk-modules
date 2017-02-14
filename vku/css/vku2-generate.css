@@ -523,7 +523,7 @@ a.btn-restore {
     border: 1px #eee solid;
     padding-left: 14px;
     color: Silver;
-    border-radius: 0;
+    border-radius: 4px;
 }
 
 .ui-sortable>.entry>.entry-item>.part-title {
@@ -544,7 +544,7 @@ a.btn-restore {
 
 .part-title {
    font-size: 110%; 
-   padding-top: 10px;
+   padding: 10px 0;
 }
 
 

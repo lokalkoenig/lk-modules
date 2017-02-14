@@ -117,7 +117,7 @@ function track(eventCategory, eventAction, eventLabel){
         $('#dynamicmodal .modal-body').html('<p>' + response.message + '</p>');
         setTimeout("jQuery('#dynamicmodal').modal('hide');", 1500);
       },
-      performAjax(data, cb){
+      performAjax: function(data, cb){
         $('#dynamicmodal btn').attr('disabled', 'disabled');
 
         jQuery.ajax({

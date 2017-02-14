@@ -366,24 +366,24 @@ var vku_get_badge_count_update = function(){
 
 var vku_collect_item_state = function(element){
    sid = jQuery(element).attr('data-sid'); 
-   status = 1;
+   new_status = 1;
    
    // deactivated
    if(jQuery(element).hasClass('state-deactivate')){
-       status = 0;
+       new_status = 0;
    }
    
    // new item
    if(jQuery(element).hasClass('state-new')){
-      status = 3;
+      new_status = 3;
    }
    
    // to delete
    if(jQuery(element).hasClass('state-deleted')){
-      status = 2;
+      new_status = 2;
     }
         
-   var data = {status: status, sid: sid, children: {}};   
+   var data = {status: new_status, sid: sid, children: {}};
    
 return data;   
 };
@@ -406,18 +406,16 @@ var vku_collect_saveables = function(delete_items){
             jQuery(this).remove();
         }
         
-        data[x] = { sid: sid, status: status, children: {} };
-        
         if(jQuery(this).find('.children').length == 1){
             var children = {};
             var i = 0;
             
             jQuery(this).find('.children .entry:not(.ui-droppable,.entry-dummy)').each(function(){
                if(jQuery(this).hasClass('state-delete')){
-                    jQuery(this).addClass('state-deleted');
+                jQuery(this).addClass('state-deleted');
                }
                
-               child = new vku_collect_item_state(this);
+               var child = new vku_collect_item_state(this);
                children[i] = child;
                
                // to delete
@@ -439,16 +437,11 @@ return data;
     
     
 var vku_unload_listener = function(){
-    
-    window.onbeforeunload = function(e) {
-        if(jQuery('.vku-generator').hasClass('missing-title')){
-            return 'Sind Sie sicher, dass Sie diese Seite verlassen möchten? Nicht gespeicherte Daten gehen dann verloren.';
-        }   
-        
-        if(vku2.changed){
-            return 'Sind Sie sicher, dass Sie diese Seite verlassen möchten? Nicht gespeicherte Daten gehen dann verloren.';
-        }
-    };
+  jQuery(window).on('beforeunload', function(){
+    if(jQuery('.vku-generator').hasClass('missing-title') || vku2.changed){
+        return 'Sind Sie sicher, dass Sie diese Seite verlassen möchten? Nicht gespeicherte Daten gehen dann verloren.';
+    }
+  });
 };    
     
 var vku_rebuild_dropzones = function(){

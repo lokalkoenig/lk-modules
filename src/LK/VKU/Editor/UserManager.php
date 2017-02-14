@@ -107,8 +107,12 @@ class UserManager extends Manager {
       $settings = ['verlagsmodus' => 0, 'change_layout' => 0, 'change_input' => 0];
 
       if($document ->getPreset() === "OpenDokument"){
+        //$settings['change_layout'] = 1;
+        //$settings['change_input'] = 1;
+      }
+
+      if($document ->getPreset() === "Preisliste"){
         $settings['change_layout'] = 1;
-        $settings['change_input'] = 1;
       }
 
       $this->sendDocument($document, $settings);

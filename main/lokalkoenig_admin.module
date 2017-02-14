@@ -64,3 +64,20 @@ function lokalkoenig_admin_form_alter(&$form, &$form_state, $form_id){
     ];
   }  
 }
+
+/**
+ * Callback to Save values from a Verlag-Form
+ *
+ * @param type $form
+ * @param type $form_state
+ */
+function lk_user_verlag_settings_form_submit($form, &$form_state){
+  $manager = new \LK\User\Settings\Manager($form['#verlag']);
+  form_state_values_clean($form_state);
+
+  foreach ($form_state['values'] as $key => $value) {
+    $manager->setVar($key, $value);
+  }
+
+  drupal_set_message('Die Einstellungen wurden gespeichert.');
+}

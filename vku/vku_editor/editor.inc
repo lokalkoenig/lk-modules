@@ -23,7 +23,17 @@ function vku_editor_menu(){
       'page arguments' => array(1),
       'file' => 'pages/verlag_vku_editor.php',
       'title' => 'VKU Dokumente',
-      'type' => MENU_CONTEXT_NONE);   
+      'type' => MENU_LOCAL_TASK);
+
+  $items['user/%user/vku_editor/settings'] = array(
+      'access callback' => 'lk_verlag_access',
+      'access arguments' => array(1),
+      'page callback' => 'vku_editor_page_verlag_settings',
+      'page arguments' => array(1),
+      'file' => 'pages/verlag_vku_editor_settings.php',
+      'title' => 'VKU Dokumente (Einstellungen)',
+      'type' => MENU_LOCAL_TASK);
+
   
   $items['vku_editor'] = array(
       'access callback' => 'lk_vku_access',

@@ -34,7 +34,14 @@ function vku_editor_page_verlag_cb($account){
       'presets' => $presets,
       'documents' => $documents,
   ]);
+
+  $links = [
+      ['url' => url('user/' . $verlag ->getUid() . '/vku_editor'), 'title' => "VKU-Dokumente", 'active' => TRUE],
+      ['url' => url('user/' . $verlag ->getUid() . '/vku_editor/settings'), 'title' => "Einstellungen"],
+  ];
+
+  $tabs = \LK\UI\Tabs::render($links);
   
-  return $theme;   
+  return $tabs . $theme;
 }
 

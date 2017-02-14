@@ -11,10 +11,16 @@ class Verlag extends User {
    var $user_role = LK_USER_VERLAG;
    var $ausgaben = array();
    var $role_name = 'verlag';
+   var $settings = [];
    var $teams = array();
    
    function __construct($user, $reference){
-      return parent::__construct($user, $reference);
+      $return = parent::__construct($user, $reference);
+
+      $settings = new \LK\User\Settings\Manager($this);
+      $this->settings = $settings->getVars();
+      
+      return $return;
    }
    
    function isTelefonmitarbeiter(){
@@ -59,16 +65,20 @@ class Verlag extends User {
     * @return type
     */
    function getVerlagSetting($id, $default_value = NULL, $value_name = 'value'){
-      
-       $setting_name = 'field_' . $id;
-       $values = (array)$this->profile['verlag'];
+
+     if(isset($this->settings[$id])){
+       return $this->settings[$id];
+     }
+
+     $setting_name = 'field_' . $id;
+     $values = (array)$this->profile['verlag'];
        
-       if(isset($values[$setting_name]['und'][0][$value_name])){
-         return $values[$setting_name]['und'][0][$value_name];  
-       } 
-       else {
-           return $default_value;
-       }       
+     if(isset($values[$setting_name]['und'][0][$value_name])){
+      return $values[$setting_name]['und'][0][$value_name];
+     } 
+     else {
+      return $default_value;
+     }       
    }
    
    /**
