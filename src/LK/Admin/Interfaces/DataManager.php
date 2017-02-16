@@ -9,6 +9,7 @@ namespace LK\Admin\Interfaces;
  */
 abstract class DataManager {
 
+  use \LK\Log\LogTrait;
   var $manager = null;
 
   /**

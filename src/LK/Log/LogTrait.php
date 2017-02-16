@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace LK\Log;
 
 /**
@@ -14,7 +8,15 @@ namespace LK\Log;
  * @author Maikito
  */
 trait LogTrait {
-    
+
+    protected function disableDBLogging(){
+      $GLOBALS['LK_LOG'] = FALSE;
+    }
+
+    protected function enableDBLogging(){
+      $GLOBALS['LK_LOG'] = TRUE;
+    }
+
     /**
      * Logs as Message who comes from a Cron-Job
      * 

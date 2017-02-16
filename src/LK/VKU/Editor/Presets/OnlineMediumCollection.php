@@ -21,9 +21,8 @@ class OnlineMediumCollection extends \LK\PXEdit\Presets\OnlineMediumCollection {
   function getOnlineMediumDetails($id){
     $manager = $this->getManager();
     $document = $manager->getDocumentVerlag($manager->getAccount(), $id);
-
     $content = $document->getContent();
-    dpm($content);
+   
     return $content;
   }
 

@@ -25,6 +25,15 @@ class UserManager extends Manager {
   }
 
   /**
+   * Gets the Verlag-Object
+   *
+   * @return \LK\Verlag
+   */
+  function getVerlag(){
+    return $this ->getAccount();
+  }
+
+  /**
    * Gets the Editor Account
    *
    * @return \LK\User
@@ -150,6 +159,27 @@ class UserManager extends Manager {
   }
 
   public function getDocument($id){
+
+    // Online-Medien-Kollektion
+    if($id === 'online'){
+      // create a new Dokument
+
+      $document = new Document();
+      $document ->setUser($this->getMaAccount()->getUid());
+      $document->setPreset('OnlineMediumCollection');
+      $document->setLayout('layout-triple-online');
+      $title = $this->getVerlag()->getVerlagSetting('vku_editor_medien_collection_title', 'Online-Medien');
+      $document->setPageTitle($title)->setTitle($title);
+      $footnote = $this->getVerlag()->getVerlagSetting('vku_editor_medien_collection_footnote', '');
+      $document ->setFootnote($footnote);
+      $document ->setCategory('online');
+      $document ->setStatus(1);
+      $document ->setContent([]);
+
+      return $document;
+    }
+
+
     $verlag = $this->getAccount();
     $document = $this->getDocumentVerlag($verlag, $id);
     return $document;
@@ -177,7 +207,7 @@ class UserManager extends Manager {
       
       $documents = $new_documents;
       if($has_online_medium):
-        //$array['vku_documents-online'] = '<span class="prodid" title="Dieses Dokument können Sie bearbeiten"><span class="glyphicon glyphicon-pencil"></span></span>&nbsp;&nbsp;Online-Medien';
+        $array['vku_documents-online'] = '<span class="prodid" title="Dieses Dokument können Sie bearbeiten"><span class="glyphicon glyphicon-pencil"></span></span>&nbsp;&nbsp;Online-Medien';
       endif;
     }
 

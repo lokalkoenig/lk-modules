@@ -63,7 +63,13 @@ abstract class LogInterface {
         db_insert(LogInterface::DB_TABLE)->fields($data)->execute();
       }
       else {
-        $GLOBALS['LK_LOG_RUN'][] = $data['message'];
+        $message = $data['message'];
+
+        if(isset($data['sub_category'])){
+          $message = '[' . $data['sub_category'] . "] " . $message;
+        }
+
+        $GLOBALS['LK_LOG_RUN'][] = $message;
       }
 
       return $data['message'];

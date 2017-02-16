@@ -31,8 +31,13 @@ class UserData extends \LK\Admin\Interfaces\DataManager {
     $return['Lizenzen'] = $count . " (als Mitarbeiter)";
 
     if($count){
-      $return['Lizenzen Hinweis'] = "<small>Bestehende Lizenzen werden dem Verlag zugeordnet.</small>";;
+      $manager ->disableUserCanChange();
+      $return['Lizenzen Hinweis'] = "<small>Bitte editieren Sie die Lizenzen. Todo-Lizenz-Listing.</small>";;
     }
+    
+    $return['Erstellte Blog-Einträge'] = $this->count('eck_neuigkeit', ['uid' => $account ->getUid()]);
+    $return['Ansichten Blog-Einträge'] = $this->count('lk_neuigkeiten_read', ['uid' => $account ->getUid()]);
+
 
     $team = $account ->getTeamObject();
     $return['Team'] = l($team ->getTitle(), $team ->getUrl());
@@ -45,7 +50,6 @@ class UserData extends \LK\Admin\Interfaces\DataManager {
         $manager ->disableUserCanChange();
       }
     }
-    
 
     return $return;
   }
@@ -60,10 +64,12 @@ class UserData extends \LK\Admin\Interfaces\DataManager {
 
   private function _removeTeam(\LK\Team $team){
     $team_id = $team ->getId();
+    $team_title = $team ->getTitle();
+
     db_query("DELETE FROM lk_verlag_stats WHERE stats_user_type='team' AND stats_bundle_id=:team", [':team' => $team_id]);
     entity_delete('team', $team_id);
 
-    $this->logNotice("Remove Team from Database");
+    $this->logNotice("Lösche Team ". $team_title . "/" . $team_id);
   }
 
   private function _removeVerlag(){
@@ -73,12 +79,15 @@ class UserData extends \LK\Admin\Interfaces\DataManager {
 
   private function _removeCommonUserData(\LK\User $acccount){
 
-    db_delete('lk_neuigkeiten_read')->condition('uid', $acccount ->getUid())->execute();
-  
-    $verlag = $acccount ->getVerlag();
-    if($verlag){
-      db_query("UPDATE lk_vku_lizenzen_downloads SET uid=0 WHERE uid=:uid", [':uid' => $acccount ->getUid()]);
+    $num_deleted = db_delete('lk_neuigkeiten_read')->condition('uid', $acccount ->getUid())->execute();
+    if($num_deleted){
+      $this->logNotice($num_deleted . ' Ansichten Blog');
     }
+
+    // Check for created Neuigkiten, @TODO
+
+    // Assign the Downloads to some User
+    db_query("UPDATE lk_vku_lizenzen_downloads SET uid=0 WHERE uid=:uid", [':uid' => $acccount ->getUid()]);
   }
 
   private function _removeMitarbeiter(\LK\User $acccount){

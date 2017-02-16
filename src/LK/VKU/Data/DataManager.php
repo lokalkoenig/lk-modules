@@ -12,14 +12,21 @@ class DataManager extends DM {
 
   function removeUserData(\LK\User $acccount){
     $manager = new \LK\VKU\PageManager();
-    $dbq = db_query('SELECT id FROM lk_vku WHERE uid=:uid', [':uid' => $acccount ->getUid()]);
+    $dbq = db_query('SELECT vku_id FROM lk_vku WHERE uid=:uid', [':uid' => $acccount ->getUid()]);
+
+    $count = 0;
     foreach($dbq as $all){
-      $manager ->removeVKU(\LK\VKU\VKUManager::getVKU($all -> id));
+      $manager ->removeVKU(\LK\VKU\VKUManager::getVKU($all -> vku_id));
+      $count++;
+    }
+
+    if($count){
+      $this->logNotice($count . ' VKUs wurden entfernt.');
     }
   }
 
   function getUserDataCount(\LK\User $acccount){
-    return ['VKU' => $this->count('lk_vku', ['uid' => $acccount ->getUid()])];
+    return ['VKUs' => $this->count('lk_vku', ['uid' => $acccount ->getUid()])];
   }
 
   function getKampagnenCount(\LK\Kampagne\Kampagne $kampagne){

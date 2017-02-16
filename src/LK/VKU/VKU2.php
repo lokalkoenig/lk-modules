@@ -56,7 +56,7 @@ class VKU2 extends PageManager {
     }
 
     if(in_array($action, ['savelast', 'finalize'])){
-      $response = $this->finalCheck($response);
+      $response = $this->finalCheck($obj);
 
       if($response['error'] === 1 || $action === 'savelast'){
         $this->sendJSON($response);

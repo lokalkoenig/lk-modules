@@ -25,7 +25,7 @@ class Search {
    * Constructor of the class
    */
   function __construct() {
-
+   
     // Loads the Server from the DRUPAL-SEARCH-API
     $server = search_api_server_load(1);
     $config = [

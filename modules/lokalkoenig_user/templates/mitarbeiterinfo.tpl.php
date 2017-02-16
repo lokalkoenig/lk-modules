@@ -68,14 +68,15 @@
       </div>
   </div>
   <?php endif; ?>
- 
-  <div class="row clearfix" style="padding-bottom: 10px;">
-      <div class="col-xs-4 text-right"><span class="glyphicon glyphicon-phone-alt"></span></div>
-      <div class="col-xs-8">
-        <?php print $accessed->profile['main']->field_profile_telefon['und'][0]['value']; ?>
-      </div>
-  </div>
-   
+
+  <?php if(isset($accessed->profile['main']->field_profile_telefon['und'][0]['value'])): ?>
+    <div class="row clearfix" style="padding-bottom: 10px;">
+        <div class="col-xs-4 text-right"><span class="glyphicon glyphicon-phone-alt"></span></div>
+        <div class="col-xs-8">
+          <?php print $accessed->profile['main']->field_profile_telefon['und'][0]['value']; ?>
+        </div>
+    </div>
+  <?php endif; ?>
  
   <div class="row clearfix" style="padding-bottom: 10px;">
       <div class="col-xs-4 text-right"><span class="glyphicon glyphicon-envelope"></span></div>

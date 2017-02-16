@@ -15,9 +15,12 @@ class DataManager {
   var $modules = [];
   protected $kampagne_can_be_removed = TRUE;
   protected $user_can_change = TRUE;
+  protected $account = null;
+  protected $stats = [];
 
-  function __construct() {
-   
+  function __construct(\LK\User $account) {
+
+    $this -> account = $account;
     $this -> modules[] = '\\LK\\Merkliste\\History\\HistoryDataManager';
     $this -> modules[] = '\\LK\\Merkliste\\Manager\\MerklistenDataManager';
     $this -> modules[] = '\\LK\\Solr\\Data\\SearchData';
@@ -31,6 +34,11 @@ class DataManager {
       if($addition){
         $this->modules += $addition;
       }
+    }
+
+    foreach($this -> modules as $module){
+      $obj = $this->loadModule($module);
+      $this -> stats += $obj ->getUserDataCount($account);
     }
   }
 
@@ -46,10 +54,29 @@ class DataManager {
    * Removes a User
    * @param \LK\User $account
    */
-  private function removeUser(\LK\User $account){
+  public function userRemove(){
+    $account = $this->account;
 
+    if(!$this->user_can_change){
+      throw new \Exception('User Status can not be changed.');
+    }
 
+    $user_name = $account ->getUsername();
+    $uid = $account ->getUid();
 
+    $this->disableDBLogging();
+    $this->logNotice('Lösche alle Userdaten der Module');
+
+    foreach($this -> modules as $module){
+      $obj = $this->loadModule($module);
+      $obj->removeUserData($account);
+    }
+    
+    $this->enableDBLogging();
+
+    // D7 user remove from system
+    user_delete($uid);
+    return $this->logNotice('Account ' . $user_name . "/". $uid ." wurde gelöscht: <br /><ul><li>" . implode("</li><li>", $GLOBALS['LK_LOG_RUN']) . "</li></ul>");
   }
 
 
@@ -59,10 +86,10 @@ class DataManager {
    *
    * @param \LK\User $account
    */
-  private function userDisable(\LK\User $account){
+  function userDisable(){
     
-    $this->getUserStats($account);
-    
+    $account = $this->account;
+
     if(!$this->user_can_change){
       throw new \Exception('User Status can not be changed.');
     }
@@ -70,7 +97,31 @@ class DataManager {
     $save = user_load($account ->getUid());
     $save -> status = 0;
     user_save($save);
+    
+    return $this->logNotice('Account ' . $account ->getUsername() . " wurde deaktiviert.");
   }
+
+  /**
+   *
+   * @param \LK\User $account
+   * @throws \Exception
+   *
+   */
+  function userEnable(){
+
+    $account = $this->account;
+
+    if(!$this->user_can_change){
+      throw new \Exception('User Status can not be changed.');
+    }
+
+    $save = user_load($account ->getUid());
+    $save -> status = 1;
+    user_save($save);
+
+    return $this->logNotice('Account ' . $account ->getUsername() . " wurde aktiviert.");
+  }
+
 
   /**
    * Kampagne will be disabled
@@ -114,17 +165,16 @@ class DataManager {
     return $stats;
   }
 
-  function getUserStats(\LK\User $account){
+  function getUserStats(){
+
+    $account = $this->account;
+
     $stats = [];
     $stats['Account-Type'] = $account ->getRole();
     $stats['Letzter Zugriff'] = format_date($account ->getLastAccess());
     $stats['Angelegt'] = format_date($account ->user_data -> created);
     $stats['------'] = '';
-
-    foreach($this -> modules as $module){
-      $obj = $this->loadModule($module);
-      $stats += $obj ->getUserDataCount($account);
-    }
-    return $stats;
+  
+    return $stats + $this->stats;
   }
 }

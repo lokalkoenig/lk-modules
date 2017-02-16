@@ -177,7 +177,12 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     $callback['inputs'] = $preset -> getManagedInputs();
     $callback['values']-> layout = $document -> getLayout();
     $callback['values']-> preset = $document -> getPreset();
-    $callback['values']-> content = $document -> getContent();
+
+    $saved_content = $document -> getContent();
+    if($saved_content){
+      $callback['values']-> content = $saved_content;
+    }
+  
     $callback['options']['sample_data'] = $values -> sample;
 
     while(list($key, $val) = each($settings)){

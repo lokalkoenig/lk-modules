@@ -417,11 +417,9 @@ function _form_edit_tax_branchen(&$form){
   
   $returns = array();
   foreach($taxes as $val){
-    $returns[] = _lk_generate_lineage_label($val); 
-  
+    $returns[] = str_replace(",", ' ', _lk_generate_lineage_label($val));
   }
- 
-  
+
  
   $form['field_kamp_themenbereiche']['und']['#default_value'] = implode(",", $returns);
   $form['field_kamp_anlass']['und']['#default_value'] = implode(",", explode(",", $form['field_kamp_anlass']['und']['#default_value']));

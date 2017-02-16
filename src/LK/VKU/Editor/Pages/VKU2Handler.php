@@ -70,8 +70,14 @@ class VKU2Handler extends PageInterface {
     $manager = $this->getDocumentHandler();
     $document = $manager->getDocument($item["data_class"]);
     $newdoc = $manager->cloneDocument($document);
-    $item['data_entity_id'] = $newdoc ->getId();
     
+    $item['data_entity_id'] = $newdoc ->getId();
+
+    // online-medien-kollektion
+    if($item["data_class"] === 'online'){
+      $item["data_class"] = $item['data_entity_id'];
+    }
+
     return $item;
   }
 

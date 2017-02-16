@@ -18,6 +18,10 @@ class MerklistenDataManager extends DataManager {
     while(list($key, $val) = each($terms)){
       $merkliste ->removeMerkliste($key);
     }
+    
+    if($terms){
+      $this->logNotice(count($terms) . ' Merklisten gelöscht.');
+    }
   }
   
   function getUserDataCount(\LK\User $acccount){

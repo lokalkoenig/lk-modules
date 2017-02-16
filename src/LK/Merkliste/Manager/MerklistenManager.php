@@ -112,7 +112,7 @@ abstract class MerklistenManager {
     while($all = $dbq -> fetchObject()){
       $merkliste->nodes[] = $all -> nid;
     }
-  
+
     return new Entity($this, $merkliste);
   }
   
@@ -171,7 +171,7 @@ abstract class MerklistenManager {
     
     $sanitized = strtolower(trim($term_name));
     $other = $this -> getTerms();
-    
+
     while(list($key, $val) = each($other)){
         $sanitized2 = strtolower(trim($val));
         
@@ -187,33 +187,41 @@ abstract class MerklistenManager {
   /**
    * Renames a Merkliste
    * 
-   * @param int $tid
+   * @param \LK\Merkliste\Manager\Entity $merkliste
    * @param string $newname
-   * @return int
+   * @return \LK\Merkliste\Manager\Entity|false
    */
-  function renameMerkliste($tid, $newname){
-    
-    if(empty($newname)){
+  function renameMerkliste(\LK\Merkliste\Manager\Entity $merkliste, $newname){
+
+    $new_name_trimmed = trim($newname);
+    $tid = $merkliste->getId();
+
+    if(empty($new_name_trimmed)){
       return false;
     }
-    
-    $test = $this ->getSimilarTerms($newname);
-    if(!$test){
-      db_query('UPDATE lk_merklisten_terms SET term_name=:name WHERE merklisten_id=:id', [':name' => trim($newname), ':id' => (int)$tid]);
-      $this->performedUpdate();
-    
-      return $tid;
+
+    // Same Merkliste, no changes
+    $test = $this ->getSimilarTerms($new_name_trimmed);
+    if($test == $tid){
+      return $merkliste;
     }
     
-    $merkliste = $this->loadMerkliste($tid);
+    if(!$test){
+      db_query('UPDATE lk_merklisten_terms SET term_name=:name WHERE merklisten_id=:id', [':name' => $new_name_trimmed, ':id' => $tid]);
+      $this->performedUpdate();
+    
+      return $merkliste;
+    }
+    
     $nodes = $merkliste->getKampagnen();
+    $this->removeMerkliste($merkliste ->getId());
     
     foreach($nodes as $nid){
       $this ->addKampagne($test, $nid);
     }
     
-    $this ->removeMerkliste($tid);
-    return $test; 
+    $new_merkliste = $this ->loadMerkliste($test);
+    return $new_merkliste;
   }
   
   

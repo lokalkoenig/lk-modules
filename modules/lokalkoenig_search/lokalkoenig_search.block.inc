@@ -108,7 +108,9 @@ function lokalkoenig_search_block_view($delta = NULL){
  * @return boolean
  */
 function _lk_generate_search_related_block(){
-  
+
+  return ;
+
   if(lk_is_agentur()) {
     return ;
   } 

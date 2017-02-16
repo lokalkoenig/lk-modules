@@ -22,8 +22,7 @@ function lokalkoenig_merkliste_ajax_callback_rename($tid){
     drupal_goto($merkliste ->getUrl());
   }      
   
-  $new_id = $manager->renameMerkliste($merkliste->getId(), $newname);
-  $new_merkliste = $manager ->loadMerkliste($new_id);
+  $new_merkliste =  $manager->renameMerkliste($merkliste, $newname);
   
   if(!$new_merkliste){
     drupal_set_message('Es ist ein Fehler passiert.');
