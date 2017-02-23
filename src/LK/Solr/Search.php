@@ -119,7 +119,7 @@ class Search {
      * @param type $nid
      */
     function excludeNode($nid){
-       $this ->addParam('fq', '-item_id:"'. $nid .'"');
+      $this -> query -> addFilterQuery(array('key'=>'exclude-' . $nid, 'query' => '-item_id:"'. $nid  .'"'));
     }
     
     /**
@@ -240,7 +240,7 @@ class Search {
     $response = $this -> client-> execute($this -> query);
     $data = $response -> getData();
 
-    if($this->debug){
+    if($this->debug || isset($_GET['debug_solr'])){
       dpm($data);
     }
    

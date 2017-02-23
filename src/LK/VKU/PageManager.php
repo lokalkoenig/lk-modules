@@ -193,11 +193,11 @@ class PageManager extends Data\VKUDataManipulator {
   /**
    * Gets a Module
    * 
-   * @param type $module
+   * @param string $module
    * @return boolean|\LK\VKU\Pages\Interfaces\PageInterface
    */
   protected function getModule($module){
-    
+
     if($module === 'kampagne'){
       $module = 'node';
     }

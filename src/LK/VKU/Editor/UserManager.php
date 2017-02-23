@@ -84,6 +84,47 @@ class UserManager extends Manager {
     return false;
   }
 
+  /**
+   *
+   */
+  function saveMediaCallback($document_id, $selected_document, $position){
+
+    $document = $this->getDocumentMitarbeiter($document_id);
+
+    if(!$document || !in_array($position, [0,1,2])){
+      $this->sendError('Das Dokument konnte nicht geladen werden');
+    }
+
+    $medias = $this->getDocumentsPerVerlagPreset('OnlineMedium');
+   
+    if($selected_document != 0){
+      $possibile_medias = [];
+      foreach($medias as $media){
+        $possibile_medias[] = $media['id'];
+      }
+      if(!in_array($selected_document, $possibile_medias)){
+        $this->sendError('Das Medium wurde nicht gefunden.');
+      }
+    }
+
+    // Ready to merge that
+    $position_relative = ($position * 3);
+    $preset = $this->loadPreset('OnlineMediumCollection');
+
+    if($selected_document == 0){
+      $media_content = [];
+    }
+    else {
+      $media = $this->_getUserDocument($this->getAccount(), $selected_document);
+      $media_content = $media -> getContent();
+    }
+
+    $content = $preset -> performContentUpdate($document->getContent(), $media_content, $selected_document, $position_relative);
+    $document ->setContent($content)->save();
+    $this->sendSuccess("Das Medium wurde erfolgreich ausgewählt");
+    exit;
+  }
+
 
   /**
    * Saves the Document
@@ -163,7 +204,6 @@ class UserManager extends Manager {
     // Online-Medien-Kollektion
     if($id === 'online'){
       // create a new Dokument
-
       $document = new Document();
       $document ->setUser($this->getMaAccount()->getUid());
       $document->setPreset('OnlineMediumCollection');

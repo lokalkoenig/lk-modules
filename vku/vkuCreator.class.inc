@@ -113,19 +113,19 @@ class VKUCreator {
   }
 
   function setStatus($status){
-      if($this -> data){
-          
-          // VKU is completed
-          if($status == 'ready'){
-            $this->setAction('vku-completed', $this ->getId());
-          }
-        
-          if($status === 'deleted'){
-              $this -> removePLZSperren();
-          }
-          
-          return $this -> data -> setSetting('vku_status', $status);
+    if($this -> data){
+
+      // VKU is completed
+      if($status == 'ready'){
+        $this->setAction('vku-completed', $this ->getId());
       }
+
+      if($status === 'deleted'){
+          $this -> removePLZSperren();
+      }
+
+      return $this -> data -> setSetting('vku_status', $status);
+    }
   }
 
   function getValue($value){
@@ -505,7 +505,9 @@ class VKUCreator {
                 $this -> data -> add('default', 'wochen', 11);
                 $this -> data -> add('default', 'onlinewerbung', 12);
                 $this -> data -> add('default', 'kplanung', 13);
-                $this -> data -> add('default', 'kontakt', 100);  
+                $this -> data -> add('default', 'kontakt', 100);
+
+                $this->isCreated();
           }
       }  
   }
@@ -765,19 +767,18 @@ function setPageStatus($pid, $status = true){
       $array["vku_company"] = $this -> get('vku_company');
       $array["vku_untertitel"] = $this -> get('vku_untertitel');
       
-      
       $vku_id = db_insert('lk_vku')->fields($array)->execute();
       $this->setAction('create-vku', $vku_id);
-      
+
       $new_data = new VkuData($vku_id);
       $new_data -> takeOver($this -> data);
-      
+
       return $vku_id; 
   }
   
   
   function isCreated(){
-       \LK\Stats::countVKU($this);
+    \LK\Stats::countVKU($this);
   }
   
   /**

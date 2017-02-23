@@ -8,7 +8,7 @@ class Access {
   var $kampagne = NULL;
   var $account = NULL;
 
-  var $moderator_days;
+  var $moderator_days = 60;
 
 
   /**
@@ -20,8 +20,6 @@ class Access {
   function __construct(\LK\Kampagne\Kampagne $kampagne, \LK\User $account){
     $this -> kampagne = $kampagne;
     $this -> account = $account;
-
-    $this -> moderator_days = 500;
   }
   
   /**

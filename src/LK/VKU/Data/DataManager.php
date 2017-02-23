@@ -30,10 +30,10 @@ class DataManager extends DM {
   }
 
   function getKampagnenCount(\LK\Kampagne\Kampagne $kampagne){
-    $dbq = db_query("SELECT id FROM lk_vku_data WHERE data_entity_id=:nid AND data_module='node' AND data_class='kampagne'", [':nid' => $kampagne ->getNid()]);
+    $dbq = db_query("SELECT count(*) as count FROM lk_vku_data WHERE data_entity_id=:nid AND data_module='node' AND data_class='kampagne'", [':nid' => $kampagne ->getNid()]);
     $all = $dbq -> fetchObject();
 
-    return ['Verwaltete Kampagne in VKU' => $all -> count];
+    return ['Kampagne in VKU' => $all -> count];
   }
 
   function removeKampagnenData(\LK\Kampagne\Kampagne $kampagne){

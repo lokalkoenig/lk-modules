@@ -735,14 +735,14 @@ a.btn-restore {
 }
 
 .panel-group#accordion .panel {
-    border-radius: 0;
-    border: 0;
-    box-shadow: none;
-    -webkit-box-shadow: none;
-    margin: 0;
-    padding: 0;
-    background: transparent;
-    
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  overflow-x: hidden;
 }
 
 .panel-group#accordion h4 {

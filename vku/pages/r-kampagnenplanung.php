@@ -58,6 +58,7 @@ return $monatskalender;
 }
 
 $pdf->AddPage();
+$pdf->SetTextColor(69, 67, 71);
 $pdf -> SetTopMargin(30);
 $pdf -> SetLeftMargin(25);
 $pdf -> SetRightMargin(25);

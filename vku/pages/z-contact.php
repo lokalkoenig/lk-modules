@@ -9,16 +9,12 @@ else {
 }
 $prof = profile2_load_by_user($account);
 
-
+$pdf->SetTextColor(69, 67, 71);
 $pdf -> SetMargins(0, 0);
 $pdf -> SetTopMargin(30);
-
-// MA-Page
 $pdf->AddPage();
-
 $pdf -> SetLeftMargin(25);
 $pdf -> Ln(10);
-
 $pdf->Image($module_dir .'/telefon.jpg', 180, 100, 100);   
 $pdf->SetFont(VKU_FONT,'B',45);
 
@@ -82,10 +78,5 @@ else :
     $pdf->SetFont(VKU_FONT,'',14);
     $pdf -> Ln(10);
     $pdf->MultiCell(0, 8, ($prof['main']->field_profile_adresse['und'][0]['organisation_name']) , 0, 'L', 0);    
-    $pdf->MultiCell(0, 8, $prof['main']->field_profile_adresse['und'][0]['thoroughfare'] .' | ' . ($prof['main']->field_profile_adresse['und'][0]['postal_code'] . ' ' . $prof['main']->field_profile_adresse['und'][0]['locality']) , 0, 'L', 0);    
-
-    
-    
+    $pdf->MultiCell(0, 8, $prof['main']->field_profile_adresse['und'][0]['thoroughfare'] .' | ' . ($prof['main']->field_profile_adresse['und'][0]['postal_code'] . ' ' . $prof['main']->field_profile_adresse['und'][0]['locality']) , 0, 'L', 0);        
 endif;
-
-?>

@@ -69,16 +69,19 @@ class Stats {
     }
     
     private static function __logVku(\VKUCreator $vku, $key){
-       $user = \LK\get_user($vku ->getAuthor());
-       self::log("user", $user ->getUid(), $key);
+
+      $vku_safe = new \VKUCreator($vku ->getId());
+      $account = \LK\get_user($vku_safe ->getAuthor());
+
+      self::log("user", $account ->getUid(), $key);
       
-       if($team = $user ->getTeam()){
-            self::log("team", $team, $key);
-       }
+      if($team = $account ->getTeam()){
+        self::log("team", $team, $key);
+      }
         
-       if($verlag = $user ->getVerlag()){
-            self::log("verlag", $verlag, $key);
-       } 
+      if($verlag = $account ->getVerlag()){
+        self::log("verlag", $verlag, $key);
+      } 
     }
 
 

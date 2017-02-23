@@ -34,13 +34,9 @@ global $user;
     drupal_goto($vku -> url());
     exit;
   }
-  else {
-      $vku -> isCreated();
-  }
   
   $title_id =  $vku -> getPageId('title');
   drupal_goto("vku/" . $id . "/edit/" . $title_id);
-  //http://localhost/vku/503/edit/242?destination=vku/503
 }
 
 /**

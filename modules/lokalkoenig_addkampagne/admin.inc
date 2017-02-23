@@ -276,7 +276,7 @@ global $user;
 
 function _show_remove_stats($node){
 
-  $manager = new \LK\Admin\Data\DataManager();
+  $manager = new \LK\Admin\Data\DataManager(\LK\current());
   $kampagne = new \LK\Kampagne\Kampagne($node);
   $stats = $manager -> getKampagneStats($kampagne);
 

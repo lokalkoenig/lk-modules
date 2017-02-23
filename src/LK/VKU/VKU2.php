@@ -289,7 +289,7 @@ class VKU2 extends PageManager {
     
     $response = [];
     $response["replace"] = null;
-    
+
     // When there is a new Item we go through all the Items to find the item we need to replace
     if($new){
       $explode = explode("-", $new);
@@ -304,15 +304,29 @@ class VKU2 extends PageManager {
           if($pid === $val["id"]){
             $response["replace_sid"] = $replace_sid;
             $response["replace"] = theme("vku2_item", array("item" => $val, 'vku' => $vku_updated));
-          }   
+            $response["replace_vars"] = $val;
+
+          }
           else {
             while(list($key2, $val2) = each($pages[$key]["children"])){
               if($pid == $val2["id"]){
                 $response["replace_sid"] = $replace_sid;
-                $response["replace"] = theme("vku2_item", array("item" => $val2, 'vku' => $vku_updated));    
+                $response["replace"] = theme("vku2_item", array("item" => $val2, 'vku' => $vku_updated));
+                $response["replace_vars"] = $val2;
               }
             }
           }
+        }
+      }
+
+
+      if($response["replace"]){
+        $response["replace_action"] = NULL;
+
+        $data = $this ->_getPageData($pid);
+        $obj = $this->getModule($data -> data_module);
+        if($obj){
+          $response["replace_action"] = $obj ->saveNewItem_action((array)$data);
         }
       }
     }

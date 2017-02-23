@@ -149,6 +149,7 @@ class Document {
    */
   function setContent($data){
     $this ->setData('document_content', serialize($data));
+    return $this;
   }
   
   /**

@@ -109,8 +109,6 @@ function lokalkoenig_search_block_view($delta = NULL){
  */
 function _lk_generate_search_related_block(){
 
-  return ;
-
   if(lk_is_agentur()) {
     return ;
   } 
@@ -139,15 +137,13 @@ function _lk_generate_search_related_block(){
   $search = new \LK\Solr\Search();
   $search ->addFromQuery($url);
 
-  
-  $nodes_exclude = array();
   foreach($view -> result as $entity){
-     if(is_int($entity -> entity)){
-       $search ->excludeNode($entity -> entity); 
-     }
-     else {
-      $search ->excludeNode($entity -> entity -> nid);
-     } 
+    if(is_int($entity -> entity)){
+      $search ->excludeNode($entity -> entity);
+    }
+    else {
+     $search ->excludeNode($entity -> entity -> nid);
+    }
   }
   
   $search ->setLimit(4);
@@ -169,13 +165,7 @@ function _lk_generate_search_related_block(){
   
   $output = [];
   foreach($nodes as $nid){
-    $node = node_load($nid);
-    if(!$node){
-      continue;
-    }
-    
-    $node_view = node_view($node, 'teaser');
-    $output[] = render($node_view);
+    $output[] = \LK\UI\Kampagne\Teaser::get($nid);
   }
   
   if(!$output){

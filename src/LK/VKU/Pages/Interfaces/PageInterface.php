@@ -15,7 +15,16 @@ abstract class PageInterface {
     $this->pagemanager = $pagemanager;
     $this -> pdf_pages_dir = 'sites/all/modules/lokalkoenig/vku/pages';
   }
-  
+
+  /**
+   * Gets the Page-Manager
+   *
+   * @return \LK\VKU\PageManager
+   */
+  protected function getPageManager(){
+    return $this->pagemanager;
+  }
+
   /**
    * Gets the Default Page-options
    */
@@ -30,17 +39,48 @@ abstract class PageInterface {
   final public function getPDFFileDirectory(){
     return $this->pdf_pages_dir;
   }
-  
+
+  /**
+   * Gets the Implementation of the field
+   */
   abstract function getImplementation(\VKUCreator $vku, $item, $page);
-  
+
+  /**
+   * Gets the possible Pages
+   */
   abstract function getPossibilePages($category, \LK\User $account);
 
+  /**
+   * Saves a new item
+   */
   abstract function saveNewItem(array $item);
   
-  function updateItem(\VKUCreator $vku, $pid, array $item){
-    
+  /**
+   * Gets an Action for adding a new item 
+   * 
+   * @param array $item
+   * @return string
+   */
+  function saveNewItem_action(array $item){
+    return null;
   }
-  
+
+  /**
+   * Updates an Item
+   *
+   * @param \VKUCreator $vku
+   * @param int $pid
+   * @param array $item
+   */
+  function updateItem(\VKUCreator $vku, $pid, array $item){}
+
+  /**
+   * Removes an Item
+   *
+   * @param \VKUCreator $vku
+   * @param int $pid
+   * @param array $item
+   */
   function removeItem(\VKUCreator $vku, $pid, array $item){
   
   }

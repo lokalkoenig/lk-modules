@@ -158,27 +158,11 @@ return $txt;
  * @param type $link
  * 
  */
-
 function Image($file, $x=null, $y=null, $w=0, $h=0, $type='', $link=''){
-   $bild = explode("?", $file);
-   $file = $bild[0];
-   
-   $useimage = \LK\Files\FileGetter::get($file);
-   
-   /**
-   $size = @getimagesize($file);  
-   //$file = str_replace("http://lk.dev/", "", $file);
-   //$file = str_replace("http://www.lokalkoenig.de/", "", $file);
-   
-   if(!$size){
-       $file = 'sites/all/modules/lokalkoenig/vku/pages/place-text.png';   
-   }    
-   
-   // When no Image Rendering
-   if($this -> noimagerendering){
-       return ;
-   }
-   */
+  $bild = explode("?", $file);
+  $file = $bild[0];
+
+  $useimage = \LK\Files\FileGetter::get($file);
   parent::Image($useimage, $x, $y, $w, $h, $type, $link);
 }
 
@@ -295,12 +279,11 @@ function WriteHTML($html)
 {
     //$html = str_replace('&nbsp;', " ", $html);
     //$html = utf8_decode($html);
-    $html=strip_tags($html, "<br><b><u><i><a><img><p>
-<strong><em><font><tr><blockquote><hr><td><tr><table><sup>"); //remove all unsupported tags
+    $html=strip_tags($html, "<br><b><h2><h1><strong><u><i><p><em><tr><blockquote><td><tr><table><ul><li>"); //remove all unsupported tags
     $html=str_replace("\n", '', $html); //replace carriage returns by spaces
     $html=str_replace("\t", '', $html); //replace carriage returns by spaces
     $a=preg_split('/<(.*)>/U', $html, -1, PREG_SPLIT_DELIM_CAPTURE); //explodes the string
-    
+
     foreach($a as $i=>$e)
     {
         if($i%2==0)
@@ -316,8 +299,12 @@ function WriteHTML($html)
                     $this->Cell($this->tdwidth, $this->tdheight, '', $this->tableborder, '', $this->tdalign, $this->tdbgcolor);
                 }
             }
-            else
+            else {
+              if(!empty(trim($e))){
                 $this->Write(5, stripslashes(txtentities($e)));
+              }
+            }
+                
         }
         else
         {
@@ -339,21 +326,9 @@ function WriteHTML($html)
     }
 }
 
-function OpenTag($tag, $attr)
-{
+function OpenTag($tag, $attr){
     //Opening tag
     switch($tag){
-
-        case 'SUP':
-            if($attr['SUP'] != '') {    
-                //Set current font to: Bold, 6pt     
-                $this->SetFont('', '', 6);
-                //Start 125cm plus width of cell to the right of left margin         
-                //Superscript "1" 
-                $this->Cell(2, 2, $attr['SUP'], 0, 0, 'L');
-            }
-            break;
-
         case 'TABLE': // TABLE-BEGIN
             if(isset($attr['BORDER']) AND $attr['BORDER'] != '' ) $this->tableborder=$attr['BORDER'];
             else $this->tableborder=0;
@@ -382,39 +357,42 @@ function OpenTag($tag, $attr)
             $this->tdbegin=true;
             break;
 
-        case 'HR':
-              $this->Ln(10);
-            $Width = $this->w - $this->lMargin-$this->rMargin;
-            $x = $this->GetX();
-            $y = $this->GetY();
-            $this->SetLineWidth(0.1);
-            $this->Line($x, $y, $x+$Width, $y);
-            $this->SetLineWidth(0.1);
-            $this->Ln(1);
-            break;
-        
-        case 'STRONG':
-            $this->SetFont('DejaVu', 'B');
-            break;
-            
-            
-        case 'I':    
+        case 'UL':
+          $this->Ln(1);
+          break;
+
+        case 'LI':
+          $this->Write(5, '•   ');
+          break;
+
+        case 'I':
         case 'EM':
             $this->SetFont('DejaVu', 'I');
             break;
+
         case 'B':
+        case 'STRONG':
         case 'U':
             $this->SetFont('DejaVu', 'B');
             break;
        
-        //case 'TR':
-        case 'BLOCKQUOTE':
         case 'BR':
             $this->Ln(5.5);
             break;
-            
+
+        case 'H1':
+          $this->Ln(2);
+          $this->SetFont('DejaVu', 'B', 22);
+           //$this->Ln(2);
+        break;
+
+         case 'H2':
+          $this->Ln(2);
+          $this->SetFont('DejaVu', '', 18);
+          
+          break;
+          
         case 'P':
-            $this->Ln(10);
             break;
        
     }
@@ -437,9 +415,27 @@ function CloseTag($tag)
         $this->Ln();
     }
     if($tag=='TABLE') { // TABLE-END
-        //$this->Ln();
         $this->tableborder=0;
     }
+
+     if($tag=='P') {
+      $this->Ln(7);
+     }
+
+     if($tag=='LI') {
+      $this->Ln(4);
+     }
+
+     if($tag=='UL') {
+      $this->Ln(2);
+     }
+
+    if($tag=='H2' OR $tag == 'H1'){
+      $this->SetFont('DejaVu', '', 10);
+      $this->Ln(8);
+    }
+
+
 
     if($tag=='STRONG')
         $tag='B';

@@ -18,6 +18,7 @@ $totalpages = 0;
 
 $pdf -> SetLeftMargin(115);
 $pdf -> SetRightMargin(25);
+$pdf->SetTextColor(69, 67, 71);
 
 $hideonlinesize = $pdf -> verlag_hide_size_online;
 
@@ -249,16 +250,5 @@ foreach($node -> medien as $medium){
       $pdf -> Text($x, 75 + $calc + 7, ($variante["title"]));
       
       $x+=$width + $abstand;
-      
-      
-  }
-  
- 
-  
+  }  
 }
-
-
-//$totalpages++;
-
-
-?>

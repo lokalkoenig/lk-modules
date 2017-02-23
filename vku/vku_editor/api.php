@@ -44,6 +44,11 @@ function vku_editor_api_cb(){
     $manager -> saveMitarbeiterDocument($data);
   }
  
+   // Preset-Action - Special
+  if($action === 'set-media'){
+    $manager -> saveMediaCallback($_POST['id'], $_POST['media'], $_POST['index']);
+  }
+ 
   // save Document
   // Preset-Action
  }

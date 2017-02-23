@@ -149,7 +149,12 @@ var vku2 = {
        
        // we replace it
        if(msg.replace_sid){
-           jQuery('.entry.state-new[data-sid='+ msg.replace_sid +']').replaceWith(msg.replace);
+           $('.entry.state-new[data-sid='+ msg.replace_sid +']').replaceWith(msg.replace);
+           track('vku2.0', 'add-document', $('.entry[data-id="' + msg.replace_vars.id +'"]').find('.action-preview').data('preview-title'));
+
+           if(msg.replace_action){
+             eval(msg.replace_action);
+           }
        }
        
        jQuery('#vku2_items_container').html(msg.items);
@@ -246,6 +251,8 @@ var vku_finalize_handler = function(){
                 jQuery('.vku-generator').removeClass("vku-done");
             }
             else {
+              track('vku2.0', 'finalized');
+
               jQuery('.vku-generator').addClass('finalized');
               jQuery('.finalize-vku-wrapper').fadeOut();
               jQuery('.download-wrapper').fadeIn();
@@ -403,7 +410,8 @@ var vku_collect_saveables = function(delete_items){
         
         // to delete
         if(jQuery(this).hasClass('state-deleted')){
-            jQuery(this).remove();
+            track('vku2.0', 'remove-document', $(this).find('.action-preview').data('preview-title'));
+            $(this).remove();
         }
         
         if(jQuery(this).find('.children').length == 1){
@@ -420,7 +428,8 @@ var vku_collect_saveables = function(delete_items){
                
                // to delete
                 if(jQuery(this).hasClass('state-deleted')){
-                    jQuery(this).remove();
+                  track('vku2.0', 'remove-document', $(this).find('.action-preview').data('preview-title'));
+                  $(this).remove();
                 }
                
                i++;
