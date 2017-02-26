@@ -90,24 +90,26 @@ class PageDefault extends PageInterface {
    * @param array $page
    * @param \PDF $pdf
    */
-  function getOutputPDF($page, $pdf){
+  function getOutputPDF($page, \LK\PDF\LK_PDF $pdf){
     
     $static_pages = [
-        'title' => 'a-cover.php',
-        'contact' => 'z-contact.php',
-        'kontakt' => 'z-contact.php',
-        'onlinewerbung' => 'q-onlinewerbung.php',
-        'wochen' => 'p-wochenblaettern.php',
-        'tageszeitung' => 'o-tageszeitungen.php',
-        'kplanung' => 'r-kampagnenplanung.php',
+      'title' => '\\LK\\VKU\\Pages\\StaticPages\\Title',
+      'contact' => '\\LK\\VKU\\Pages\\StaticPages\\Contact',
+      'kontakt' => '\\LK\\VKU\\Pages\\StaticPages\\Contact',
+      'onlinewerbung' => '\\LK\\VKU\\Pages\\StaticPages\\Online',
+      'wochen' => '\\LK\\VKU\\Pages\\StaticPages\\Wochen',
+      'tageszeitung' => '\\LK\\VKU\\Pages\\StaticPages\\Tageszeitungen',
+      'kplanung' => '\\LK\\VKU\\Pages\\StaticPages\\Planung',
     ];
-    
+
     $module_dir = $this->getPDFFileDirectory();
     $module = $page["data_class"];
     $vku = new \VKUCreator($page['vku_id']);
     
     if(isset($static_pages[$module])){
-      require_once $module_dir . '/' . $static_pages[$module];
+      $page = new $static_pages[$module]();
+      $page -> render($pdf, $vku, $page);
+      //require_once $module_dir . '/' . $static_pages[$module];
     }
   }
   

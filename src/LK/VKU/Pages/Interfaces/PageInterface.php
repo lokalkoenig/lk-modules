@@ -101,7 +101,7 @@ abstract class PageInterface {
    * @param array $page
    * @param \LK\PDF\PDF $pdf
    */
-  function getOutputPDF($page, $pdf){
+  function getOutputPDF($page, \LK\PDF\LK_PDF $pdf){
     $pdf->AddPage();
   }
 

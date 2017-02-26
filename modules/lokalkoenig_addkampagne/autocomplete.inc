@@ -18,44 +18,25 @@ function lokalkoenig_addkampagne_branchen_auto($tags_typed = '', $limit = 20){
   //$tags_typed = drupal_explode_tags($tags_typed);
   $tag_last = $tags_typed;
   $query->condition('t.name', '%' . db_like($tag_last) . '%', 'LIKE');
-   
   $tags_return = $query->execute()->fetchAllKeyed();
   
   $returns = array();
-  
   while(list($key, $val) = each($tags_return)){
-    _lokalkoenig_addkampagne_get_line_items($returns, $key, $mytree);  
-  
+    _lokalkoenig_addkampagne_get_line_items($returns, $key, $mytree);
   }  
                         
-  if(!$returns) {
-     //$returns["Nixda"] = '';
-  
-  }
-  
-  
-  
   $array = array();
   $array["more"] = false;
   $array["results"] = array();
-  
   $results = array(); 
-   
-
   
   while(list($key, $val) = each($returns)){
-     $array["results"][] = array('id' => $key, 'text' => $val);
-     $results[$val . " [tid:". $key ."]"] = $val . " [tid:". $key ."]";
+    $array["results"][] = array('id' => $key, 'text' => $val);
+    $results[$val . " [tid:". $key ."]"] = $val . " [tid:". $key ."]";
   }
  
-
-  
-  
-  
-
   drupal_json_output($results); 
-  exit(); 
-
+  exit();
 }
 
 

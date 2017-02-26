@@ -188,7 +188,7 @@ class PageKampagne extends PageInterface {
   }
   
   /**
-   * Gets the possibile Pages
+   * Gets the possible Pages
    * 
    * @param string $category
    * @return array
@@ -301,9 +301,7 @@ class PageKampagne extends PageInterface {
    * @param type $page
    * @param type $pdf
    */
-  function getOutputPDF($page, $pdf){
-    $module_dir = $this->getPDFFileDirectory();
-    
+  function getOutputPDF($page, \LK\PDF\LK_PDF $pdf){
     // added for Testing purposes
     if(isset($page['node'])){
       $node = $page['node'];
@@ -313,16 +311,17 @@ class PageKampagne extends PageInterface {
       $nid = $page["data_entity_id"];
       $node = $this -> _vku_load_vku_settings(node_load($nid), $page);
     }
-    
-    include $module_dir .'/b-medias.php';
+
+    $kampagne = new \LK\VKU\Pages\Kampagne\Kampagne($node);
+    $kampagne->render($pdf);
   }
   
   
   function getOutputPPT($page, $ppt) {
-      $nid = $page["data_entity_id"];
-      $node = $this -> _vku_load_vku_settings(node_load($nid), $page);
+    $nid = $page["data_entity_id"];
+    $node = $this -> _vku_load_vku_settings(node_load($nid), $page);
 
-      $obj = new \LK\PPT\Pages\RenderNode($ppt);
-      $obj->render($node);
+    $obj = new \LK\PPT\Pages\RenderNode($ppt);
+    $obj->render($node);
   }
 }

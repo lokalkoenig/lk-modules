@@ -1,6 +1,8 @@
 <?php
 
 namespace LK\PDF;
+use LK\PDF\LK_PDF;
+
 
 /**
  * Description of PDF_Loader
@@ -11,18 +13,13 @@ class PDF_Loader {
     /**
      * Returns back an PDF-Object
      * 
-     * @return \PDF
+     * @return \LK_PDF
      */
     static function load(){
       require_once __DIR__ .'/pdf_class.php';
       
-      $pdf = new \PDF('L');
-      $pdf -> SetMargins(0);
-      $pdf -> SetTopMargin(30);
-      $pdf -> AliasNbPages();
-      $pdf -> SetTextColor(69, 67, 71);
-
-    return $pdf;    
+      $pdf = new LK_PDF('L');
+      return $pdf;
     }
     
     
@@ -34,26 +31,18 @@ class PDF_Loader {
      */
     static function getPDF($uid){
       $pdf = self::load();
+      
       $account = \LK\get_user($uid);
-      $verlag = $account ->getVerlag();
-      $pdf -> setVKUDefaults();
-      
-      if($account ->isModerator()){
-        $pdf -> setVerlag(LK_TEST_VERLAG_UID);
-      }
-      else {
-        $pdf -> setVerlag($verlag);
-      }
-      
+      $pdf->setUserSettings(\LK\VKU\VKUManager::getVKU_RenderSettings($account));
       return $pdf;
     }
 
     /**
      * Outputs the PDF to the browser
      * 
-     * @param \PDF $pdf
+     * @param \LK_PDF $pdf
      */
-    static function output(\PDF $pdf){
+    static function output(LK_PDF $pdf){
       drupal_get_messages();
       ob_clean();
       $pdf->Output();
@@ -65,10 +54,10 @@ class PDF_Loader {
      * 
      * @param \stdClass $node
      * @param type $output
-     * @return \PDF
+     * @return \LK_PDF
      */
     static function renderTestNode(\stdClass $node, $output = true){
-      $pdf = self::load();
+      $pdf = self::getPDF(\LK\current()->getUid());
         
       $manager = new \LK\VKU\Export\Manager();
       $manager->generateSampleKampagne($pdf, $node);

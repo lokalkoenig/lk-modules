@@ -236,7 +236,7 @@ class VKU2Handler extends PageInterface {
    * @param array $page
    * @param \PDF $pdf
    */
-  function getOutputPDF($page, \PDF $pdf) {
+  function getOutputPDF($page, \LK\PDF\LK_PDF $pdf) {
 
     $manager = $this->getDocumentHandler();
     $document = $manager->getDocumentMitarbeiter($page["data_entity_id"]);

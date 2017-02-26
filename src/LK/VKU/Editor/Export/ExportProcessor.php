@@ -2,6 +2,8 @@
 
 namespace LK\VKU\Editor\Export;
 
+use LK\PDF\LK_PDF;
+
 /**
  * Description of ExportProcessor
  *
@@ -11,9 +13,14 @@ class ExportProcessor {
 
   var $document = null;
   var $pdf = null;
+  var $debug = FALSE;
 
   function __construct(\LK\VKU\Editor\Document $document) {
     $this->document = $document;
+
+    if(isset($_GET['debug'])){
+      $this->debug = TRUE;
+    }
   }
 
   /**
@@ -28,7 +35,7 @@ class ExportProcessor {
   /**
    * Gets the PDF Object
    *
-   * @return \PDF
+   * @return LK_PDF
    */
   private function getPDF(){
     return $this->pdf;
@@ -49,30 +56,26 @@ class ExportProcessor {
     return $obj -> getDefinition();
   }
 
-  function addPageTitle($pdf){
+  function addPageTitle(LK_PDF $pdf){
     $pdf->AddPage();
-    $pdf -> SetTopMargin(30);
-    $pdf -> SetLeftMargin(25);
-    $pdf -> SetRightMargin(25);
-    $pdf -> Ln(15);
-    $pdf->SetFont(VKU_FONT,'',22);
-    $pdf->MultiCell(0, 0, $this->getDocument()->getPageTitle(), 0, 'L', 0);
+    $pdf->addHeadline($this->getDocument()->getPageTitle());
   }
 
-  function addFootnote(\PDF $pdf, $footnote){
+  private function addFootnote(LK_PDF $pdf, $footnote){
 
-    //$pdf ->SetTextColor($r);
-    $pdf->setX(0);
-    $pdf -> ln(1);
-    $pdf->setY(175.5);
+    $pdf->SetFillColor(255, 255, 255);
+    $pdf -> Rect(0,175.5, 297, 30, 'F');
+
+    $pdf->setX(25);
+    $pdf->setY(178.5);
     $pdf ->SetLeftMargin(25);
     $pdf ->SetRightMargin(25);
     $pdf ->SetFont(VKU_FONT, '', 8);
-    $pdf->Cell(125, 10, $footnote, 0,0, 'R');
+    $pdf->MultiCell(0, 10, $footnote, '', 'R');
   }
 
 
-  public function processPDF(\PDF $pdf){
+  public function processPDF(LK_PDF $pdf){
     $this -> pdf = $pdf;
     
     $document = $this ->getDocument();
@@ -86,7 +89,7 @@ class ExportProcessor {
     $text_sep = 5;
 
     $height_100 = 115;
-    $width_100 = 297 - (2 * $left_y);
+    $width_100 = 297 - (2 * $left_y) + $text_sep;
 
     $top_run = $top_x;
     $left_run = $left_y;
@@ -118,65 +121,137 @@ class ExportProcessor {
       }
 
       $regions_processed++;
-      $left_run+=$width_region + $text_sep;
+      $left_run += $width_region + ($text_sep / 2);
     }
     
     $this->addFootnote($pdf, $document ->getFootnote());
   }
 
-
-  private function PDF_Position(\PDF $pdf, $x, $y, $width, $height){
+  private function PDF_Position(LK_PDF $pdf, $x, $y, $width, $height){
     $pdf -> SetXY($x, $y);
-    $width_100 = 290 - 25;
-    $content_spacing = 15;
+    
+    $width_100 = 297 - 50;
+    $content_spacing = 5;
 
     // calc margins
     $margin_right = 25;
     $margin_left = 25;
 
     if($x === 25){
-      $margin_right = $width_100 - ($width) + $content_spacing;
-    }
+      $margin_right += (float)$width_100 - (float)($width) + (float)($content_spacing / 2);
+    }  
     else {
-      $margin_left += ($width);
+      $margin_left += (float)($width) + round($content_spacing / 2, 1);
     }
 
     $pdf -> SetLeftMargin($margin_left);
     $pdf -> SetRightMargin($margin_right);
     $pdf ->SetFont(VKU_FONT, '', 10.5);
-
+    
+    if($this -> debug){
+      $pdf ->SetFont(VKU_FONT, '', 8);
+      $pdf -> Text($x, $y - 4,  'X: ' . $x . '; Y: ' . $y . ", Height: " . $height . "; Width: " . $width . " / MR ". $margin_right . '/ML ' . $margin_left);
+      $pdf ->SetFont(VKU_FONT, '', 10.5);
+      $pdf -> SetXY($x, $y);
+    }
     //kpr($width);
     //exit;
-    //$pdf->WriteHTML('X: ' . $x . '; Y: ' . $y . ", Height: " . $height . "; Width: " . $width . " / MR ". $margin_right . '/ML ' . $margin_left);
+    //$pdf->Text('0', 'X: ' . $x . '; Y: ' . $y . ", Height: " . $height . "; Width: " . $width . " / MR ". $margin_right . '/ML ' . $margin_left);
+    //$pdf -> SetXY($x, $y);
+    
     //$pdf -> Ln(5);
   }
 
-  private function addEditorDocument(\simple_html_dom $dom){
+  /**
+   * Adds an Table-Widget to the PDF
+   *
+   */
+  function addTableWidget($value, $height, $width){
 
     $pdf = $this->getPDF();
-    $pdf->SetFont('DejaVu', '', 10);
 
+    $pdf ->SetFontClass('h2');
+    $pdf->Write(5, $value['title']);
+    $pdf -> ln(10);
+    $pdf ->SetX($pdf->getX());
+
+    $cellwidth = [50,50];
+
+    if(count($value['rows'][0]) === 3){
+      $cellwidth = [33, 33, 34];
+    }
+
+    if(count($value['rows'][0]) === 4){
+      $cellwidth = [25, 25, 25, 25];
+    }
+
+    $pdf->SetFont('','', 10);
+    $x = 0;
+    $table = '<table cellspacing="0" cellpadding="4">';
+    foreach($value['rows'] as $row){
+      $table .= '<tr>';
+
+      $bg_color = '#fff';
+
+      if($x%2){
+        $bg_color = '#eee';
+      }
+      $y = 0;
+      foreach($row as $cell){
+        $stripped = strip_tags($cell, "<br><b><strong><u><i><em>");
+        $table .= '<td width="'. $cellwidth[$y] .'%" bgcolor="'. $bg_color . '">'. $stripped. '</td>';
+
+        $y++;
+
+      }
+      
+      $table .= '</tr>';
+      $x++;
+    }
+    $table .= '</table>';
+
+    $pdf->WriteHTML($table, true, false, true, false, '');
+  }
+
+  /**
+   * Adds an Editor-Markup
+   *
+   * @param \simple_html_dom $dom
+   * @param int $height
+   */
+  private function addEditorDocument(\simple_html_dom $dom, $height){
+
+    $pdf = $this->getPDF();
+    $y = $pdf->GetY();
+    $maxY = $y + $height;
+
+    $pdf->SetFont('DejaVu', '', 10);
     $body = $dom -> find('body');
     $x = 0;
     foreach($body[0] -> children() as $child){
 
-       if(empty($child -> plaintext)){
-          continue;
-       }
+      if($pdf ->GetY() > $maxY){
+        break;
+      }
 
-       if($x > 0){
-          $pdf->Ln(2);
-       }
+      // if empty
+      if(empty($child -> plaintext)){
+          continue;
+      }
+
+      if($x > 0){
+        $pdf->Ln(2);
+      }
 
       if($child -> tag === 'h2'){
         $pdf->SetFont('DejaVu', '', 18);
-        $pdf->WriteHTML($child -> innertext);
-        $pdf->Ln(6);
+        $pdf->WriteOwnHTML($child -> innertext);
+        $pdf->Ln(10);
       }
 
       if($child -> tag === 'ol' OR $child -> tag === 'ul'){
         $ol = 1;
-        $left_margin = $pdf ->left;
+        $left_margin = $pdf ->getMarginLeft();
         $x_pos = $pdf->GetX();
 
         foreach($child -> children() as $li){
@@ -191,49 +266,66 @@ class ExportProcessor {
           }
 
           $pdf->SetLeftMargin($left_margin + 5);
-          $pdf ->WriteHTML($li-> innertext);
-          $pdf->Ln(4.5);
+          $pdf ->WriteOwnHTML(html_entity_decode($li-> innertext));
+          $pdf->Ln(4);
           $pdf->SetLeftMargin($left_margin);
-        
+         
           $ol++;
         }
-
+        $pdf->Ln(2);
         $pdf->SetLeftMargin($left_margin);
-        $pdf->ln(2);
       }
 
 
       if($child -> tag === 'h1'){
         $pdf->SetFont('DejaVu', '', 22);
-        $pdf->WriteHTML($child -> innertext);
+        $pdf->WriteOwnHTML(html_entity_decode($child -> innertext));
         $pdf->Ln(6);
       }
 
       if($child -> tag === 'p'){
-        $pdf ->WriteHTML($child-> innertext);
-        $pdf->ln(4);
+        $pdf ->WriteOwnHTML(html_entity_decode($child-> innertext));
+        $pdf->Ln(4);
       }
 
       $pdf->SetFont('DejaVu', '', 10);
       $x++;
     }
- }
+  }
 
+  /**
+   * Adds an Document Type to the PDF
+   *
+   * @param \LK\PDF\LK_PDF $pdf
+   * @param int $width
+   * @param int $height
+   * @param int $content
+   */
+  private function addPDFContent($pdf, $width, $height, $content){
 
-  private function addPDFContent(\PDF $pdf, $width, $height, $content){
-    $pdf ->SetFont(VKU_FONT, '', 10);
+    $pdf ->SetFont('', '', 10);
+
+    if($this -> debug){
+      $pdf->SetFillColor(254, 254, 254);
+      $pdf->Rect($pdf->GetX(), $pdf->GetY(), $width, $height, 'all');
+    }
+   
+    $pdf->SetFillColor(255, 255, 255);
 
     if($content['widget'] === 'editor'){
       $instance = new \simple_html_dom();
-      $instance->load('<html><body>'. 'AAA' . $content['value'] .'</body></html>');
-      $this ->addEditorDocument($instance);
+      $instance->load('<html><body>'. $content['value'] .'</body></html>');
+
+      $this ->addEditorDocument($instance, $height);
+    }
+    elseif($content['widget'] === 'table') {
+      $this->addTableWidget($content, $height, $width);
     }
     elseif($content['widget'] === 'image') {
       // little fix for now
       $size = getimagesize($content['url']);
       $image_width = $size[0];
       $image_height = $size[1];
-
       $ratio2 = $height / $width;
       $ratio_img = $image_height / $image_width;
 
@@ -247,8 +339,8 @@ class ExportProcessor {
         $real_width_diff = ($width - $real_width) / 2;
         $pdf -> setX($pdf -> getX() + $real_width_diff + 1);
       }
-   
-      $pdf ->SetX($pdf -> getX() + 1);
+
+      
       $pdf->Image($content['url'], NULL, NULL, $real_width - 1, $height);
     }
   }

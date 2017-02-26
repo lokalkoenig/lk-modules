@@ -23,7 +23,7 @@ class Manager extends PageManager {
   function finalizeVKU(\VKUCreator $vku){
     $pdf = $this->generatePDF($vku);
     $fn = $vku -> getId() . ".pdf";
-    $file_path = $this->save_dir .'/'. $fn;
+    $file_path = $_SERVER['DOCUMENT_ROOT'] . $this->save_dir .'/'. $fn;
     $pdf->Output($file_path, 'F');
 
     // PPTX

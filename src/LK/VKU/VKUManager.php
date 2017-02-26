@@ -119,8 +119,11 @@ class VKUManager {
         'contact_layout' => 'default',
         'hide_size_online' => 'no',
         'vku_hintergrundfarbe' => 'FFFFFF',
+        'vku_hintergrundfarbe_rgb' => [255,255,255],
         'title_bg_color' => '646464',
+        'title_bg_color_rgb' => self::hex2rgb('646464'),
         'title_vg_color' => 'FFFFFF',
+        'title_vg_color_rgb' => [255,255,255],
         'logo_oben' => '',
         'logos_unten' => array()
     );
@@ -150,17 +153,20 @@ class VKUManager {
    
     // HG-Farbe VKU
     if($color = $verlag -> getVerlagSetting("vku_hintergrundfarbe", false, 'jquery_colorpicker')){
-      $array["vku_hintergrundfarbe"] = $color; 
+      $array["vku_hintergrundfarbe"] = $color;
+      $array["vku_hintergrundfarbe_rgb"] = self::hex2rgb($color);
     }
     
     // HG-Farbe Titel
     if($color = $verlag -> getVerlagSetting("vku_hintergrundfarbe_titel", false, 'jquery_colorpicker')){
-      $array["title_bg_color"] = $color; 
+      $array["title_bg_color"] = $color;
+      $array["title_bg_color_rgb"] = self::hex2rgb($color);
     }
 
     // VG-Farbe Titel    
     if($color = $verlag -> getVerlagSetting("vku_vordergrundfarbe_titel", false, 'jquery_colorpicker')){
-      $array["title_vg_color"] = $color; 
+      $array["title_vg_color"] = $color;
+      $array["title_vg_color_rgb"] = self::hex2rgb($color);
     }
     
     // Font
@@ -168,7 +174,23 @@ class VKUManager {
     
     // Contact Template
     $array["contact_layout"] = $verlag -> getVerlagSetting("verlag_kontakt_vorlage", 'default', 'value');
-    
+
   return $array;    
-  }  
+  }
+
+  static function hex2rgb($hex) {
+   $hex = str_replace("#", "", $hex);
+
+   if(strlen($hex) == 3) {
+      $r = hexdec(substr($hex,0,1).substr($hex,0,1));
+      $g = hexdec(substr($hex,1,1).substr($hex,1,1));
+      $b = hexdec(substr($hex,2,1).substr($hex,2,1));
+   } else {
+      $r = hexdec(substr($hex,0,2));
+      $g = hexdec(substr($hex,2,2));
+      $b = hexdec(substr($hex,4,2));
+   }
+   $rgb = array($r, $g, $b);  
+   return $rgb;
+  }
 }

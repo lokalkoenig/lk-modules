@@ -275,6 +275,35 @@ function Footer(){
     }
 }        #
 
+  /**
+   * Writes basic Markup to the PDF
+   * br/em/i/strong/b without attributes
+   *
+   * @param string $html
+   */
+  function writeBasicHTML($html) {
+    $html = strip_tags($html, "<br><b><strong><i><em>"); //remove all unsupported tags
+    $html = str_replace("\n", '', $html); //replace carriage returns by spaces
+    $html = str_replace("\t", '', $html); //replace carriage returns by spaces
+    $a = preg_split('/<(.*)>/U', $html, -1, PREG_SPLIT_DELIM_CAPTURE); //explodes the string
+
+    foreach($a as $i=>$e){
+      if($i % 2 == 0) {
+        $this->Write(5, $e);
+      }
+      else {
+        if($e{0}=='/')
+          $this->CloseTag(strtoupper(substr($e, 1)));
+        else {
+          $a2=explode(' ', $e);
+          $tag=strtoupper(array_shift($a2));
+          $attr=array();
+          $this->OpenTag($tag, $attr);
+          }
+      }
+    }
+  }
+
 function WriteHTML($html)
 {
     //$html = str_replace('&nbsp;', " ", $html);
