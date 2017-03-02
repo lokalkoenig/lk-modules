@@ -89,7 +89,6 @@ class PageKampagne extends PageInterface {
   /**
    * Save the Children configurations
    * 
-   * @param \VKUCreator $vku
    * @param id $pid
    * @param array $item
    */
@@ -305,7 +304,6 @@ class PageKampagne extends PageInterface {
   function getOutputPDF($page, \LK\PDF\LK_PDF $pdf){
     // added for Testing purposes
     if(isset($page['node'])){
-      $node = $page['node'];
       $node = $this -> _vku_load_vku_settings($page['node']);
     }
     else {

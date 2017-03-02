@@ -25,7 +25,11 @@ class PageDefault extends PageInterface {
    */
   public static function getPageTitle($key){
     $titles = self::titles;
-    
+
+    if(!isset($titles[$key])){
+      return FALSE;
+    }
+
     return $titles[$key];
   }
   
@@ -36,15 +40,19 @@ class PageDefault extends PageInterface {
     return $item;
   }
   
-  function updateItem(\VKUCreator $vku, $pid, array $item){ 
+  function updateItem($pid, array $item){ 
     // do nothing
   }
 
-  function getImplementation(\VKUCreator $vku, $item, $page){
- 
-    if(!isset($this -> titles[$page["data_class"]])){
+  function getImplementation($item, $page){
+
+    $title = self::getPageTitle($page["data_class"]);
+
+    if(!$title){
       return false; 
     }
+
+    $vku = $this->getVKU();
     
     $item["preview"] = true;
     $item["delete"] = true;
@@ -52,7 +60,7 @@ class PageDefault extends PageInterface {
     $item["pages"] = 1;
     $item["cid"] = $page["data_category"];
     $item["orig-id"] = 'default-' . $page["data_class"];
-    $item["title"] = self::getPageTitle($page["data_class"]);
+    $item["title"] = $title;
     
     if($page["data_class"] === 'title'){
       $item["title"] = 'Titelseite: <span class="vku-title">' . $vku->get('vku_title') . '</span>';
@@ -72,7 +80,7 @@ class PageDefault extends PageInterface {
    * @param string $category
    * @return array
    */
-  function getPossibilePages($category, \LK\User $account){
+  function getPossibilePages($category){
     
     $items = [];
     
@@ -100,7 +108,7 @@ class PageDefault extends PageInterface {
    * @param array $page
    * @param \PDF $pdf
    */
-  function getOutputPDF($page, \LK\PDF\LK_PDF $pdf, \VKUCreator $vku){
+  function getOutputPDF($page, \LK\PDF\LK_PDF $pdf){
     
     $static_pages = [
       'title' => '\\LK\\VKU\\Pages\\StaticPages\\Title',
@@ -112,18 +120,16 @@ class PageDefault extends PageInterface {
       'kplanung' => '\\LK\\VKU\\Pages\\StaticPages\\Planung',
     ];
 
-    $module_dir = $this->getPDFFileDirectory();
     $module = $page["data_class"];
     $vku = new \VKUCreator($page['vku_id']);
     
     if(isset($static_pages[$module])){
       $page = new $static_pages[$module]();
       $page -> render($pdf, $vku, $page);
-      //require_once $module_dir . '/' . $static_pages[$module];
     }
   }
   
-  function getOutputPPT($page, $ppt, \VKUCreator $vku) {
+  function getOutputPPT($page, $ppt) {
       $obj = new \LK\PPT\Pages\RenderDefault($ppt);
       $obj->render($page);
   }

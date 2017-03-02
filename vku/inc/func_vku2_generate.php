@@ -18,7 +18,6 @@ function vku2_generate_form(VKUCreator $vku){
    
    $manager = new \LK\VKU\PageManager($vku);
    $uid = $vku ->getAuthor();
-   $account = \LK\get_user($uid);
     
    $print = $manager ->getPossibilePages('print');
    $online = $manager ->getPossibilePages('online');

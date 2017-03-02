@@ -16,7 +16,6 @@ class VKU2 extends PageManager {
   use \LK\Stats\Action;
   
   var $LOG_CATEGORY = 'VKU2';
-  var $vku = null;
   var $response = [];
 
   function __construct(\VKUCreator $vku, $response) {
@@ -75,8 +74,8 @@ class VKU2 extends PageManager {
 
     $vku_updated = new \VKUCreator($this->getVKU()->getId());
 
-    $export_manager = new \LK\VKU\Export\Manager();
-    $pdf = $export_manager ->finalizeVKU($vku_updated);
+    $export_manager = new \LK\VKU\Export\Manager($vku_updated);
+    $pdf = $export_manager ->finalizeVKU();
 
     if(!$pdf){
       $obj["error"] = 1;
@@ -232,19 +231,19 @@ class VKU2 extends PageManager {
                     
           // delete
           if($child["status"] == 2){
-            $this->removePage($vku, $pid2);
+            $this->removePage($pid2);
             $obj["item-remove"] = $pid2;
             continue;
           }
           // new
           elseif($child["status"] == 3){
-            $id = $this->addNewPage($vku, $cid, $items2[0], $items2[1], $child);
+            $id = $this->addNewPage($cid, $items2[0], $items2[1], $child);
             $replace_sid =  $child["sid"];
             $new = $cid . "-" . $id;
             $pid2 = $id;
           }
           else {
-            $this->updatePage($vku, $pid2, $child);
+            $this->updatePage($pid2, $child);
           }          
           
           $sid2 = $cid . '-' . $pid2; 
@@ -256,8 +255,8 @@ class VKU2 extends PageManager {
       
       // new item
       if($item["status"] == 3){
-        $cid = $this -> addCategory($vku, 'other', 0);
-        $id = $this->addNewPage($vku, $cid, $items[0], $items[1], $item);
+        $cid = $this -> addCategory('other', 0);
+        $id = $this->addNewPage($cid, $items[0], $items[1], $item);
         $replace_sid =  $sid;
         $sid = $cid . "-" . $id;
         $new = $sid;
@@ -268,13 +267,13 @@ class VKU2 extends PageManager {
       }
       // delete item
       elseif($item["status"] == 2){
-        $this->removePage($vku, $pid);
+        $this->removePage($pid);
         continue;
       }
       // nothing but update
       else {
         $this -> setPageStatus($pid, 1);
-        $this-> updatePage($vku, $pid, $item);
+        $this-> updatePage($pid, $item);
       }
       
       $line[$sid] = array();
@@ -284,9 +283,12 @@ class VKU2 extends PageManager {
     $this -> saveDeltaPages($line);
     
     $vku_updated = new \VKUCreator($vku ->getId());
-    $pages = $this ->generatePageConfiguration($vku_updated);
-    
+    $pages = $this ->generatePageConfiguration();
+
+
+
     $response = [];
+    $response["bla"] = $pages;
     $response["replace"] = null;
 
     // When there is a new Item we go through all the Items to find the item we need to replace

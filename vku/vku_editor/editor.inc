@@ -73,13 +73,18 @@ function vku_editor_page_alter(&$page) {
 
   // MA-Modus
   if(arg(0) == 'vku' && \LK\VKU\Editor\EditorLoader::isLoaded()){
-     $manager = new \LK\VKU\Editor\UserManager(\LK\current());
+    $vku = \LK\VKU\VKUManager::getVKU(arg(1), true);
+    if(!$vku) {
+      return ;
+    }
 
-      $html = $manager-> getEditorTemplate();
-      $page['page_bottom']['vku_editor'] = array(
-        '#weight' => -10,
-        '#markup' => $html
-      );
+    $manager = new \LK\VKU\Editor\UserManager(\LK\get_user($vku->getAuthor()));
+
+    $html = $manager-> getEditorTemplate();
+    $page['page_bottom']['vku_editor'] = array(
+      '#weight' => -10,
+      '#markup' => $html
+    );
   }
 }
 

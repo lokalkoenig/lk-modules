@@ -45,18 +45,6 @@ function updateCountyInfo(){
 
 }
 
-jQuery(document).ready(function(){
-  
-  /**
-  jQuery('.lkplz input').css('background', '#f5f5f5');
-  jQuery('.lkplz input').css('cursor', 'pointer');
-  
-  jQuery('.lkplz input').click(function(){
-    jQuery(this).next().click();
-  
-  });*/
-});
-
 function plzselect(element, text_class){
   
   last_plz_element = text_class;
@@ -66,35 +54,30 @@ function plzselect(element, text_class){
     modal += '</div></div><!-- /.modal-content --></div><!-- /.modal-dialog --></div><!-- /.modal -->';
     jQuery(element).after(modal);
  
-    url = jQuery('div[plz_id='+ last_plz_element +']').attr('fetch_url');  
+    var url = jQuery('div[plz_id='+ last_plz_element +']').attr('fetch_url');
     if(!url){
      url = '/lk/plz'; 
     }
  
     jQuery('.plz-selector .modal-body').load(url, function(){
       jQuery('<span class="glyphicon glyphicon-chevron-right" title="Öffnen"></span>&nbsp;&nbsp;').insertBefore('.state, .county');
-      
-       values = jQuery('div[plz_id='+ last_plz_element +'] input.form-text').val();
-      
-        var plz = values.split(",");
-        for (i = 0; i < plz.length; i++) {
-          einzel = jQuery.trim(plz[i]);
-          jQuery('span.plz[plz='+ einzel +']').addClass('selected');
-        }
+      var values = jQuery('div[plz_id='+ last_plz_element +'] input.form-text').val();
+      var plz = values.split(",");
+      for (i = 0; i < plz.length; i++) {
+        var einzel = jQuery.trim(plz[i]);
+        jQuery('span.plz[plz='+ einzel +']').addClass('selected');
+      }
   
-        jQuery('.glyphicon').css('cursor', 'pointer');
+      jQuery('.plz-selector .glyphicon').css('cursor', 'pointer');
   
-        if(jQuery('.state').length == 1){
-            
-            
-            jQuery('#plzselect .glyphicon:first').click();
-            
-        }
+      if(jQuery('.state').length == 1){
+        jQuery('#plzselect .glyphicon:first').click();
+      }
   
-        updateBadgeCount(); 
+      updateBadgeCount(); 
     });
     
-    jQuery('.glyphicon').live('click', function(){
+    jQuery('body').on('click', '.plz-selector .glyphicon', function(){
         element  = jQuery(this).next().next();
         jQuery(element).toggle();
         
@@ -108,18 +91,17 @@ function plzselect(element, text_class){
           }    
     });
     
-   jQuery('.plz').live('click', function(){
+   jQuery('body').on('click','.plz', function(){
       jQuery(this).toggleClass('selected');
       updateBadgeCount();
    }); 
       
    
-   jQuery('.county').live('click', function(){
+   jQuery('body').on('click', '.county', function(){
       // Next UL
-      element  = jQuery(this).next();
-      
-      markierte = jQuery(element).find('.plz').length;
-      nichtmarkierte = jQuery(element).find('.plz.selected').length;
+      var element  = jQuery(this).next();
+      var markierte = jQuery(element).find('.plz').length;
+      var nichtmarkierte = jQuery(element).find('.plz.selected').length;
       
       if(markierte == nichtmarkierte){
         jQuery(element).find('.plz').each(function(){
@@ -141,10 +123,8 @@ function plzselect(element, text_class){
  
   }
       
-  jQuery('#suchesubmit').live('click', function(){
+  jQuery('body').on('click', '#suchesubmit', function(){
       value = jQuery('#plzsuche').val();
-        
-     
       
       if(value == ''){
         jQuery('.plz-selector li').removeClass('hidden');

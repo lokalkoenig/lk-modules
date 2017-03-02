@@ -17,17 +17,17 @@ abstract class VKUDataManipulator {
    * @param type $id
    * @return boolean
    */
-  function removePage(\VKUCreator $vku, $id){
+  function removePage($id){
     $data = $this->_getPageData($id);
 
     $obj = $this->getModule($data -> data_module);
     if($obj){
-      $obj ->removeItem($vku, $id, (array)$data);
-      $this->_removePage($vku, $id);
+      $obj ->removeItem($id, (array)$data);
+      $this->_removePage($id);
       return false;
     }
 
-    $this->_removePage($vku, $id);
+    $this->_removePage($id);
   }
 
   /**
@@ -101,7 +101,7 @@ abstract class VKUDataManipulator {
    * @param type $id
    * @return boolean
    */
-  protected function _removePage(\VKUCreator $vku, $id){
+  protected function _removePage($id){
 
     $page = $this ->_getPageData($id);
     if(!$page){
@@ -130,7 +130,8 @@ abstract class VKUDataManipulator {
    * @param Integer $delta
    * @return Integer
    */
-  protected function addCategory(\VKUCreator $vku, $type, $delta){
+  protected function addCategory($type, $delta){
+    $vku = $this->getVKU();
     $vku_id = $vku -> getId();
     $category = db_insert('lk_vku_data_categories')->fields(array('vku_id' => $vku_id, 'category' => $type, 'sort_delta' => $delta))->execute();
 
@@ -145,7 +146,7 @@ abstract class VKUDataManipulator {
    * @param type $item
    * @return boolean
    */
-  function updatePage(\VKUCreator $vku, $id, $item){
+  function updatePage($id, $item){
 
     $data = $this->_getPageData($id);
     $obj = $this->getModule($data -> data_module);
@@ -153,7 +154,7 @@ abstract class VKUDataManipulator {
       return false;
     }
 
-    return $obj ->updateItem($vku, $id, $item);
+    return $obj ->updateItem($id, $item);
   }
 
 
@@ -166,11 +167,13 @@ abstract class VKUDataManipulator {
    * @param int $delta
    * @return int
    */
-  protected function clonePage(\VKUCreator $vku, $data, $cid, $delta){
+  protected function clonePage($data, $cid, $delta){
 
     if(isset($data['id'])){
       unset($data['id']);
     }
+    
+    $vku = $this->getVKU();
 
     $data['vku_id'] = $vku ->getId();
     $data['data_created'] = time();
@@ -183,7 +186,7 @@ abstract class VKUDataManipulator {
       return false;
     }
 
-    $insert = $obj ->renewItem($vku, $data);
+    $insert = $obj->renewItem($data);
     return db_insert('lk_vku_data')->fields($insert)->execute();
   }
 
@@ -197,7 +200,9 @@ abstract class VKUDataManipulator {
    * @param array $children
    * @return int
    */
-  protected function addNewPage(\VKUCreator $vku, $cid, $module, $id, $children = []){
+  protected function addNewPage($cid, $module, $id, $children = []){
+
+    $vku = $this->getVku();
 
     $insert = [];
     $insert['vku_id'] = $vku ->getId();
@@ -227,21 +232,22 @@ abstract class VKUDataManipulator {
    *
    * @param \VKUCreator $vku
    */
-  public function removeAllPages(\VKUCreator $vku){
+  public function removeAllPages(){
     // Make a VKU2-Check to get a propper Configuration for removing
+    $vku = $this->getVKU();
     $vku -> vku2Check();
 
-    $config = $this->generatePageConfiguration($vku);
+    $config = $this->generatePageConfiguration();
     while(list($key, $val) = each($config)){
       // A container
       if($val['container']){
         foreach($val['children'] as $child){
-          $this->removePage($vku, $child['id']);
+          $this->removePage($child['id']);
         }
         $this->_removeCategory($key);
       }
       else {
-        $this->removePage($vku, $val['id']);
+        $this->removePage($val['id']);
       }
     }
   }
@@ -249,12 +255,12 @@ abstract class VKUDataManipulator {
   /**
    * Removes a VKU and gives the Modules a Chance to clean UP
    *
-   * @param \VKUCreator $vku
    * @return boolean
    */
-  public function removeVKU(\VKUCreator $vku){
-    $this ->removeAllPages($vku);
+  public function removeVKU(){
+    $this ->removeAllPages();
 
+    $vku = $this->getVKU();
     // Remove the last Evidence
     $vku ->remove();
     return true;

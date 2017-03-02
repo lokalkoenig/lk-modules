@@ -10,11 +10,9 @@ abstract class PageInterface {
   
   protected $pagemanager = null;
   var $pdf_pages_dir = null;
-  var $vku = null;
 
-  function __construct(\LK\VKU\PageManager $pagemanager, \VKUCreator $vku) {
+  function __construct(\LK\VKU\PageManager $pagemanager) {
     $this->pagemanager = $pagemanager;
-    $this->vku = $vku;
     $this -> pdf_pages_dir = 'sites/all/modules/lokalkoenig/vku/pages';
   }
 
@@ -22,7 +20,7 @@ abstract class PageInterface {
    * @return \VKUCreator VKU
    */
   final function getVKU(){
-    return $this->vku;
+    return $this->getPageManager()->getVKU();
   }
 
   /**
@@ -61,12 +59,12 @@ abstract class PageInterface {
   /**
    * Gets the Implementation of the field
    */
-  abstract function getImplementation(\VKUCreator $vku, $item, $page);
+  abstract function getImplementation($item, $page);
 
   /**
    * Gets the possible Pages
    */
-  abstract function getPossibilePages($category, \LK\User $account);
+  abstract function getPossibilePages($category);
 
   /**
    * Saves a new item
@@ -90,7 +88,7 @@ abstract class PageInterface {
    * @param int $pid
    * @param array $item
    */
-  function updateItem(\VKUCreator $vku, $pid, array $item){}
+  function updateItem($pid, array $item){}
 
   /**
    * Removes an Item
@@ -99,7 +97,7 @@ abstract class PageInterface {
    * @param int $pid
    * @param array $item
    */
-  function removeItem(\VKUCreator $vku, $pid, array $item){
+  function removeItem($pid, array $item){
   
   }
 
@@ -109,7 +107,7 @@ abstract class PageInterface {
    * @param \VKUCreator $vku
    * @param array $items
    */
-  function renewItem(\VKUCreator $vku, $items){
+  function renewItem($items){
     return $items;
   }
 

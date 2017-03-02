@@ -65,14 +65,13 @@ class PageManager extends Data\VKUDataManipulator {
     return $this->vku;
   }
 
-
   /**
    * Gets the Authors-UID
    *
    * @return int UID
    */
   function getAuthor(){
-    $this->getVKU()->getAuthor();
+    return $this->getVKU()->getAuthor();
   }
 
   /**
@@ -174,7 +173,7 @@ class PageManager extends Data\VKUDataManipulator {
    return $categories;
   }
 
-  private function getCategoryChildren($cid, \VKUCreator $vku){
+  private function getCategoryChildren($cid){
     $default = $this->getDefaultOptions();
     
     $children = [];
@@ -187,10 +186,10 @@ class PageManager extends Data\VKUDataManipulator {
       $item["id"] = $child -> id;
       $item["title"] = $page -> data_class;
       
-      $return = $this-> getModuleConfiguration($child -> id, $vku, $item);
+      $return = $this-> getModuleConfiguration($child -> id, $item);
       if(!$return){
         // we have a Broken Page
-        $this->removeBrokenID($vku, $child -> id);
+        $this->removeBrokenID($child -> id);
         continue;
       }  
       
@@ -208,19 +207,19 @@ class PageManager extends Data\VKUDataManipulator {
    * @param type $items
    * @return boolean
    */
-  function getModuleConfiguration($id, \VKUCreator $vku, $items){
+  function getModuleConfiguration($id, $items){
     $seite = $this->_getPageData($id);
 
     if(!$seite){
       return FALSE;
     }
 
-    $document = $this->getModule($seite -> data_module, $vku);
+    $document = $this->getModule($seite -> data_module);
     if(!$document){
       return FALSE;
     }
     
-    return $document ->getImplementation($vku, $items, (array)$seite);
+    return $document ->getImplementation($items, (array)$seite);
   }
   
   
@@ -248,7 +247,7 @@ class PageManager extends Data\VKUDataManipulator {
       return false;
     }
     
-    $obj = new $class_name($this, $this -> vku);
+    $obj = new $class_name($this);
     
   return $obj;   
   }
@@ -257,23 +256,22 @@ class PageManager extends Data\VKUDataManipulator {
   /**
    * Removes a Broken Item from the VKU-Creator-Instance
    * 
-   * @param \VKUCreator $vku
    * @param type $id
    */
-  private function removeBrokenID(\VKUCreator $vku, $id){
-    
+  private function removeBrokenID($id){
+
+
     $data = $this->_getPageData($id);
     if($data){
       // Remove the Page
-      $this->logError('Remove broken page ' . $data -> id . "/". $data -> data_category ." (". $data -> data_module ."/". $data -> data_class .")", ['vku' => $vku]);
-      $this->_removePage($vku, $data -> id);
+      $this->logError('Remove broken page ' . $data -> id . "/". $data -> data_category ." (". $data -> data_module ."/". $data -> data_class .")", ['vku' => $this->getVKU()]);
+      $this->_removePage($data -> id);
     }
   }
 
   /**
    * Gets the current PageConfiguration
    * 
-   * @param \VKUCreator $vku
    * @return array
    */
   function generatePageConfiguration(){
@@ -305,7 +303,7 @@ class PageManager extends Data\VKUDataManipulator {
         $structure[$all -> id]["collapsed"] = true;
         $structure[$all -> id]["class"][] = 'dropable-items-' . $all -> category;
         $structure[$all -> id]["drop-zone"] = 'drop-zone-' . $all -> category;
-        $structure[$all -> id]["children"] = $this -> getCategoryChildren($all -> id, $vku);
+        $structure[$all -> id]["children"] = $this -> getCategoryChildren($all -> id);
         
         $pages_count = 0;
         while(list($key, $val) = each($structure[$all -> id]["children"])){
@@ -318,19 +316,13 @@ class PageManager extends Data\VKUDataManipulator {
         $structure[$all -> id]["pages"] = $pages_count;
       }
       elseif(in_array($all -> category, ['other', 'title', 'kampagne'])){
-        
         $dbq2 = db_query('SELECT id FROM lk_vku_data WHERE data_category=:cat', [':cat' => $cid]);
         $all2 = $dbq2 -> fetchObject();
-
-        if(!$all2) {
-          dpm($cid);
-        }
-
         $return = $this-> getModuleConfiguration($all2 -> id, $structure[$cid]);
 
         // We have a broken Configuration
         if(!$return):
-          $this->removeBrokenID($vku, $all2 -> id);
+          $this->removeBrokenID($all2 -> id);
           unset($structure[$cid]);
           continue;
         endif;

@@ -21,10 +21,10 @@ class VKU2Handler extends PageInterface {
    */
   private function getDocumentHandler(){
     
-    $account = $this->getPageManager()->getAuthorObject();
-
+    $account = $this->getAuthor();
+    
     if(!$GLOBALS['vku_document_manager']){
-      $GLOBALS['vku_document_manager'] = new UserManager($account);
+      $GLOBALS['vku_document_manager'] = new UserManager(\LK\get_user($account));
     }
 
     return $GLOBALS['vku_document_manager'];
@@ -204,7 +204,6 @@ class VKU2Handler extends PageInterface {
   /**
    * Clones an MA-Document
    *
-   * @param \VKUCreator $vku
    * @param array $items
    *
    * @return array

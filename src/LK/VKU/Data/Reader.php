@@ -30,7 +30,7 @@ class Reader extends \views_handler_field {
     else {
       $vku_info = "<label class='label label-primary'>". $vku ->getId() ." / ". $vku ->get('vku_title') ." / ". $vku ->getStatus() ."</label> / " . format_date($all -> data_created) . " von " . \LK\u($vku->getAuthor());
       $page_info .= '<div class="pull-right text-center"><label class="label label-success">#'. $all->id .' / ' . strtoupper($all -> data_module) . '</label>'
-              . '<div style="margin-top: 10px;"><a href="'. url('vku/' . $vku->getId() . '/preview/' . $all -> id) .'" target="_blank" title="PDF-Ansicht"><span class="glyphicon glyphicon-sunglasses"></span></a> &nbsp;&nbsp;'
+              . '<div style="margin-top: 10px;"><a href="'. url('vku/' . $vku->getId() . '/preview/' . $all -> id) .'" target="_blank" title="PDF-Ansicht (Neues Fenster)"><span class="glyphicon glyphicon-sunglasses"></span></a> &nbsp;&nbsp;'
               . '<a href="#" title="Zur VKU wechseln"><span class="glyphicon glyphicon-link"></span></a>'
               . '</div></div>';
 

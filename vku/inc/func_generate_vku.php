@@ -2,8 +2,8 @@
 
 
 function _vku_generate_final_vku($vku){
-  $manager = new \LK\VKU\Export\Manager();
-  return $manager ->finalizeVKU($vku);
+  $manager = new \LK\VKU\Export\Manager($vku);
+  return $manager ->finalizeVKU();
 }
 
 function _vku_ontheflygenerate($account, $vku_id){

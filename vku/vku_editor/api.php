@@ -29,10 +29,16 @@ function vku_editor_api_cb(){
    $manager = new LK\VKU\Editor\UserManager($current);
 
    if($explode[1] != $current ->getUid()){
-     $manager ->sendError("Sie haben keinen Zugriff auf diese Funktion.");
-     exit;
+     if(lk_is_moderator()){
+      $manager = new LK\VKU\Editor\UserManager(\LK\get_user($explode[1]));
+     }
+     else {
+      $manager ->sendError("Sie haben keinen Zugriff auf diese Funktion.");
+      exit;
+     }
    }
-   
+
+
   // Load document
   if($action === 'load-document' && isset($_REQUEST['id'])){
     $manager ->loadEditDocument($_REQUEST['id']);

@@ -10,8 +10,8 @@ use LK\VKU\PageManager;
  */
 class Manager extends PageManager {
 
-  function __construct() {
-    parent::__construct();
+  function __construct(\VKUCreator $vku) {
+    parent::__construct($vku);
   }
   
   /**
@@ -20,15 +20,16 @@ class Manager extends PageManager {
    * @param \VKUCreator $vku
    * @return boolean
    */
-  function finalizeVKU(\VKUCreator $vku){
-    $pdf = $this->generatePDF($vku);
+  function finalizeVKU(){
+    $vku = $this->getVKU();
+    $pdf = $this->generatePDF();
     $fn = $vku -> getId() . ".pdf";
     $file_path = $_SERVER['DOCUMENT_ROOT'] . $this->save_dir .'/'. $fn;
     $pdf->Output($file_path, 'F');
 
     // PPTX
     if(\vku_is_update_user_ppt()):
-      $pptx = $this->generatePPTX($vku);
+      $pptx = $this->generatePPTX();
       $file_pptx = \LK\PPT\PPTX_Loader::save($pptx, $this->save_dir, $vku ->getId());
       $vku -> set('vku_ppt_filename', $file_pptx);
       $file_size = filesize($this->save_dir . '/' . $file_pptx);
@@ -44,12 +45,12 @@ class Manager extends PageManager {
 
     /**
    * Gets back a generated PDF from the VKU
-   * @param \VKUCreator $vku
    * @param $line_item optional-page-id
    * @param boolean $output direct
    */
-  function generatePDF(\VKUCreator $vku, $line_item = 0, $output = false){
-    
+  function generatePDF($line_item = 0, $output = false){
+
+    $vku = $this->getVKU();
     $pdf = \LK\PDF\PDF_Loader::getPDF($vku ->getAuthor());
     $pages = $vku -> getPages();
 
@@ -77,12 +78,12 @@ class Manager extends PageManager {
 
   /**
    * Gets back a generated PDF from the VKU
-   * @param \VKUCreator $vku
    * @param $line_item optional-page-id
    * @param boolean $output direct
    */
-  function generatePPTX(\VKUCreator $vku, $line_item = 0){
+  function generatePPTX($line_item = 0){
 
+    $vku = $this->getVKU();
     $ppt = \LK\PPT\PPTX_Loader::load();
     $ppt ->setVKU($vku);
     $pages = $vku -> getPages();

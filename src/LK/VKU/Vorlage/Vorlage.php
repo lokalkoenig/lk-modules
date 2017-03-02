@@ -12,8 +12,8 @@ use LK\VKU\PageManager;
  */
 class Vorlage extends PageManager {
 
-  function __construct() {
-    parent::__construct();
+  function __construct(\VKUCreator $vku) {
+    parent::__construct($vku);
   }
 
   /**
@@ -22,35 +22,38 @@ class Vorlage extends PageManager {
    * @param \VKUCreator $source
    * @param \VKUCreator $new_vku
    */
-  function cloneVKUPages(\VKUCreator $source, \VKUCreator $new_vku){
+  function cloneVKUPages(\VKUCreator $source){
     // save the kampagnen
     // and add them add them after the title
 
-    $kampagnen = $this->getKampagnenPages($new_vku);
+    $kampagnen = $this->getKampagnenPages();
     
-    $this ->removeAllPages($new_vku);
-    $config = $this->generatePageConfiguration($source);
+    $this ->removeAllPages();
+
+    // Get source configuation
+    $manager = new PageManager($source);
+    $config = $manager->generatePageConfiguration($source);
 
     $category_order = 0;
     $page_order = 0;
     while(list($key, $val) = each($config)){
 
       $category = $this->_getCategoryData($val['cid']);
-      $cid = $this->addCategory($new_vku, $category -> category, $category_order);
+      $cid = $this->addCategory($category -> category, $category_order);
       $category_order++;
 
       if($val['container'] === FALSE){
         $page_data = (array)$this->_getPageData($val['id']);
-        $this->clonePage($new_vku, $page_data, $cid, $page_order);
+        $this->clonePage($page_data, $cid, $page_order);
         $page_order++;
         
         // Add Kampagnen
         if($page_data['data_module'] === 'default' && $page_data['data_class'] === 'title'):
           foreach($kampagnen as $kampagne):
-            $cid = $this->addCategory($new_vku, 'other', $category_order);
+            $cid = $this->addCategory('other', $category_order);
             $category_order++;
 
-            $this->clonePage($new_vku, $kampagne, $cid, $page_order);
+            $this->clonePage($kampagne, $cid, $page_order);
             $page_order++;
           endforeach;
         endif;
@@ -60,7 +63,7 @@ class Vorlage extends PageManager {
 
       foreach ($val['children'] as $child){
          $page_data = (array)$this->_getPageData($child['id']);
-         $this->clonePage($new_vku, $page_data, $cid, $page_order);
+         $this->clonePage($page_data, $cid, $page_order);
          $page_order++;
       }
     }
@@ -78,8 +81,8 @@ class Vorlage extends PageManager {
 
     $source = new \VKUCreator($vku_id);
 
-    $manager = new Vorlage();
-    $manager ->cloneVKUPages($source, $vku);
+    $manager = new Vorlage($vku);
+    $manager ->cloneVKUPages($source);
 
     return $vku;
   }
@@ -91,7 +94,9 @@ class Vorlage extends PageManager {
    * @param \VKUCreator $vku
    * @return array
    */
-  private function getKampagnenPages(\VKUCreator $vku){
+  private function getKampagnenPages(){
+
+    $vku = $this->getVKU();
 
     $kampagnen = [];
     $dbq = db_query("SELECT id FROM lk_vku_data WHERE vku_id=:vku_id AND data_class='kampagne' ORDER BY data_delta ASC", [':vku_id' => $vku ->getId()]);

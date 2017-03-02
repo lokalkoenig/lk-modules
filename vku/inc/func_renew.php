@@ -24,7 +24,7 @@ function _vku_renew_vku($account, $vku_id){
   $vkuauthor = $vku -> getAuthor();
 
   if(vku_is_update_user()){
-    $page_manager = new \LK\VKU\Vorlage\Vorlage();
+    
 
     // Create a new VKU
     $settings = [
@@ -35,7 +35,9 @@ function _vku_renew_vku($account, $vku_id){
     ];
 
     $new_vku = \LK\VKU\VKUManager::createEmptyVKU($current, $settings);
-    $page_manager ->cloneVKUPages($vku, $new_vku);
+    $page_manager = new \LK\VKU\Vorlage\Vorlage($new_vku);
+    
+    $page_manager ->cloneVKUPages($vku);
   }
   else {
     // set Status to active

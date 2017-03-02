@@ -57,24 +57,20 @@ global $user;
     
     
     $author = $vku -> getAuthor();
-	if($user -> uid != $author){
-		drupal_set_message("NO current one");	
-		drupal_goto("user");
-	}
+    if($user -> uid != $author && !lk_is_moderator()){
+      drupal_goto("user");
+    }
     
     drupal_add_library('system', 'ui.sortable');
     drupal_add_library('system', 'ui.droppable');
         
     if(vku_is_update_user()){
-        
-        if(!in_array($status, array('active', 'template', 'new'))){
-            drupal_goto($vku -> url());
-        }
-
-        
-        
-        include_once(__DIR__ . "/func_vku2_generate.php");
-        return vku2_generate_form($vku);
+      if(!in_array($status, array('active', 'template', 'new'))){
+        drupal_goto($vku -> url());
+      }
+    
+      include_once(__DIR__ . "/func_vku2_generate.php");
+      return vku2_generate_form($vku);
     }    
     
     if(!in_array($status, array('active', 'template', 'new'))){

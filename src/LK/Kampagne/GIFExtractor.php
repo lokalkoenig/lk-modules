@@ -96,7 +96,7 @@ class GIFExtractor {
          $x++;       
      endforeach;
      
-     $this ->logNotice('Generated ' . $x . " frames from " . $url);
+     //$this ->logNotice('Generated ' . $x . " frames from " . $url);
   }
   
   /**

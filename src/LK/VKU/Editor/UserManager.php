@@ -16,6 +16,7 @@ namespace LK\VKU\Editor;
 class UserManager extends Manager {
 
   var $ma_account = null;
+  var $LOG_CATEGORY = 'VKU Editor Benutzer';
 
   function __construct(\LK\User $account) {
     parent::__construct();

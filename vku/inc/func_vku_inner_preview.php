@@ -29,6 +29,6 @@ function vku_show_line_item_preview($vku_id, $line_item){
     die("Sie haben keinen Zugriff auf die Seite.");
   }
   
-  $pagemanager = new \LK\VKU\Export\Manager();
-  $pagemanager ->generatePDF($vku, $line_item, true);
+  $pagemanager = new \LK\VKU\Export\Manager($vku);
+  $pagemanager ->generatePDF($line_item, true);
 }
