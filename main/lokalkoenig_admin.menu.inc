@@ -83,7 +83,16 @@ function lokalkoenig_admin_menu(){
       'page arguments' => array(1),
       'title' => 'Administrieren',
       'type' => MENU_LOCAL_TASK);
- 
+
+ $items['user/%user/verlag'] = array(
+      'access callback' => 'lokalkoenig_admin_menu_is_verlag',
+      'access arguments' => [1],
+      'file' => 'pages/user_verlag.inc',
+      'page callback' => 'lokalkoenig_user_verlag_admin',
+      'page arguments' => array(1),
+      'title' => 'Verlagseinstellungen',
+      'type' => MENU_LOCAL_TASK);
+
  
    $items['backoffice/users/addverlag'] = [
       'access callback' => 'lk_is_moderator',
@@ -106,3 +115,17 @@ function lokalkoenig_admin_menu(){
  
     return $items;
 }
+
+function lokalkoenig_admin_menu_is_verlag($account){
+
+  if(!lk_is_moderator()){
+    return FALSE;
+  }
+
+  if(!lk_is_verlag($account)){
+    return FALSE;
+  }
+
+  return TRUE;
+}
+

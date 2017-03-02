@@ -16,14 +16,14 @@ function vku2_generate_form(VKUCreator $vku){
    drupal_set_title("Verkaufsunterlage");
    lk_set_icon('tint');
    
-   $manager = new \LK\VKU\PageManager();
+   $manager = new \LK\VKU\PageManager($vku);
    $uid = $vku ->getAuthor();
    $account = \LK\get_user($uid);
     
-   $print = $manager ->getPossibilePages('print', $account);
-   $online = $manager ->getPossibilePages('online', $account);
-   $sonstiges = $manager ->getPossibilePages('sonstiges', $account);
-   $pages = $manager->generatePageConfiguration($vku);
+   $print = $manager ->getPossibilePages('print');
+   $online = $manager ->getPossibilePages('online');
+   $sonstiges = $manager ->getPossibilePages('sonstiges');
+   $pages = $manager->generatePageConfiguration();
    
    $status = $vku ->getStatus();
    $generated = theme("vku2_items", array("items" => $pages, 'vku' => $vku));
@@ -42,7 +42,7 @@ function vku2_generate_form(VKUCreator $vku){
     return theme('vku2_template', $array);    
    }
    
-   $array["kampagnen"] = $manager ->getPossibilePages('kampagnen', $account); 
+   $array["kampagnen"] = $manager ->getPossibilePages('kampagnen'); 
    $array["templates"] = vkuconnection_get_user_templates($uid);
    $array["ausgaben"] = vku2_get_ausgaben_hinweis($vku, $uid);
    $array["dokumente"] = theme("vku2_documents", $array);

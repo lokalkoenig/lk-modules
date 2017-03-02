@@ -24,10 +24,17 @@ class Manager {
    * @param string $val
    */
   function setVar($key, $val){
+
+    $fields = array('settings_value' => $val);
+    if(is_array($val)){
+      $fields = array('settings_value' => serialize($val), 'settings_serialized' => 1);
+    }
+
     db_merge('lk_user_settings')
-      ->key(array('uid' => $this->verlag_id, 'user_type' => 'verlag', 'settings_key' => $key))
-      ->fields(array('settings_value' => $val))
-      ->execute();
+        ->key(array('uid' => $this->verlag_id, 'user_type' => 'verlag', 'settings_key' => $key))
+        ->fields($fields)
+        ->execute();
+   
   }
 
   /**
@@ -38,9 +45,14 @@ class Manager {
   function getVars(){
 
     $values = [];
-    $dbq = db_query("SELECT settings_value, settings_key FROM lk_user_settings WHERE uid=:uid AND user_type='verlag'", [':uid' => $this->verlag_id]);
+    $dbq = db_query("SELECT settings_value, settings_key, settings_serialized FROM lk_user_settings WHERE uid=:uid AND user_type='verlag'", [':uid' => $this->verlag_id]);
     foreach ($dbq as $all) {
-      $values[$all -> settings_key] = $all -> settings_value;
+      if($all -> settings_serialized){
+        $values[$all -> settings_key] = unserialize($all -> settings_value);
+      }
+      else {
+        $values[$all -> settings_key] = $all -> settings_value;
+      }
     }
 
     return $values;

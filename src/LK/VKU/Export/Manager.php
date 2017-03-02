@@ -49,7 +49,7 @@ class Manager extends PageManager {
    * @param boolean $output direct
    */
   function generatePDF(\VKUCreator $vku, $line_item = 0, $output = false){
-
+    
     $pdf = \LK\PDF\PDF_Loader::getPDF($vku ->getAuthor());
     $pages = $vku -> getPages();
 

@@ -16,12 +16,11 @@ class PageKampagne extends PageInterface {
   
   /**
    * 
-   * @param \VKUCreator $vku
    * @param type $item
    * @param type $page
    * @return type
    */
-  function getImplementation(\VKUCreator $vku, $item, $page){
+  function getImplementation($item, $page){
 
     $node = \node_load($page["data_entity_id"]);
     if(!$node || $node -> status === 0){
@@ -94,8 +93,8 @@ class PageKampagne extends PageInterface {
    * @param id $pid
    * @param array $item
    */
-  function updateItem(\VKUCreator $vku, $pid, array $item){
-    
+  function updateItem($pid, array $item){
+  
     $save = array(); 
     foreach($item['children'] as $child){
       $explode = explode("-", $child["sid"]);
@@ -108,7 +107,8 @@ class PageKampagne extends PageInterface {
           $save[$child_id] = 0;
       }              
     }
-    
+
+    $vku = $this->getPageManager()->getVKU();
     $vku -> setPageSerializedSetting($pid, $save); 
   }
   
@@ -193,10 +193,10 @@ class PageKampagne extends PageInterface {
    * @param string $category
    * @return array
    */
-  function getPossibilePages($category, \LK\User $account){
+  function getPossibilePages($category){
     
     if($category === 'kampagnen'){
-      return $this->getSuggestedKampagnen($account);
+      return $this->getSuggestedKampagnen();
     }
     
     return [];  
@@ -209,8 +209,9 @@ class PageKampagne extends PageInterface {
    * @param \LK\User $account
    * @return array
    */
-  function getSuggestedKampagnen(\LK\User $account){
-    
+  function getSuggestedKampagnen(){
+
+    $account = $this->getPageManager()->getAuthorObject();
     $uid = $account->getUid();
     
     $kampagnen = array('last' => array());

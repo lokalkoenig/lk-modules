@@ -69,6 +69,9 @@ class Verlag extends User {
      if(isset($this->settings[$id])){
        return $this->settings[$id];
      }
+     if($id === 'editor_dokumente'){
+       return $this->getVerlagSettingMultiple($id, $default_value);
+     }
 
      $setting_name = 'field_' . $id;
      $values = (array)$this->profile['verlag'];
@@ -90,7 +93,7 @@ class Verlag extends User {
    function getVerlagSettingMultiple($id, $default_value = []){
     $setting_name = 'field_' . $id;
     $values = (array)$this->profile['verlag'];
-    
+
     if(isset($values[$setting_name]['und'])){
       return $values[$setting_name]['und'];  
     } 

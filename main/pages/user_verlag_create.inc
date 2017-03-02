@@ -4,37 +4,39 @@
 
 
 function lokalkoenig_user_verlag_create(){
- drupal_set_title("Verlag anlegen");  
- return render(drupal_get_form('lk_create_verlag')); 
+ drupal_set_title("Verlag anlegen");
+
+ $form = drupal_get_form('lk_create_verlag');
+ return render($form);
 }
 
 function lk_user_add_verlag_validate(&$form, &$form_state){
      
-     $values = $form_state["values"];
-     $email = $values["mail"];
-     
-     if(!valid_email_address($email)){
-        form_set_error('mail', 'Das E-Mail-Adressen-Format ist nicht korrekt');
-     }
-     else {
-      $dbq = db_query("SELECT count(*) as count FROM users WHERE mail='". $email ."'"); 
-      $check = $dbq -> fetchObject();
-      if($check -> count != 0){
-         form_set_error('mail', 'Diese E-Mail-Adresse wird bereits im Portal verwendet.');
-      }
-     } 
+  $values = $form_state["values"];
+  $email = $values["mail"];
+
+  if(!valid_email_address($email)){
+     form_set_error('mail', 'Das E-Mail-Adressen-Format ist nicht korrekt');
+  }
+  else {
+    $dbq = db_query("SELECT count(*) as count FROM users WHERE mail='". $email ."'");
+    $check = $dbq -> fetchObject();
+    if($check -> count != 0){
+      form_set_error('mail', 'Diese E-Mail-Adresse wird bereits im Portal verwendet.');
+    }
+  }
 }
 
 
 function lk_create_verlag_submit($form, &$form_state){
     
     $edit = array(
-          'name' => $form_state['values']['name'],
-          'pass' => user_password(),
-          'mail' => $form_state['values']['mail'],
-          'init' => $form_state['values']['mail'],
-          'status' => 1,
-          'access' => REQUEST_TIME,
+      'name' => $form_state['values']['name'],
+      'pass' => user_password(),
+      'mail' => $form_state['values']['mail'],
+      'init' => $form_state['values']['mail'],
+      'status' => 1,
+      'access' => REQUEST_TIME,
     );
     
     $account = user_save(drupal_anonymous_user(), $edit);
@@ -91,7 +93,7 @@ function lk_create_verlag($form, &$form_state){
     $form_state['profiles']["mitarbeiter"] = profile2_create(array('type' => 'mitarbeiter'));
     
     profile2_attach_form($form, $form_state);  
-     $form['profile_mitarbeiter']['field_mitarbeiter_verlag']['#access'] = false;
+    $form['profile_mitarbeiter']['field_mitarbeiter_verlag']['#access'] = false;
      $form['submit'] = array(
         '#type' => 'submit',
         '#value' => t('Save'));
@@ -104,18 +106,18 @@ function lk_create_verlag($form, &$form_state){
         '
     );
    $form["profile_verlag"]['#weight'] = -3; 
-  
-   $form['profile_mitarbeiter']["field_mitarbeiter_verkaufsleiter"]["#access"] = false;
-   $form['profile_mitarbeiter']["field_telefonmitarbeiter_uids"]["#access"] = false;
-   $form['profile_mitarbeiter']["field_telefonmitarbeiter"]["#access"] = false;
-  
-   $form['profile_mitarbeiter']["field_telefonmitarbeiter_ausgabe"]["#access"] = false;
-   $form['profile_mitarbeiter']["field_ausgabe"]["#access"] = false;
-   $form['profile_mitarbeiter']["field_plz_sperre"]["#access"] = false;
-   $form['profile_mitarbeiter']["field_team"]["#access"] = false;
-   
-   return $form;
 
+   $hide_fields = ['field_mitarbeiter_verkaufsleiter', 'field_telefonmitarbeiter_uids', 'field_telefonmitarbeiter', 'field_telefonmitarbeiter_ausgabe', 'field_ausgabe', 'field_plz_sperre', 'field_team'];
+
+   foreach($hide_fields as $field){
+    $form['profile_mitarbeiter'][$field]["#access"] = false;
+   }
+
+   $form['profile_verlag']['field_plz_sperre']['#access'] = FALSE;
+   $form['profile_verlag']['field_verlag_marken_logos']['#access'] = FALSE;
+   //$form['profile_verlag']['#groups']['group_verlag_plz']['#access'] = false;
+
+   return $form;
 }
 
 

@@ -20,10 +20,9 @@ class VKU2 extends PageManager {
   var $response = [];
 
   function __construct(\VKUCreator $vku, $response) {
-    $this->vku = $vku;
     $this->response = $response;
 
-    parent::__construct();
+    parent::__construct($vku);
   }
 
   function performClient(){
@@ -398,15 +397,6 @@ class VKU2 extends PageManager {
   }
   
   /**
-   * Gets the VKU
-   * 
-   * @return \VKUCreator
-   */
-  function getVKU(){
-    return $this->vku;
-  }
-  
-  /**
    * Sends an Error back
    * 
    * @param array $array
@@ -442,5 +432,4 @@ class VKU2 extends PageManager {
     drupal_json_output($defaults);
     drupal_exit();  
   }
-  
 }

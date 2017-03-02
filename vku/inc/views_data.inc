@@ -9,7 +9,6 @@ function vku_views_data() {
     'help' => ('Verkaufsunterlagen'), 
     'weight' => -10,
   );
-
   
   // Example numeric text field.
   $data['lk_vku']['vku_id'] = array(
@@ -194,6 +193,65 @@ function vku_views_data() {
     'filter' => array(
       'handler' => 'views_handler_filter_string',
     ), 
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+
+  ///////////////////////// VKU DATA
+
+  $data['lk_vku_data']['table']['group'] = ('Verkaufsunterlagen-Data');
+  $data['lk_vku_data']['table']['base'] = array(
+    'field' => 'id',
+    'title' => ('Verkaufsunterlagen-Data'),
+    'help' => ('ID'),
+    'weight' => -10,
+  );
+
+  $data['lk_vku_data']['data_created'] = array(
+    'title' => ('Datum Erstellt'),
+    'help' => ('Datum des Eintrags'),
+    'field' => array(
+      'handler' => 'views_handler_field_date',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort_date',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_date',
+    ),
+  );
+
+  // Example numeric text field.
+  $data['lk_vku_data']['id'] = array(
+    'title' => ('ID'),
+    'help' => ('Just a numeric field.'),
+    'field' => array(
+      'handler' => '\\LK\\VKU\\Data\\Reader',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_numeric',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+  );
+
+  $data['lk_vku_data']['data_module'] = array(
+    'title' => ('Modul'),
+    'help' => ('Modul der Seite'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => FALSE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
     'argument' => array(
       'handler' => 'views_handler_argument_string',
     ),

@@ -7,8 +7,9 @@ namespace LK\VKU\Data;
  *
  * @author Maikito
  */
-class VKUDataManager {
+class VKUAdminDataReader extends LK\VKU\PageManager {
 
+  
   
 
 }

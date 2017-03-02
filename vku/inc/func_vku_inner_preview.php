@@ -20,13 +20,13 @@ function vku_show_line_item_preview($vku_id, $line_item){
   }
   
   $vku_status = $vku ->getStatus();
-  if(!in_array($vku_status, array('active', 'template'))){
+  if(!in_array($vku_status, array('active', 'template')) AND ! lk_is_moderator()){
     die("Access denied");	  
   }
   
   $page = $vku -> getPage($line_item);
   if(!$page){
-    die("Sie haben keinen Zugriff");
+    die("Sie haben keinen Zugriff auf die Seite.");
   }
   
   $pagemanager = new \LK\VKU\Export\Manager();

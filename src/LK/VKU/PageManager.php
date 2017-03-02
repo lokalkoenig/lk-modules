@@ -37,11 +37,15 @@ class PageManager extends Data\VKUDataManipulator {
   ];
   
   var $save_dir = "sites/default/private/vku";
-  
+  var $vku = null;
+
   /**
    * Calls a Hook to Modules to get Invokes
    */
-  function __construct() {
+  function __construct(\VKUCreator $vku) {
+
+    $this->vku = $vku;
+
     foreach (module_implements('vku2_add_module') as $module) {
       $function = $module . '_vku2_add_module';
       $addition = $function();
@@ -51,7 +55,35 @@ class PageManager extends Data\VKUDataManipulator {
       }
     }
   }
-  
+
+  /**
+   * Gets the VKU
+   *
+   * @return \VKUCreator
+   */
+  function getVKU(){
+    return $this->vku;
+  }
+
+
+  /**
+   * Gets the Authors-UID
+   *
+   * @return int UID
+   */
+  function getAuthor(){
+    $this->getVKU()->getAuthor();
+  }
+
+  /**
+   * Gets the Authors Object
+   *
+   * @return \LK\User
+   */
+  function getAuthorObject(){
+    return \LK\get_user($this->getAuthor());
+  }
+
   /**
    * Gets back the items for the Categories
    * 
@@ -59,7 +91,9 @@ class PageManager extends Data\VKUDataManipulator {
    * @param \LK\User $account
    * @return arrar Items
    */
-  function getPossibilePages($category, \LK\User $account){
+  function getPossibilePages($category){
+
+    $account = $this->getAuthorObject();
     
     $items = [];
     $callables = $this->modules;
@@ -174,14 +208,14 @@ class PageManager extends Data\VKUDataManipulator {
    * @param type $items
    * @return boolean
    */
-  function getModuleConfiguration($id, $vku, $items){
+  function getModuleConfiguration($id, \VKUCreator $vku, $items){
     $seite = $this->_getPageData($id);
 
     if(!$seite){
       return FALSE;
     }
 
-    $document = $this->getModule($seite -> data_module);
+    $document = $this->getModule($seite -> data_module, $vku);
     if(!$document){
       return FALSE;
     }
@@ -214,7 +248,7 @@ class PageManager extends Data\VKUDataManipulator {
       return false;
     }
     
-    $obj = new $class_name($this);
+    $obj = new $class_name($this, $this -> vku);
     
   return $obj;   
   }
@@ -242,9 +276,10 @@ class PageManager extends Data\VKUDataManipulator {
    * @param \VKUCreator $vku
    * @return array
    */
-  function generatePageConfiguration(\VKUCreator $vku){
+  function generatePageConfiguration(){
     // Assuming there is nothing
-   
+
+    $vku = $this->getVKU();
     $default = $this->getDefaultOptions();
     $vku_id = $vku->getId();
     
@@ -291,7 +326,7 @@ class PageManager extends Data\VKUDataManipulator {
           dpm($cid);
         }
 
-        $return = $this-> getModuleConfiguration($all2 -> id, $vku, $structure[$cid]);
+        $return = $this-> getModuleConfiguration($all2 -> id, $structure[$cid]);
 
         // We have a broken Configuration
         if(!$return):

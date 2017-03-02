@@ -10,10 +10,28 @@ abstract class PageInterface {
   
   protected $pagemanager = null;
   var $pdf_pages_dir = null;
-  
-  function __construct(\LK\VKU\PageManager $pagemanager) {
+  var $vku = null;
+
+  function __construct(\LK\VKU\PageManager $pagemanager, \VKUCreator $vku) {
     $this->pagemanager = $pagemanager;
+    $this->vku = $vku;
     $this -> pdf_pages_dir = 'sites/all/modules/lokalkoenig/vku/pages';
+  }
+
+  /**
+   * @return \VKUCreator VKU
+   */
+  final function getVKU(){
+    return $this->vku;
+  }
+
+  /**
+   * Gets the VKU-Author
+   *
+   * @return int UID
+   */
+  final function getAuthor(){
+    return $this->getVKU()->getAuthor();
   }
 
   /**
@@ -21,7 +39,7 @@ abstract class PageInterface {
    *
    * @return \LK\VKU\PageManager
    */
-  protected function getPageManager(){
+  final function getPageManager(){
     return $this->pagemanager;
   }
 
@@ -100,6 +118,7 @@ abstract class PageInterface {
    *
    * @param array $page
    * @param \LK\PDF\PDF $pdf
+   * @param \VKUCreator $vku
    */
   function getOutputPDF($page, \LK\PDF\LK_PDF $pdf){
     $pdf->AddPage();
@@ -110,6 +129,7 @@ abstract class PageInterface {
    *
    * @param array $page
    * @param \LK\PPT\LK_PPT_Creator $ppt
+   * @param \VKUCreator $vku
    */
   function getOutputPPT($page, $ppt){
     $ppt ->createSlide();

@@ -10,7 +10,7 @@ use LK\VKU\Pages\Interfaces\PageInterface;
  */
 class PageDefault extends PageInterface {
   
-  var $titles = [
+  const titles = [
       'wochen' => 'Medienargumentation Wochen-/Anzeigeblätter',
       'tageszeitung' => 'Medienargumentation Tageszeitungen',
       'onlinewerbung' => 'Online-Werbung (Display-Ads)',
@@ -18,6 +18,16 @@ class PageDefault extends PageInterface {
       'kplanung' => 'Kampagnenplanung',
       'title' => 'Titelseite',
   ];
+
+  /**
+   * Gets the Page-Title
+   *
+   */
+  public static function getPageTitle($key){
+    $titles = self::titles;
+    
+    return $titles[$key];
+  }
   
   /**
    * Adds an Item to the VKU
@@ -42,7 +52,7 @@ class PageDefault extends PageInterface {
     $item["pages"] = 1;
     $item["cid"] = $page["data_category"];
     $item["orig-id"] = 'default-' . $page["data_class"];
-    $item["title"] = $this -> titles[$page["data_class"]];
+    $item["title"] = self::getPageTitle($page["data_class"]);
     
     if($page["data_class"] === 'title'){
       $item["title"] = 'Titelseite: <span class="vku-title">' . $vku->get('vku_title') . '</span>';
@@ -67,17 +77,17 @@ class PageDefault extends PageInterface {
     $items = [];
     
     if($category === 'print'){
-      $items["default-tageszeitung"] = 'Medienargumentation Tageszeitungen';
-      $items["default-wochen"] = 'Medienargumentation Wochen-/Anzeigeblätter';
+      $items["default-tageszeitung"] = self::getPageTitle('tageszeitung');
+      $items["default-wochen"] = self::getPageTitle('wochen');
     }
   
     if($category === 'online'){
-      $items["default-onlinewerbung"] = 'Online-Werbung (Display-Ads) ';
+      $items["default-onlinewerbung"] = self::getPageTitle('onlinewerbung');
     }
     
     if($category === 'sonstiges'){
-      $items["default-kplanung"] = 'Kampagnenplanung';
-      $items["default-kontakt"] = 'Ihre Kontaktdaten';
+      $items["default-kplanung"] = self::getPageTitle('kplanung');
+      $items["default-kontakt"] = self::getPageTitle('kontakt');
     }
     
     return $items;
@@ -90,7 +100,7 @@ class PageDefault extends PageInterface {
    * @param array $page
    * @param \PDF $pdf
    */
-  function getOutputPDF($page, \LK\PDF\LK_PDF $pdf){
+  function getOutputPDF($page, \LK\PDF\LK_PDF $pdf, \VKUCreator $vku){
     
     $static_pages = [
       'title' => '\\LK\\VKU\\Pages\\StaticPages\\Title',
@@ -113,7 +123,7 @@ class PageDefault extends PageInterface {
     }
   }
   
-  function getOutputPPT($page, $ppt) {
+  function getOutputPPT($page, $ppt, \VKUCreator $vku) {
       $obj = new \LK\PPT\Pages\RenderDefault($ppt);
       $obj->render($page);
   }

@@ -39,5 +39,13 @@ class RemoveOldVKU {
       $vku = new VKUCreator($vku_id);
       $manager->removeVKU($vku);
     }
-  }  
+
+    // Removing orphaned VKU Data entries
+    $dbq3 = db_query('SELECT d.vku_id, d.id FROM lk_vku_data d '
+            . 'LEFT JOIN lk_vku v ON d.vku_id = v.vku_id '
+            . 'WHERE v.vku_id IS NULL ORDER BY id DESC');
+    while($all = $dbq3 -> fetchObject()){
+      db_query('DELETE FROM lk_vku_data WHERE id=:id', [':id' => $all -> id]);
+    }
+  }
 }

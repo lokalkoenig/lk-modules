@@ -20,9 +20,11 @@ class VKU2Handler extends PageInterface {
    * @return UserManager
    */
   private function getDocumentHandler(){
+    
+    $account = $this->getPageManager()->getAuthorObject();
 
     if(!$GLOBALS['vku_document_manager']){
-      $GLOBALS['vku_document_manager'] = new UserManager(\LK\current());
+      $GLOBALS['vku_document_manager'] = new UserManager($account);
     }
 
     return $GLOBALS['vku_document_manager'];
@@ -36,7 +38,7 @@ class VKU2Handler extends PageInterface {
    * @param array $page
    * @return array
    */
-  function getImplementation(\VKUCreator $vku, $item, $page){
+  function getImplementation($item, $page){
     $item["delete"] = true;
     $item["id"] = $page["id"];
     $item["cid"] = $page["data_category"];
@@ -45,9 +47,7 @@ class VKU2Handler extends PageInterface {
     $item["pages"] = 1;
     $item['edit-handler'] = '<a href="#" class="btn-document-edit" data-edit-id="' . $page["data_entity_id"] . '"><span class="prodid"><span class="glyphicon glyphicon-pencil" style="top: 1px;"></span>&nbsp;&nbsp;Bearbeiten</span></a>';
 
-
-
-    $manager = $this->getDocumentHandler();
+    $manager = $this->getDocumentHandler(\LK\current());
     $document = $manager->getDocumentMitarbeiter($page["data_entity_id"]);
 
     if(!$document){
@@ -75,7 +75,7 @@ class VKU2Handler extends PageInterface {
    */
   private function createOnlineMediumSelects(\LK\VKU\Editor\Document $document, $edit){
 
-    $handler = $this->getDocumentHandler();
+    $handler = $this->getDocumentHandler(\LK\current());
     $documents = $handler->getDocumentsPerVerlagPreset('OnlineMedium');
 
     $id = $document ->getId();
@@ -156,7 +156,7 @@ class VKU2Handler extends PageInterface {
    * @return string
    */
   function saveNewItem_action(array $item) {
-    $handler = $this->getDocumentHandler();
+    $handler = $this->getDocumentHandler(\LK\current());
     $document = $handler->getDocumentMitarbeiter($item['data_entity_id']);
   
     if($document ->getPreset() === 'OnlineMediumCollection'){
@@ -171,7 +171,7 @@ class VKU2Handler extends PageInterface {
    * @param \LK\User $account
    * @return array
    */
-  function getPossibilePages($category, \LK\User $account){
+  function getPossibilePages($category){
     $manager = $this ->getDocumentHandler();
     $documents = $manager->getDocumentsPerCategory($category);
 
@@ -209,7 +209,7 @@ class VKU2Handler extends PageInterface {
    *
    * @return array
    */
-  function renewItem(\VKUCreator $vku, $items) {
+  function renewItem($items) {
     $handler = $this->getDocumentHandler();
     $document = $handler->getDocumentMitarbeiter($items['data_entity_id']);
     $new_document = $handler->cloneDocument($document);
@@ -224,7 +224,7 @@ class VKU2Handler extends PageInterface {
    * @param \VKUCreator $vku
    * @param int $pid
    */
-  function removeItem(\VKUCreator $vku, $pid, array $item){
+  function removeItem($pid, array $item){
     $manager = $this->getDocumentHandler();
     $manager ->removeDocument($item['data_entity_id']);
   }
