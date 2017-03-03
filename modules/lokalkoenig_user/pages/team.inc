@@ -14,7 +14,7 @@ function lokalkoenig_render_team_tabs($team){
     if(count($links) < 2){
         return '';
     }
-    
+
     $html = '<ul class="nav nav-tabs" role="tablist">';  
     
     foreach ($links as $link){ // <!--class="active"-->

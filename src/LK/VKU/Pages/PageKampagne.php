@@ -241,7 +241,7 @@ class PageKampagne extends PageInterface {
    *
    * @param array $medium
    */
-  private function loadGIF(&$medium){
+   private static function loadGIF(&$medium){
     $gif = new \LK\Kampagne\GIFExtractor();
 
     while(list($key, $val) = each($medium->field_medium_varianten["und"])){
@@ -256,7 +256,7 @@ class PageKampagne extends PageInterface {
    * @param /stdClass $node
    * @param array $page
    */
-  private function _vku_load_vku_settings($node, $page = ['data_serialized' => []]){
+  public static function _vku_load_vku_settings($node, $page = ['data_serialized' => []]){
 
     if(!isset($page["data_serialized"]) OR !$page["data_serialized"]){
         $data = array();
@@ -277,7 +277,7 @@ class PageKampagne extends PageInterface {
       $node -> medien[$key] -> vku_hide_varianten = false;
 
       if($node -> medien[$key]-> media_type === 'online'){
-        $this ->loadGIF($node -> medien[$key]);
+        self::loadGIF($node -> medien[$key]);
       }
 
       // Allgemeine Beschreibung

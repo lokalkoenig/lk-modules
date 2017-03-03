@@ -16,8 +16,6 @@ class PDF_Loader {
      * @return \LK_PDF
      */
     static function load(){
-      require_once __DIR__ .'/pdf_class.php';
-      
       $pdf = new LK_PDF('L');
       return $pdf;
     }
@@ -58,10 +56,8 @@ class PDF_Loader {
      */
     static function renderTestNode(\stdClass $node, $output = true){
       $pdf = self::getPDF(\LK\current()->getUid());
-        
-      $manager = new \LK\VKU\Export\Manager();
-      $manager->generateSampleKampagne($pdf, $node);
-        
+      \LK\VKU\Export\Manager::generateSampleKampagne($pdf, $node);
+      
       if($output){
         self::output($pdf);
       }

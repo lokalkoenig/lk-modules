@@ -25,17 +25,17 @@ function _vku_current_delete($id){
   }
       
   $author = $vku -> getAuthor();
-  $pagemanager = new \LK\VKU\PageManager();
+  $pagemanager = new \LK\VKU\PageManager($vku);
 
   if($status === 'deleted'){
     $msg = $vku ->logVerlagEvent("Die Verkaufsunterlage wurde gelöscht.");
-    $pagemanager->removeVKU($vku);
+    $pagemanager->removeVKU();
     drupal_set_message($msg);
   }
   else {
     if($status == 'template'){
       $vku ->logEvent("remove-vku", "Vorlage wurde gelöscht.");
-      $pagemanager->removeVKU($vku);
+      $pagemanager->removeVKU();
       drupal_goto('user/' . $author . '/vkusettings');
     }
           

@@ -118,13 +118,6 @@ function lk_get_ausgaben_title_kurz($ausgabe){
   }
 }
 
-function format_ausgabe_kurz($id){  
-    if($b = lk_load_ausgabe($id)){
-      return '<small class="label label-primary" title="'. $b -> field_ortsbezeichnung['und'][0]['value'] .'">' .$b ->field_kurzbezeichnung['und'][0]['value'] . '</small> ';
-    }
-}
-
-
 function lk_load_ausgabe($ausgabe){
    $entity = entity_load('ausgabe', array($ausgabe));
    return $entity[$ausgabe];

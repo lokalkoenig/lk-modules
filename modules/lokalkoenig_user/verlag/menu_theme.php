@@ -89,17 +89,6 @@ function lokalkoenig_user_verlag_menu(){
       'page arguments' => array(1),
       'title' => 'Ausgaben',
       'type' => MENU_CONTEXT_NONE);     
-        
-    $items['user/%user/testpdf'] = array(
-      'access callback' => 'lokalkoenig_user_verlag_check_user_access_is_verlag',
-      'access arguments' => array(1),
-      'file' => 'pages/testpdf.inc',
-      'page callback' => 'lokalkoenig_user_verlag_testpdf',
-      'page arguments' => array(1),
-      'title' => 'Testpdf',
-      'type' => MENU_CONTEXT_NONE);       
-      
-      
   
   $items['user/%user/usersearch/%'] = array(
       'access callback' => 'lokalkoenig_user_verlag_check_user_access_is_verlag',

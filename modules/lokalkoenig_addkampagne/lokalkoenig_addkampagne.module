@@ -1,14 +1,4 @@
 <?php
-
-function lk_upgrade_medienformate(){
-   
-  if(lk_is_moderator()){
-      return true;
-  }  
-
-return false;    
-}
-
 require_once('functions/blocks.php');
 require_once('functions/fields.php');
 require_once('functions/forms.php');
@@ -116,10 +106,6 @@ function lokalkoenig_addkampagne_file_download($uri) {
   }
 
 
- 
- 
-
-
   // If the above conditions fallthru then populate HTTP header arrays
   // for content download; If you need to grab the file object and work on
   // it -- say output CSV from the data, you can grab it as follows ...
@@ -134,9 +120,6 @@ function lokalkoenig_addkampagne_file_download($uri) {
   
    // Sie dürfen nicht direkt auf die Quelldateien zugreifen
   if((lk_is_verlag()  OR lk_is_mitarbeiter()) AND $mt == 'application/zip') return -1; 
-  
-  
-  
       return array('Content-Type' => $mt);
   
   //return $headers;
@@ -219,14 +202,10 @@ global $user;
   
   if ($node->type == 'kampagne') {
     if($user -> uid == 0) return false;    
-    
-   
-   
    
     if(!lk_is_moderator() AND !lk_is_agentur()){
       return false;
     }
-    
     
     if(lk_is_agentur()){
       if($user -> uid != $node -> uid) return false;
@@ -383,9 +362,16 @@ function lokalkoenig_addkampagne_menu(){
   $items['lk/plz'] = array(
     'title' => 'PLZ-Selector',
     'access callback' => true,
-    'file' => 'functions/plz_edit.inc',
-    'page callback' => '_lokalkoenig_user_plz_load',
-    'type' => MENU_CONTEXT_NONE
+    'page callback' => '\\LK\\Admin\\Data\PLZChooser::get',
+    'type' => MENU_CONTEXT_NONE,
+  );
+
+  $items['lk/plz/%'] = array(
+    'title' => 'PLZ-Selector',
+    'access callback' => true,
+    'page callback' => '\\LK\\Admin\\Data\PLZChooser::get',
+    'page arguments' => [2],
+    'type' => MENU_CONTEXT_NONE,
   );
 
    $items['node/%node/admin'] = array(

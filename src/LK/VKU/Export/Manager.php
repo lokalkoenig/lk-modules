@@ -106,11 +106,14 @@ class Manager extends PageManager {
     return $ppt;
   }
 
+
+
   /**
    * Generates a Sample Kampagne
    */
-  function generateSampleKampagne($pdf, $node){
-    $obj = $this->getModule('node');
-    $obj ->getOutputPDF(['node' => $node, 'data_serialized' => ''], $pdf);
+  public static function generateSampleKampagne($pdf, $node){
+    \LK\VKU\Pages\PageKampagne::_vku_load_vku_settings($node);
+    $manager = new \LK\VKU\Pages\Kampagne\Kampagne($node);
+    $manager ->render($pdf);
   }
 }

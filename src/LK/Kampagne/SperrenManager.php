@@ -141,20 +141,20 @@ class SperrenManager {
      * @return \LK\Kampagne\Sperre|boolean
      */
     function createSperre($nid, $uid, $ausgaben, $duration){
+
+      // if we have no Ausgaben, then no Sperre
+      if(!$ausgaben){
+        return FALSE;
+      }
         
-        // if we have no Ausgaben, then no Sperre
-        if(!$ausgaben){
-            return false;
-        }
+      $sperre = new Sperre($this);
+      $sperre->setNid($nid);
+      $sperre->setUser($uid);
+      $sperre->setAusgaben($ausgaben);
+      $sperre->setDuration($duration);
+      $sperre->saveChanges();
         
-        $sperre = new Sperre($this);
-        $sperre->setNid($nid);
-        $sperre->setUser($uid);
-        $sperre->setAusgaben($ausgaben);
-        $sperre->setDuration($duration);
-        $sperre->saveChanges();
-        
-    return $sperre;    
+      return $sperre;
     }
     
     /**
@@ -164,14 +164,14 @@ class SperrenManager {
      * @return boolean|\LK\Kampagne\Sperre
      */
     function getSperre($id){
-        try {
-            $sperre = new Sperre($this, $id);
-            
-        } catch (\Exception $ex) {
-                return false;
-        }
+      try {
+        $sperre = new Sperre($this, $id);
+      } catch (\Exception $ex) {
         
-    return $sperre;    
+        return FALSE;
+      }
+        
+      return $sperre;
     }
     
     /**

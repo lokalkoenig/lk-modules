@@ -56,7 +56,7 @@ class Kampagne {
     $this -> pdf = $pdf;
     $node = $this->getNode();
 
-    if($node -> vku_hide == false){
+    if(isset($node -> vku_hide) && $node -> vku_hide === false){
       $this->addTitlePage();
     }
 
@@ -69,13 +69,13 @@ class Kampagne {
     $pdf -> SetLeftMargin(25);
     foreach($node -> medien as $medium){
 
-      if($medium -> vku_hide == false && isset($medium ->field_medium_bild['und'][0]['uri'])):
+      if(isset($medium -> vku_hide) && $medium -> vku_hide == false && isset($medium ->field_medium_bild['und'][0]['uri'])):
          $this->addMediaDescription($medium);
       endif;
 
       // Varianten
       // Checken if there is any Variante to be displayed
-      if($medium -> vku_hide_varianten){
+      if(isset($medium -> vku_hide_varianten) && $medium -> vku_hide_varianten){
         continue;
       }
 

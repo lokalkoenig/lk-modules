@@ -4,18 +4,16 @@ function telefonmitarbeiter_set_plz_submit($form, $form_state){
   
   $account = \LK\get_user($form_state['build_info']['args'][0]);
   
-  $newvalue = array();
-  $titles = array();
+  $titles = [];
   foreach($form_state["values"]["take"] as $val){
-    if($val){
-      $newvalues[] = $val;     
-      $titles[] = lk_get_ausgaben_title($val);
+    if($val && $ausgabe = \LK\get_ausgabe($val)){
+      $newvalues[] = $ausgabe->getId();
+      $titles[] = $ausgabe->getTitle();
     }
   }
   
   $query = $_GET;
   unset($query["q"]);
-  
   $account ->setAusgaben($newvalues);
   lk_log_verlag('Telefonmitarbeiter wählt neue Ausgaben ('. implode(", ", $titles) .') aus.');
 
@@ -56,7 +54,6 @@ function telefonmitarbeiter_set_plz($form, $form_state, $account){
        }
    }
    
-   
    $sections = array();
    if($obj ->isVerlag() OR $obj ->isVerlagController()){
      // nothing 
@@ -73,20 +70,18 @@ function telefonmitarbeiter_set_plz($form, $form_state, $account){
       $default[$aus] = $aus;
   }
   
-  $form['take'] = array(
-        '#type' => 'checkboxes',
-        '#required' => true,
-        '#options' => $sections,
-        '#default_value' => $default,
-        '#title' => "Wählen Sie bitte die Ausgaben aus, für die Sie Verkaufsunterlagen erstellen möchten.");
+  $form['take'] = [
+    '#type' => 'checkboxes',
+    '#required' => true,
+    '#options' => $sections,
+    '#default_value' => $default,
+    '#title' => "Wählen Sie bitte die Ausgaben aus, für die Sie Verkaufsunterlagen erstellen möchten.",
+  ];
    
-  $form['submit'] = array(
+  $form['submit'] = [
     '#type' => 'submit',
     '#value' => 'Speichern',
-    
-  );
+   ];
 
-return $form;
+  return $form;
 }
-
-?>
