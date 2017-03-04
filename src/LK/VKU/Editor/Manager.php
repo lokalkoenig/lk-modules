@@ -169,6 +169,7 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     $callback['options']['id'] = $document ->getId();
     $callback['options']['page_title'] = $document ->getPageTitle();
     $callback['options']['footnote_value'] = $document ->getFootnote();
+    $callback['options']['sample_data'] = [];
 
     if(!$callback['options']['page_title']){
       $callback['options']['page_title'] = $callback['options']['title'];
@@ -182,9 +183,12 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     if($saved_content){
       $callback['values']-> content = $saved_content;
     }
-  
-    $callback['options']['sample_data'] = $values -> sample;
-
+    
+    // Provide Sample Data
+    if(isset($values -> sample)) {
+      $callback['options']['sample_data'] = $values -> sample;
+    }
+    
     while(list($key, $val) = each($settings)){
       $callback['options'][$key] = $val;
     }

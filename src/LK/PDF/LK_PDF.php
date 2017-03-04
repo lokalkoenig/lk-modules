@@ -2,8 +2,8 @@
 namespace LK\PDF;
 
 define('K_PATH_FONTS', $_SERVER['DOCUMENT_ROOT'] . '/sites/all/fonts/');
-
-require_once 'sites\all\modules\vendor\tecnick.com\tcpdf\tcpdf.php';
+define('VKU_FONT', "DejaVu");
+require_once $_SERVER['DOCUMENT_ROOT'] .'/sites/all/modules/vendor/tecnick.com/tcpdf/tcpdf.php';
 
 
 /**
@@ -92,6 +92,16 @@ class LK_PDF extends \TCPDF {
     $this->SetFontClass('h1');
     $this->MultiCell(0, 0, $copy, 0, $align, 0);
     $this->Ln(10);
+  }
+
+  /**
+   * Sets the User-Setting
+   *
+   * @param type $key
+   * @param type $value
+   */
+  public function setUserSetting($key, $value){
+    $this->_settings[$key] = $value;
   }
 
   public function setUserSettings($settings){

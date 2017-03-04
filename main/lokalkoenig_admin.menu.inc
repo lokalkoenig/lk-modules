@@ -84,6 +84,16 @@ function lokalkoenig_admin_menu(){
       'title' => 'Administrieren',
       'type' => MENU_LOCAL_TASK);
 
+ $items['user/%user/testpdf'] = [
+  'access callback' => 'lk_is_moderator',
+  'file' => 'pages/verlag_test_pdf.inc',
+  'page callback' => 'lokalkoenig_user_test_pdf',
+  'page arguments' => array(1),
+  'title' => 'Administrieren',
+  'type' => MENU_CONTEXT_NONE,
+ ];
+
+
  $items['user/%user/verlag'] = array(
       'access callback' => 'lokalkoenig_admin_menu_is_verlag',
       'access arguments' => [1],

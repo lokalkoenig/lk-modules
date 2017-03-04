@@ -4,7 +4,8 @@ function lokalkoenig_user_verlag_admin($account){
 
   $verlag = \LK\get_user($account);
   drupal_set_title('Verlagseinstellung');
-  
+
+  drupal_add_js(['lokalkoenig_admin' => ['preview_url' => url('user/' . $verlag ->getUid() . '/testpdf')]], ['type' => 'setting']);
   $form = drupal_get_form('lokalkoenig_user_verlag_admin_settings_form', $verlag);
 
   return $form;
@@ -17,7 +18,10 @@ function lokalkoenig_user_verlag_admin_settings_form($form, &$form_state, \LK\Ve
   );
   $form['#attached']['js'] = array(
     drupal_get_path('module', 'field_group') . '/horizontal-tabs/horizontal-tabs.js',
-  ); 
+    drupal_get_path('module', 'lokalkoenig_admin') . '/js/test-pdf-link.js',
+  );
+
+
   $form['settings'] = array(
     '#type' => 'vertical_tabs',
   );
@@ -122,30 +126,30 @@ function lokalkoenig_user_verlag_admin_settings_form($form, &$form_state, \LK\Ve
     '#type' => 'textfield',
     '#title' => 'Hintergrundfarbe',
     '#element_validate' => array('lokalkoenig_user_verlag_admin_validate_color'),
-    '#default_value' => $verlag ->getVerlagSetting('vku_hintergrundfarbe', "ffffff", 'jquery_colorpicker'),
+    '#default_value' => lokalkoenig_user_verlag_admin_sanitize_color($verlag ->getVerlagSetting('vku_hintergrundfarbe', "ffffff", 'jquery_colorpicker')),
     '#description' => 'Wird im Header und im Footer verwendet.',
     '#size' => 7,
-    '#maxlength' => 6,
+    '#maxlength' => 7,
   ];
 
   $form['vku']['vku_hintergrundfarbe_titel'] = [
     '#type' => 'textfield',
     '#element_validate' => array('lokalkoenig_user_verlag_admin_validate_color'),
     '#title' => 'Hintergrundfarbe Titel-Seite',
-    '#default_value' => $verlag ->getVerlagSetting('vku_hintergrundfarbe_titel', "ffffff", 'jquery_colorpicker'),
+    '#default_value' => lokalkoenig_user_verlag_admin_sanitize_color($verlag ->getVerlagSetting('vku_hintergrundfarbe_titel', "646464", 'jquery_colorpicker')),
     '#description' => 'Wird als Hintergrundfarbe auf der Titel-Seite verwendet.',
     '#size' => 7,
-    '#maxlength' => 6,
+    '#maxlength' => 7,
   ];
 
    $form['vku']['vku_vordergrundfarbe_titel'] = [
     '#type' => 'textfield',
     '#element_validate' => array('lokalkoenig_user_verlag_admin_validate_color'),
     '#title' => 'Text-Farbe Titel-Seite',
-    '#default_value' => $verlag ->getVerlagSetting('vku_vordergrundfarbe_titel', "ffffff", 'jquery_colorpicker'),
+    '#default_value' => lokalkoenig_user_verlag_admin_sanitize_color($verlag ->getVerlagSetting('vku_vordergrundfarbe_titel', "ffffff", 'jquery_colorpicker')),
     '#description' => 'Wird als Vordergrundfarbe auf der Titel-Seite verwendet.',
     '#size' => 7,
-    '#maxlength' => 6,
+    '#maxlength' => 7,
   ];
 
   $form['vku']['verlag_font'] = [
@@ -191,9 +195,26 @@ function lokalkoenig_user_verlag_admin_validate_vku_hinweis($element, &$form_sta
   }
 }
 
+/**
+ * Sanitize the color value
+ *
+ * @param string $color
+ * @return string
+ */
+function lokalkoenig_user_verlag_admin_sanitize_color($color) {
+
+  if($color[0] !== '#'){
+    return '#' . $color;
+  }
+
+  return $color;
+}
+
+
 function lokalkoenig_user_verlag_admin_validate_color($element, &$form_state) {
   $value = $element['#value'];
-  if (!ctype_xdigit($value)) {
+  $colorCode = ltrim($value, '#');
+  if (!ctype_xdigit($colorCode)) {
     form_error($element, "Der Farbcode ist kein Hexadezimal-Wert.");
   }
 }

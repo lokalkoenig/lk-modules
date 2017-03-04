@@ -9,22 +9,20 @@ use LK\VKU\Pages\Interfaces\PageInterface;
  * @author Maikito
  */
 class PageDefault extends PageInterface {
-  
-  const titles = [
-      'wochen' => 'Medienargumentation Wochen-/Anzeigeblätter',
-      'tageszeitung' => 'Medienargumentation Tageszeitungen',
-      'onlinewerbung' => 'Online-Werbung (Display-Ads)',
-      'kontakt' => 'Ihre Kontaktdaten',
-      'kplanung' => 'Kampagnenplanung',
-      'title' => 'Titelseite',
-  ];
 
   /**
    * Gets the Page-Title
    *
    */
   public static function getPageTitle($key){
-    $titles = self::titles;
+    $titles = [
+      'wochen' => 'Medienargumentation Wochen-/Anzeigeblätter',
+      'tageszeitung' => 'Medienargumentation Tageszeitungen',
+      'onlinewerbung' => 'Online-Werbung (Display-Ads)',
+      'kontakt' => 'Ihre Kontaktdaten',
+      'kplanung' => 'Kampagnenplanung',
+      'title' => 'Titelseite',
+    ];
 
     if(!isset($titles[$key])){
       return FALSE;
