@@ -159,16 +159,22 @@ function vku_editor_image_default_styles() {
   while(list($key, $val) = each($image_styles)){
     $styles[$key] = array(
       'label' => "[PXEdit] " . $val['title'],
-      'effects' =>  [[
-        'name' => 'image_scale',
-        'data' => array('height' => $val['height'], 'upscale' => 0, 'width' => ''),
-        'weight' => 1,
+      'effects' =>  [
+          [
+          'name' => 'image_scale_and_crop',
+          'data' => array('height' => $val['height'], 'width' => $val['width']),
+          'weight' => 1,
       ],
-      [
-        'name' => 'image_scale',
-        'data' => ['width' => $val['width'], 'height' => '', 'upscale' => 0],
-        'weight' => 2,
-      ],
+      //  [
+      //  'name' => 'image_scale',
+      //  'data' => array('height' => $val['height'], 'upscale' => 0, 'width' => ''),
+      //  'weight' => 1,
+      //],
+      //[
+      //  'name' => 'image_scale',
+      //  'data' => ['width' => $val['width'], 'height' => '', 'upscale' => 0],
+      //  'weight' => 2,
+      //],
       ],  
     );
   }

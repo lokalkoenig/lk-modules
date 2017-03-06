@@ -148,6 +148,30 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     return $array;
   }
 
+
+  /**
+   * Sanitizes a Image-Field
+   */
+  private function sanitizeValues($values){
+
+    $sanitized = [];
+
+    foreach($values as $value){
+      if($value['widget'] === 'image' && $value['fid']){
+        $file = file_load($value['fid']);
+
+        if($file){
+          $value['url'] = file_create_url($file -> uri);
+        }
+      }
+
+      $sanitized[] = $value;
+    }
+
+    return $sanitized;
+  }
+
+
   /**
    * Sends back a Document to the JS
    *
@@ -181,7 +205,7 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
 
     $saved_content = $document -> getContent();
     if($saved_content){
-      $callback['values']-> content = $saved_content;
+      $callback['values']-> content = $this->sanitizeValues($saved_content);
     }
     
     // Provide Sample Data
