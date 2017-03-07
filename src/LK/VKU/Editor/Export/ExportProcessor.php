@@ -5,7 +5,7 @@ namespace LK\VKU\Editor\Export;
 use LK\PDF\LK_PDF;
 
 /**
- * Description of ExportProcessor
+ * ExportProcessor for PDF
  *
  * @author Maikito
  */
@@ -209,11 +209,7 @@ class ExportProcessor {
   private function debug($value){
     kpr($value);
     exit;
-
   }
-
-
-
 
   /**
    * Adds an Table-Widget to the PDF
@@ -392,26 +388,15 @@ class ExportProcessor {
       $this->addTableWidget($content, $height, $width);
     }
     elseif($content['widget'] === 'image') {
-      // little fix for now
-      $size = getimagesize($content['url']);
-      $image_width = $size[0];
-      $image_height = $size[1];
-      $ratio2 = $height / $width;
-      $ratio_img = $image_height / $image_width;
-
-      $diff = $ratio_img - $ratio2;
-      $real_width = round($width * $diff);
-
-      if($real_width < 0.0 || ($diff * 100) <= 2){
-        $real_width = $width;
-      }
-      else {
-        $real_width_diff = ($width - $real_width) / 2;
-        //$pdf -> setX($pdf -> getX() + $real_width_diff + 1);
-      }
       
-      $pdf->Image($content['url'], $pdf->GetX(), $pdf->GetY(), $width, $height, '', '', "C");
-      //$pdf ->Image($file, $x, $y, $w, $h, $type, $link, $align, $resize, $dpi, $palign, $ismask, $imgmask, $border, $fitbox, $hidden, $fitonpage)
+      if (!isset($content['fid']) || empty($content['fid'])) {
+        return ;
+      }
+
+      $file = file_load($content['fid']);
+      $fn = \LK\VKU\Editor\Export\ImageCropper::process($file, $content);
+      
+      $pdf->Image($fn, $pdf->GetX(), $pdf->GetY(), $width, $height, '', '', "C");
     }
   }
 }

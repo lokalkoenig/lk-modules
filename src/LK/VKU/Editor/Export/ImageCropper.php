@@ -3,7 +3,6 @@
 namespace LK\VKU\Editor\Export;
 
 use JBZoo\Image\Image;
-use JBZoo\Image\Filter;
 
 /**
  * Description of ImageCropper
@@ -11,9 +10,11 @@ use JBZoo\Image\Filter;
  * @author Maikito
  */
 class ImageCropper {
-  
+
+  const SAFE_DIR = 'public://vkucache';
+
   /**
-   * Processes an Croppie-Based image
+   * Processes an Croppie-Based images and gives the Cropped version
    * 
    * @param \stdClass $file
    * @param array $options
@@ -21,9 +22,31 @@ class ImageCropper {
    */
   public static function process(\stdClass $file, $options){
 
+    $url = file_create_url($file->uri);
+
+    // if there are no croppie-information
+    if(!isset($options['points']) && !isset($options['zoom'])){
+      return $url;
+    }
+
+    $points = $options['points'];
+    $fn = [$file->fid, $points[0], $points[1], $points[2], $points[3]];
+    $fn[] = str_replace('.', '-', $options['zoom']);
     
+    $ext = 'jpg';
+    if($file->filemime === 'image/png'){
+      $ext = 'png';
+    }
 
-    return (string) 1;
+    $filename = implode('-', $fn) . "." . $ext;
+
+    $dir = drupal_realpath(self::SAFE_DIR);
+    if(!file_exists($dir . '/' . $filename)){
+      $img = new Image(file_get_contents($url));
+      $img -> crop($points[0], $points[1], $points[2], $points[3]);
+      $img->saveAs($dir . '/' . $filename, 90);
+    }
+
+    return $dir . '/' . $filename;
   }
-
 }
