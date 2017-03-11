@@ -1,35 +1,37 @@
 <?php
 namespace LK\VKU\Data;
 
+use \LK\VKU\PageManager;
+use VKUCreator;
+
 /**
  * Description of VKUMaintenance
  *
  * @author Maikito
  */
-class VKUMaintenance extends \LK\VKU\PageManager {
+class VKUMaintenance extends PageManager {
   
   /**
-   * Sets the VKU
-   *
+   * Constructor
+   * 
    * @param \VKUCreator $vku
    */
-  function setVKU(\VKUCreator $vku){
-    $this->vku = $vku;
+  function __construct(VKUCreator $vku) {
+    parent::__construct($vku);
   }
 
   /**
    * Overwrite with Log-Option
-   *
-   * @param \VKUCreator $vku
    */
-  function removeVKU(\VKUCreator $vku) {
+  function removeVKU() {
+
+    $vku= $this->getVKU();
 
     $status = $vku->getStatus();
     $vku_id = $vku->getId();
     $vku_changed = $vku->get('vku_changed');
-    $this->setVKU($vku);
- 
     parent::removeVKU();
+
     $this->logCron("Cron-Delete VKU-ID " . $vku_id . "/". $status .", Zuletzt geändert am: " . format_date($vku_changed, 'short'));
   }
 }

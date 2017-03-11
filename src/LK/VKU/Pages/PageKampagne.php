@@ -316,7 +316,7 @@ class PageKampagne extends PageInterface {
   }
   
   
-  function getOutputPPT($page, $ppt) {
+  function getOutputPPT($page, \LK\PPT\LK_PPT_Creator $ppt) {
     $nid = $page["data_entity_id"];
     $node = $this -> _vku_load_vku_settings(node_load($nid), $page);
 

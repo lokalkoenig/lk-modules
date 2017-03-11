@@ -129,7 +129,7 @@ abstract class PageInterface {
    * @param \LK\PPT\LK_PPT_Creator $ppt
    * @param \VKUCreator $vku
    */
-  function getOutputPPT($page, $ppt){
+  function getOutputPPT($page, \LK\PPT\LK_PPT_Creator $ppt){
     $ppt ->createSlide();
   }
 }

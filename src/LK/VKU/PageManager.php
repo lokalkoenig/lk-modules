@@ -330,7 +330,7 @@ class PageManager extends Data\VKUDataManipulator {
         $structure[$all -> id] = $return;
       } 
     }
-  
+
     return $structure;
   }
 }

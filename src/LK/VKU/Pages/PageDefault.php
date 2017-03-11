@@ -66,6 +66,7 @@ class PageDefault extends PageInterface {
       $item["deactivate"] = true;
       $item["container"] = false;
       $item["empty_shown"] = true;
+      $item["active"] = $page['data_active'];
     }
 
     return $item;  
@@ -127,7 +128,7 @@ class PageDefault extends PageInterface {
     }
   }
   
-  function getOutputPPT($page, $ppt) {
+  function getOutputPPT($page, \LK\PPT\LK_PPT_Creator $ppt) {
       $obj = new \LK\PPT\Pages\RenderDefault($ppt);
       $obj->render($page);
   }

@@ -3,35 +3,27 @@
 namespace LK\VKU\Editor\Export;
 
 use LK\PDF\LK_PDF;
+use \LK\VKU\Editor\Document;
+use LK\VKU\Editor\Export\Interfaces\ExportProcessorInterface;
 
 /**
  * ExportProcessor for PDF
  *
  * @author Maikito
  */
-class ExportProcessor {
+class ExportPDFProcessor extends ExportProcessorInterface {
 
-  var $document = null;
   var $pdf = null;
   var $debug = FALSE;
   var $text_sep = 5;
 
 
-  function __construct(\LK\VKU\Editor\Document $document) {
-    $this->document = $document;
+  function __construct(Document $document) {
+    parent::__construct($document);
 
     if(isset($_GET['debug'])){
       $this->debug = TRUE;
     }
-  }
-
-  /**
-   * Gets the Document
-   *
-   * @return \LK\VKU\Editor\Document
-   */
-  private function getDocument(){
-    return $this->document;
   }
 
   /**
@@ -43,30 +35,15 @@ class ExportProcessor {
     return $this->pdf;
   }
 
+  private function addPageTitle($title){
+    $pdf = $this->getPDF();
 
-  /**
-   * Gets the Layout Definition
-   *
-   * @return array
-   */
-  private function getLayoutDefinition(){
-    $document = $this->getDocument();
-    $layout = $document->getLayout();
-    $manager = new \LK\VKU\Editor\Manager();
-    $obj = $manager->getLayout($layout);
-
-    return $obj -> getDefinition();
-  }
-
-  function addPageTitle(LK_PDF $pdf){
     $pdf->AddPage();
-    $pdf->addHeadline($this->getDocument()->getPageTitle());
+    $pdf->addHeadline($title);
   }
 
-  private function addFootnote(LK_PDF $pdf, $footnote){
-
-    //$pdf->SetFillColor(255, 255, 255);
-    //$pdf -> Rect(0,175.5, 297, 30, 'F');
+  private function addFootnote($footnote){
+    $pdf = $this->getPDF();
 
     $pdf->setX(25);
     $pdf->setY(178.5);
@@ -76,14 +53,18 @@ class ExportProcessor {
     $pdf->MultiCell(0, 10, $footnote, '', 'R');
   }
 
-
+  /**
+   * Processed the PDF
+   *
+   * @param LK_PDF $pdf
+   */
   public function processPDF(LK_PDF $pdf){
     $this -> pdf = $pdf;
     
     $document = $this ->getDocument();
     $defintion = $this->getLayoutDefinition();
     $content = $document->getContent();
-    $this->addPageTitle($pdf);
+    $this->addPageTitle($document->getPageTitle());
   
     $left_y = 25;
     $top_x = 55;
@@ -171,7 +152,7 @@ class ExportProcessor {
       $left_run += $width_region + ($text_sep / 3);
     }
     
-    $this->addFootnote($pdf, $document ->getFootnote());
+    $this->addFootnote($document ->getFootnote());
   }
 
   private function PDF_Position(LK_PDF $pdf, $x, $y, $width, $height){
@@ -206,16 +187,11 @@ class ExportProcessor {
     }
   }
 
-  private function debug($value){
-    kpr($value);
-    exit;
-  }
-
   /**
    * Adds an Table-Widget to the PDF
    *
    */
-  function addTableWidget($value, $height, $width){
+  private function addTableWidget($value, $height, $width){
 
     $pdf = $this->getPDF();
 
@@ -262,16 +238,6 @@ class ExportProcessor {
     $table .= '</table>';
 
     $pdf->WriteHTML($table, true, false, true, false, '');
-  }
-
-  /**
-   * Removes ending BR
-   *
-   * @param string $string
-   * @return string
-   */
-  private function removeTrailingBR($string){
-    return preg_replace('/(<br>)+$/', "", $string);
   }
 
   /**

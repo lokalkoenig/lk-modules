@@ -6,7 +6,8 @@ if(!$vkus): ?>
 
 <div class="btn-group-vku" data-nid="" data-vku-count="0">  
    <a href="<?php print url("vku/create"); ?>" class="btn btn-primary btn-transparent">
-    <small style="    line-height: 13px; display: block; text-align: center;">Aktive Verkaufsunterlage<br />
+        <small style="    line-height: 28px; display: block; text-align: center;">
+        <!--Aktive Verkaufsunterlage<br />-->
         <strong class="vku-title" style="font-size: 14px;">Verkaufsunterlage erstellen</strong>
     </small>
   </a>

@@ -252,7 +252,7 @@ class VKU2 extends PageManager {
         
         continue;
       }
-      
+
       // new item
       if($item["status"] == 3){
         $cid = $this -> addCategory('other', 0);
@@ -262,7 +262,7 @@ class VKU2 extends PageManager {
         $new = $sid;
       }
       // disable
-      elseif($item["status"] === 0){
+      elseif($item["status"] == 0){
         $this ->setPageStatus($pid, 0);
       }
       // delete item

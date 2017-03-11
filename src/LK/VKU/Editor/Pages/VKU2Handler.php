@@ -3,6 +3,10 @@ namespace LK\VKU\Editor\Pages;
 
 use LK\VKU\Pages\Interfaces\PageInterface;
 use LK\VKU\Editor\UserManager;
+use LK\VKU\Editor\Export\ExportPPTProcessor;
+use LK\PPT\LK_PPT_Creator;
+use LK\PDF\LK_PDF;
+use LK\VKU\Editor\Export\ExportPDFProcessor;
 
 $GLOBALS['vku_document_manager'] = NULL;
 
@@ -235,12 +239,12 @@ class VKU2Handler extends PageInterface {
    * @param array $page
    * @param \PDF $pdf
    */
-  function getOutputPDF($page, \LK\PDF\LK_PDF $pdf) {
+  function getOutputPDF($page, LK_PDF $pdf) {
 
     $manager = $this->getDocumentHandler();
     $document = $manager->getDocumentMitarbeiter($page["data_entity_id"]);
  
-    $processor = new \LK\VKU\Editor\Export\ExportProcessor($document);
+    $processor = new ExportPDFProcessor($document);
     $processor ->processPDF($pdf);
   }
 
@@ -250,5 +254,11 @@ class VKU2Handler extends PageInterface {
    * @param array $page
    * @param type $ppt
    */
-  function getOutputPPT($page, $ppt) { }
+  function getOutputPPT($page, LK_PPT_Creator $ppt) {
+    $manager = $this->getDocumentHandler();
+    //$document = $manager->getDocumentMitarbeiter($page["data_entity_id"]);
+
+    //$processor = new ExportPPTProcessor($document);
+    //$processor->renderPPT($ppt);
+  }
 }

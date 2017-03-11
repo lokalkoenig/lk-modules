@@ -33,13 +33,14 @@ class PPTTest extends TestCase {
       $this ->printLine('VKU', $vku ->getTitle());
       $this ->printLine('Author', \LK\u($vku ->getAuthor()));
       
-      $manager = new \LK\VKU\Export\Manager();
+      $manager = new \LK\VKU\Export\Manager($vku);
       $file_name = 'test-vku';
       file_prepare_directory($mydir, FILE_CREATE_DIRECTORY);
       
       $mydir = 'public://test';
       $dir = drupal_realpath($mydir);
-      $pptx = $manager ->generatePPTX($vku);
+      $pptx = $manager ->generatePPTX();
+      
       $fn = \LK\PPT\PPTX_Loader::save($pptx, $dir, $file_name);
       $size = filesize($dir . '/' . $fn);
       $this ->printLine('PPTX', l($fn, 'sites/default/files/test/' . $fn));

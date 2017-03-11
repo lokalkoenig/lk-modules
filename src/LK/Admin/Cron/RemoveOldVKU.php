@@ -1,8 +1,9 @@
 <?php
 
 namespace LK\Admin\Cron;
-use VKUCreator;
 
+use LK\VKU\Data\VKUMaintenance;
+use VKUCreator;
 
 /**
  * Description of RemoveOldVKU
@@ -15,8 +16,6 @@ class RemoveOldVKU {
    * Removes old VKU from the Database
    */
   public static function executeCron(){
-
-    $manager = new \LK\VKU\Data\VKUMaintenance();
     
     $time = time() - (60*60*24*31); // vor einem Monat
     $vkus = [];
@@ -37,6 +36,7 @@ class RemoveOldVKU {
 
     foreach($vkus as $vku_id){
       $vku = new VKUCreator($vku_id);
+      $manager = VKUMaintenance($vku);
       $manager->removeVKU($vku);
     }
 

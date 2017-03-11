@@ -37,6 +37,9 @@ abstract class VKUDataManipulator {
    * @param boolean $status
    */
   protected function setPageStatus($id, $status){
+
+    //dpm('SET PID ' . $id . " to ". $status);
+
     db_query("UPDATE lk_vku_data SET data_active=:status WHERE id=:id", [':status' => $status, ':id' => $id]);
   }
 

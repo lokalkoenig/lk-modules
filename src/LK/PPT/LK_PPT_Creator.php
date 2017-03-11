@@ -163,6 +163,46 @@ class LK_PPT_Creator {
         $font -> setSize($size);
     }
     
+    /**
+     * Adds an Image
+     *
+     * @param string $image
+     * @param array $options
+     * @return Drawing
+     */
+    function addImage($image, $options){
+
+      $slide = $this -> ppt ->getActiveSlide();
+
+       $shape_image = new Drawing();
+       $shape_image->setName('logo')->setPath($image);
+
+       if(isset($options["height"])){
+          $shape_image -> setHeight($options["height"]);
+       }
+
+       if(isset($options["width"])){
+          $shape_image -> setWidth($options["width"]);
+       }
+
+       if(isset($options["offsetX"])){
+          $shape_image -> setOffsetX($options["offsetX"]);
+       }
+
+       if(isset($options["offsetY"])){
+          $shape_image -> setOffsetY($options["offsetY"]);
+       }
+
+       $slide->addShape($shape_image);
+
+       return $shape_image;
+    }
+
+    /**
+     * Creates a Slide
+     *
+     * @return \PhpOffice\PhpPresentation\Slide
+     */
     function createSlide(){
         
         if($this -> slide_count === 0){
@@ -180,16 +220,15 @@ class LK_PPT_Creator {
     }
     
     function getFont(){
-        $font = ucfirst($this ->getSetting('font'));
-        return $font;
+      return 'Calibri';
     }
     
     function getFontBold(){
-        return $this ->getFont() . 'Bold';
+      return $this ->getFont();
     }
     
     function getFontSemiBold(){
-        return $this ->getFont() . ' Semi Bold';
+      return $this ->getFont();
     }
     
     function getTextColor(){
@@ -238,6 +277,23 @@ class LK_PPT_Creator {
         $color = new Color("FF" . strtoupper($input));
     
        return $color;   
+    }
+
+
+    function createTextRun($shape, $text, $size = false, $bold = false, $color = false){
+
+      $textrun = $shape->createTextRun($text);
+      $textrun-> getFont()->setName($this->getFont())->setColor($this ->getTextColor());
+
+      if($size){
+        $textrun->getFont()->setSize($size);
+      }
+
+      if($bold){
+            $textrun->getFont()->setBold($bold);
+      }
+
+      return $textrun;
     }
     
     

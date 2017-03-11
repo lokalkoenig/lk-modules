@@ -36,7 +36,7 @@ abstract class PPT_Base {
     }
     
     function getFont(){
-        $this -> reference ->getFont();
+      return 'Calibri';
     }   
     
     function getVku(){
@@ -44,7 +44,7 @@ abstract class PPT_Base {
     }
     
     function getFontBold(){
-        $this -> reference ->getFontBold();
+      return 'Calibri';
     }
     
     function getSetting($key){
