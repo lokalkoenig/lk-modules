@@ -34,6 +34,14 @@ abstract class PPT_Base {
     function __construct(LK_PPT_Creator $reference) {
         $this -> reference = $reference; 
     }
+
+    /**
+     *
+     * @return \LK\PPT\LK_PPT_Creator
+     */
+    function getPPT() {
+      return $this->reference;
+    }
     
     function getFont(){
       return 'Calibri';
@@ -133,24 +141,8 @@ abstract class PPT_Base {
         $this -> reference ->slide_finalize($this -> current_slide);
     }
     
-    function textRun(&$shape, $text, $size = false, $bold = false, $color = false){
-        $textrun = $shape->createTextRun($text);
-        $textrun-> getFont()->setName($this->getFont())->setColor($this ->getTextColor());
-        
-        if($size){
-            $textrun->getFont()->setSize($size);
-        } 
-        
-        if($bold){
-            $textrun->getFont()->setBold($bold);
-        } 
-        
-        if($color AND is_string($color)){
-            $takecolor = $this ->getColorFromHex($color);
-            $textrun->getFont()->setColor($takecolor);
-        }
-        
-        return $textrun;     
-    }         
+    function textRun($shape, $text, $size = FALSE, $bold = FALSE, $color = FALSE){
+      return $this->getPPT()->createTextRun($shape, $text, $size, $bold, $color);
+    }
     
 }

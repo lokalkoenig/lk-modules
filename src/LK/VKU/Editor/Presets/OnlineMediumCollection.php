@@ -35,7 +35,9 @@ class OnlineMediumCollection extends \LK\PXEdit\Presets\OnlineMediumCollection {
     else {
       $content[$position]['value'] = $id;
       $content[$position + 1] = $medium_content[0];
+      $content[$position + 1]['id'] = $position;
       $content[$position + 2] = $medium_content[1];
+      $content[$position + 1]['id'] = $position + 1;
     }
   
     return $content;

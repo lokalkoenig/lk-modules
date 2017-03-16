@@ -265,6 +265,7 @@ class KampagnenView {
    */
   private function trackNodeView(){
     HistoryManager::getInstance($this->getAccount())->logView($this->getKampagne());
+
   }
 
   /**

@@ -38,9 +38,22 @@ class UserManager {
     $nid = $kampagne ->getNid();
     $uid = $this->account->getUid();
 
+    // Track unique node view per day
+    $time = strtotime(date('Y-m-d 00:00:01'));
+    $dbq = db_query('SELECT count(*) as count FROM lk_lastviewed WHERE uid=:uid AND nid=:nid AND lastviewed_time>:last', [':uid' => $uid, ':nid' => $nid, ':last' => $time]);
+    $res = $dbq -> fetchObject();
+     
+    if($res -> count == 0) {
+      \LK\Stats::logUserAccessedKampagnen($uid);
+    }
+    
     db_query("DELETE FROM lk_lastviewed WHERE uid='". $uid ."' AND nid='". $nid ."'");
     db_query("INSERT INTO lk_lastviewed SET uid='". $uid ."', nid='". $nid ."', lastviewed_time='". time() ."'");
     $this->setAction('view-kampagne', $nid);
+
+    // log stats
+
+
     $this->performedAction();
   }
 

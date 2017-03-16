@@ -16,6 +16,6 @@
         "solarium/solarium": "3.0.0",
         "simple-html-dom/simple-html-dom": "*",
         "tecnick.com/tcpdf": "*",
-        "jbzoo/image": "3.0.4"
+        "jbzoo/image": "3.x-dev"
     }
 }

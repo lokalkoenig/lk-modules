@@ -107,7 +107,8 @@ global $user;
       break;
       
     case 'stats';
-      return $tabs . _lk_statsUser(array("team" => $team_id));
+      $obj = new \LK\Stats\Views\StatsViewer('team', $team->getId());
+      return $tabs . $obj->render();
       break;
       
     case 'abrechnung':

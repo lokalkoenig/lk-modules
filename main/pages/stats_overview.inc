@@ -1,4 +1,5 @@
 <?php
 function lokalkoenig_admin_show_stats(){
-    return _lk_statsUser(array("lk" => true));
+  $stats = new \LK\Stats\Views\StatsViewer('lk');
+  return $stats->render();
 }

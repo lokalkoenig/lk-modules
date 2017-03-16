@@ -75,7 +75,23 @@ class LK_PPT_Creator {
       $this -> vku = $vku;
       $account = \LK\get_user($this->vku->getAuthor());
       $this -> settings = \LK\VKU\VKUManager::getVKU_RenderSettings($account);
+    }
 
+
+    /**
+     * Creates a Rich-Text Shape
+     *
+     * @return \PhpOffice\PhpPresentation\Shape\RichText
+     */
+    function createRichTextShape(){
+
+      $slide = $this->ppt->getActiveSlide();
+      $shape = $slide->createRichTextShape();
+      $shape->getActiveParagraph()->getFont()->setColor($this->getTextColor());
+      $shape->setInsetLeft(0);
+      $shape->setInsetRight(0);
+   
+      return $shape;
     }
 
 
@@ -174,23 +190,23 @@ class LK_PPT_Creator {
 
       $slide = $this -> ppt ->getActiveSlide();
 
-       $shape_image = new Drawing();
-       $shape_image->setName('logo')->setPath($image);
+      $shape_image = new Drawing();
+      $shape_image->setName('logo')->setPath($image);
 
-       if(isset($options["height"])){
-          $shape_image -> setHeight($options["height"]);
-       }
+      if(isset($options["height"])){
+        $shape_image -> setHeight($options["height"]);
+      }
 
        if(isset($options["width"])){
-          $shape_image -> setWidth($options["width"]);
+        $shape_image -> setWidth($options["width"]);
        }
 
        if(isset($options["offsetX"])){
-          $shape_image -> setOffsetX($options["offsetX"]);
+        $shape_image -> setOffsetX($options["offsetX"]);
        }
 
        if(isset($options["offsetY"])){
-          $shape_image -> setOffsetY($options["offsetY"]);
+        $shape_image -> setOffsetY($options["offsetY"]);
        }
 
        $slide->addShape($shape_image);
@@ -204,19 +220,18 @@ class LK_PPT_Creator {
      * @return \PhpOffice\PhpPresentation\Slide
      */
     function createSlide(){
-        
-        if($this -> slide_count === 0){
-           //$this -> ppt->removeSlideByIndex(0);
-           $slide = $this -> ppt ->getActiveSlide(); 
-           //$slide->setSlideLayout($this -> oSlideLayout);
-        }
-        else {
-            $slide = $this -> ppt ->createSlide();
-            //$slide ->setSlideLayout($this -> oSlideLayout);
-        }
-        
-        $this -> slide_count++;
-        return $slide;
+      
+      if($this -> slide_count === 0){
+        $slide = $this -> ppt ->getActiveSlide();
+      }
+      else {
+        $slide = $this -> ppt ->createSlide();
+        $this->ppt->setActiveSlideIndex($this->ppt->getActiveSlideIndex() + 1);
+      }
+
+      $this -> slide_count++;
+      
+      return $slide;
     }
     
     function getFont(){
@@ -279,24 +294,35 @@ class LK_PPT_Creator {
        return $color;   
     }
 
+    /**
+     * Adds a Text-Run
+     *
+     * @param type RichText $shape
+     * @param string $text
+     * @param int $size
+     * @param boolean $bold
+     * @return \PhpOffice\PhpPresentation\Shape\RichText\Run
+     */
+    function createTextRun(RichText $shape, $text, $size = false, $bold = false, $color = FALSE){
 
-    function createTextRun($shape, $text, $size = false, $bold = false, $color = false){
-
-      $textrun = $shape->createTextRun($text);
-      $textrun-> getFont()->setName($this->getFont())->setColor($this ->getTextColor());
+      $textrun = $shape->getActiveParagraph()->createTextRun($text);
+      $textrun-> getFont()->setColor($this ->getTextColor());
 
       if($size){
         $textrun->getFont()->setSize($size);
       }
 
       if($bold){
-            $textrun->getFont()->setBold($bold);
+        $textrun->getFont()->setBold($bold);
+      }
+
+      if($color && is_string($color)){
+        $takecolor = $this ->getColorFromHex($color);
+        $textrun->getFont()->setColor($takecolor);
       }
 
       return $textrun;
     }
-    
-    
     
     /**
      * Adds Header and Footer to the slide

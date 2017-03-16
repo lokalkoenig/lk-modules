@@ -36,7 +36,7 @@ class RemoveOldVKU {
 
     foreach($vkus as $vku_id){
       $vku = new VKUCreator($vku_id);
-      $manager = VKUMaintenance($vku);
+      $manager = new VKUMaintenance($vku);
       $manager->removeVKU($vku);
     }
 

@@ -256,9 +256,9 @@ class VKU2Handler extends PageInterface {
    */
   function getOutputPPT($page, LK_PPT_Creator $ppt) {
     $manager = $this->getDocumentHandler();
-    //$document = $manager->getDocumentMitarbeiter($page["data_entity_id"]);
+    $document = $manager->getDocumentMitarbeiter($page["data_entity_id"]);
 
-    //$processor = new ExportPPTProcessor($document);
-    //$processor->renderPPT($ppt);
+    $processor = new ExportPPTProcessor($document);
+    $processor->renderPPT($ppt);
   }
 }

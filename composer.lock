@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c5691b932575b40ea2c960da95fae936",
-    "content-hash": "676b3e4aabb201ed2b42d8637a5cbbc7",
+    "hash": "9d29038045d01454f01e69d3993968f8",
+    "content-hash": "4b8bb7278564a5f630c13b8708f581df",
     "packages": [
         {
             "name": "jbzoo/data",
@@ -70,16 +70,16 @@
         },
         {
             "name": "jbzoo/image",
-            "version": "3.0.4",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JBZoo/Image.git",
-                "reference": "4788cd0a6df06c5baddeb026744e500d4a6b0884"
+                "reference": "11862ca37c43566e8c6fd08fbbaff6edeecebb34"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JBZoo/Image/zipball/4788cd0a6df06c5baddeb026744e500d4a6b0884",
-                "reference": "4788cd0a6df06c5baddeb026744e500d4a6b0884",
+                "url": "https://api.github.com/repos/JBZoo/Image/zipball/11862ca37c43566e8c6fd08fbbaff6edeecebb34",
+                "reference": "11862ca37c43566e8c6fd08fbbaff6edeecebb34",
                 "shasum": ""
             },
             "require": {
@@ -88,7 +88,7 @@
                 "php": ">=5.3.10"
             },
             "require-dev": {
-                "jbzoo/phpunit": "^1.0"
+                "jbzoo/phpunit": "^1.7"
             },
             "type": "library",
             "extra": {
@@ -136,7 +136,7 @@
                 "thumbnail",
                 "watermark"
             ],
-            "time": "2016-06-08 14:21:19"
+            "time": "2016-08-01 05:02:43"
         },
         {
             "name": "jbzoo/utils",
@@ -689,7 +689,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "jbzoo/image": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

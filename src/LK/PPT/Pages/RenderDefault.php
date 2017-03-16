@@ -90,96 +90,91 @@ class RenderDefault extends PPT_Base {
      */
     function ppt_render_default_kontakt(){
     
-        $currentSlide = $this ->createSlide();
-        $author = $this -> getAuthor();
-        $account = user_load($author);
-        $prof = profile2_load_by_user($account);
+      $this ->createSlide();
+      $author = $this -> getAuthor();
+      $account = user_load($author);
+      $prof = profile2_load_by_user($account);
 
-        /** Definitions */
-        $layout = $this ->getSetting('contact_layout');
+      /** Definitions */
+      $layout = $this ->getSetting('contact_layout');
       
-        $vorname = $prof['main']->field_profile_vorname['und'][0]['value'];
-        $name = $prof['main']->field_profile_name['und'][0]['value'];
+      $vorname = $prof['main']->field_profile_vorname['und'][0]['value'];
+      $name = $prof['main']->field_profile_name['und'][0]['value'];
 
-        $telefon = $prof['main']->field_profile_telefon['und'][0]['value'];
-        $mobil = $prof['main']->field_profile_telefon_mobil['und'][0]['value'];
-        $email = $account -> mail;
-        $org = $prof['main']->field_profile_adresse['und'][0]['organisation_name'];
-        $title = $prof['main']->field_profile_title['und'][0]['value'];
+      $telefon = $prof['main']->field_profile_telefon['und'][0]['value'];
+      $mobil = @$prof['main']->field_profile_telefon_mobil['und'][0]['value'];
+      $email = $account -> mail;
+      $org = $prof['main']->field_profile_adresse['und'][0]['organisation_name'];
+      $title = $prof['main']->field_profile_title['und'][0]['value'];
 
-        $address = $prof['main']->field_profile_adresse['und'][0]['thoroughfare'];
-        $zip = $prof['main']->field_profile_adresse['und'][0]['postal_code'];
-        $town = $prof['main']->field_profile_adresse['und'][0]['locality'];
+      $address = $prof['main']->field_profile_adresse['und'][0]['thoroughfare'];
+      $zip = $prof['main']->field_profile_adresse['und'][0]['postal_code'];
+      $town = $prof['main']->field_profile_adresse['und'][0]['locality'];
 
-        $bild = false; 
-        if(isset($prof['main']->field_profile_bild['und'][0]['uri'])){
-            $bild = $this ->getImageFile($prof['main']->field_profile_bild['und'][0]['uri'], 'image-framed');
-        }
+      $bild = false; 
+      if(isset($prof['main']->field_profile_bild['und'][0]['uri'])){
+          $bild = $this ->getImageFile($prof['main']->field_profile_bild['und'][0]['uri'], 'image-framed');
+      }
 
-        // Add Telefone-Symbol in the Background
-        $bg_image = 'sites/all/modules/lokalkoenig/vku/pages/telefon.jpg';
-        $this -> addImage($bg_image, array("height" => 400, "offsetX" => 500, "offsetY" => 280));
+      // Add Telefone-Symbol in the Background
+      $bg_image = 'sites/all/modules/lokalkoenig/vku/pages/telefon.jpg';
+      $this ->getPPT()->addImage($bg_image, array("height" => 400, "offsetX" => 500, "offsetY" => 280));
       
-        if($layout === 'default'){
-            // General headline
-            $shape_title = $currentSlide->createRichTextShape()->setHeight(100)->setWidth(800)->setOffsetX(60)->setOffsetY(140);
-            $this -> textRun($shape_title, "Ich bin gerne für Sie da!", 45, false); 
-        }
+      if($layout === 'default'){
+        // General headline
+        $shape_title = $this->getPPT()->createRichTextShape();
+        $shape_title->setHeight(100)->setWidth(800)->setOffsetX(60)->setOffsetY(140);
+        $this->getPPT()->createTextRun($shape_title, "Ich bin gerne für Sie da!" , 45);
+      }
     
-        $array_data = array();
-        $array_data[] = array('text' => $vorname . " " . $name, 'size' => 24, 'bold' => false);
-        $array_data[] = array('text' => $title, 'size' => 20, 'bold' => false);
-        $array_data[] = array();
-    
-        
-        
-        $array_data[] = array('text' => 'Telefon: ' . $telefon, 'size' => 16, 'bold' => false); 
-    
-        if($mobil){
-            $array_data[] = array('text' => 'Mobil: ' . $mobil,'size' => 16, 'bold' => false); 
-        }
-    
-        $array_data[] = array('text' => 'E-Mail: ' . $email, 'size' => 16, 'bold' => false); 
-    
-        // break
-        $array_data[] = array();
-    
-        $array_data[] = array('text' => $org,'size' => 16, 'bold' => false); 
-        $array_data[] = array('text' => $address, 'size' => 16, 'bold' => false); 
-        $array_data[] = array('text' => $zip . " " . $town, 'size' => 16, 'bold' => false); 
-        $array_data[] = array('text' => false);
-         
-        // Add Profile Image
-        if($layout == 'default'){
-            $this -> addImage($bild, array("height" => 300, "offsetX" => 60, "offsetY" => 260));
-            $shape = $currentSlide->createRichTextShape()->setHeight(300)->setWidth(500)->setOffsetX(310)->setOffsetY(260);
-        }
-        else {
-            $this -> addImage($bild, array("height" => 200, "offsetX" => 70, "offsetY" => 140));
-            $shape = $currentSlide->createRichTextShape()->setHeight(300)->setWidth(500)->setOffsetX(60)->setOffsetY(150 + 190);
-        }
-        
-        
-        foreach($array_data as $item){
-            
-           if(!$item){
-               $this -> textRun($shape, " ", 16);
-               $shape->createBreak();
-          
-               continue;
-           }
-           
-           if(!$item["text"]){
-               continue;
-           }
+      $array_data = array();
+      $array_data[] = array('text' => $vorname . " " . $name, 'size' => 24, 'bold' => false);
+      $array_data[] = array('text' => $title, 'size' => 20, 'bold' => false);
 
-            $this -> textRun($shape, $item["text"], $item["size"], $item["bold"]);
-            $shape->createBreak();
+      $array_data[] = array();
+      $array_data[] = array('text' => 'Telefon: ' . $telefon, 'size' => 16, 'bold' => false); 
+
+      if($mobil){
+        $array_data[] = array('text' => 'Mobil: ' . $mobil,'size' => 16, 'bold' => false); 
+      }
+
+      $array_data[] = array('text' => 'E-Mail: ' . $email, 'size' => 16, 'bold' => false); 
+      $array_data[] = array();
+      $array_data[] = array('text' => $org,'size' => 16, 'bold' => false); 
+      $array_data[] = array('text' => $address, 'size' => 16, 'bold' => false); 
+      $array_data[] = array('text' => $zip . " " . $town, 'size' => 16, 'bold' => false); 
+      $array_data[] = array('text' => false);
+
+      // Add Profile Image
+      if($layout == 'default'){
+        $this->getPPT()->addImage($bild, array("height" => 300, "offsetX" => 60, "offsetY" => 260));
+        $shape = $this->getPPT()->createRichTextShape();
+        $shape->setHeight(300)->setWidth(500)->setOffsetX(310)->setOffsetY(260);
+      }
+      else {
+        $this->getPPT()->addImage($bild, array("height" => 200, "offsetX" => 60, "offsetY" => 140));
+        $shape = $this->getPPT()->createRichTextShape();
+        $shape->setHeight(300)->setWidth(500)->setOffsetX(60)->setOffsetY(150 + 190);
+      }
+
+      foreach($array_data as $item){
+        if(!$item){
+          $this->getPPT()->createTextRun($shape, ' ');
+          $shape->createBreak();
+
+          continue;
         }
+
+        if(!$item["text"]){
+          continue;
+        }
+
+        $this->getPPT()->createTextRun($shape,  $item["text"], $item["size"], $item["bold"]);
+        $shape->createBreak();
+      }
         
-        $this -> finalize();
+      $this -> finalize();
     }  
-    
     
     /**
      * Renders default title Page
@@ -195,10 +190,9 @@ class RenderDefault extends PPT_Base {
         $company = $vku -> get("vku_company", true);
 
         $title_bg_color = $this ->getColorFromHex($this -> getSetting('title_bg_color'));
-    
         $shape_bg = $slide->createRichTextShape()->setHeight(300)->setWidth(960)->setOffsetX(0)->setOffsetY(100);
         $shape_bg -> getFill()->setFillType(Fill::FILL_SOLID)->setRotation(90)->setStartColor($title_bg_color)->setEndColor($title_bg_color);
-    
+
         $shape_title = $slide->createRichTextShape()->setHeight(300)->setWidth(960)->setOffsetX(0)->setOffsetY(100);
         $shape_title -> getActiveParagraph()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
  
@@ -210,7 +204,7 @@ class RenderDefault extends PPT_Base {
         $this -> textRun($shape_title, $title, $title_size, false, $this -> getSetting('title_vg_color'));
    
         // TITLE END
-        $shape2 = $slide->createRichTextShape();
+        $shape2 = $this->getPPT()->createRichTextShape();
         $shape2 ->setHeight(300)->setWidth(960)->setOffsetX(0)->setOffsetY(430);
         $shape2 -> getActiveParagraph()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
       
@@ -236,33 +230,31 @@ class RenderDefault extends PPT_Base {
      */
     function ppt_render_default_wochen(){
     
-        $currentSlide = $this ->createSlide();
-        $this -> addImage('sites/all/modules/lokalkoenig/vku/pages/shutterstock_43524835_small.jpg', 
-                array("height" => 445, "offsetX", 0, "offsetY" => 180));
-     
-        $textcolor = $this ->getTextColor(); 
-        $font = $this ->getFont();
-        $shape = $currentSlide->createRichTextShape()->setHeight(100)->setWidth(600)->setOffsetX(400)->setOffsetY(120 + 40);
-        $shape-> getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_LEFT );
-        $this -> textRun($shape, 'Was spricht für die Werbung in ...', 23, true);
+      $this ->createSlide();
+      $this->getPPT()->addImage('sites/all/modules/lokalkoenig/vku/pages/shutterstock_43524835_small.jpg', array("height" => 445, "offsetX", 0, "offsetY" => 180));
 
-        $shape2 = $currentSlide->createRichTextShape()->setHeight(100)->setWidth(370)->setOffsetX(540)->setOffsetY(180 + 40);
-        $this ->textRun($shape2, 'Wochen-/Anzeigenblättern', 20, false);
+      $shape = $this->getPPT()->createRichTextShape();
+      $shape = $shape->setHeight(100)->setWidth(600)->setOffsetX(400)->setOffsetY(120 + 40);
+      $this -> textRun($shape, 'Was spricht für die Werbung in ...', 23, true);
 
-        $shape = $currentSlide->createRichTextShape()->setHeight(600)->setWidth(350)->setOffsetX(560)->setOffsetY(220 + 50);
-        $shape->getActiveParagraph()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)
-                                                       ->setMarginLeft(25)
-                                                       ->setIndent(-25);
-        $shape->getActiveParagraph()->getFont()->setSize(16)->setColor($textcolor)->setName($font);
-        $shape->getActiveParagraph()->getBulletStyle()->setBulletType(Bullet::TYPE_BULLET);
-        $shape->createTextRun('kostenlos für jeden Leser');
-        $shape->createParagraph()->createTextRun('sehr hohe Reichweite');
-        $shape->createParagraph()->createTextRun('Verteilung auch an Werbeverweigerer (Haushalte mit dem Aufkleber "Bitte keine Werbung einwerfen")');
-        $shape->createParagraph()->createTextRun('generell sehr hohe Akzeptanz bei den Lesern');
-        $shape->createParagraph()->createTextRun('oft das entscheidende Medium für den geplanten Einkauf');
-        $shape->createParagraph()->createTextRun('PR-Artikel buchbar');
+      $shape2 = $this->getPPT()->createRichTextShape()->setHeight(100)->setWidth(370)->setOffsetX(540)->setOffsetY(180 + 40);
+      $this ->textRun($shape2, 'Wochen-/Anzeigenblättern', 20, false);
 
-        $this ->finalize();
+      $shape3 = $this->getPPT()->createRichTextShape()->setHeight(600)->setWidth(350)->setOffsetX(560)->setOffsetY(220 + 50);
+      $shape3->getActiveParagraph()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)
+                                                     ->setMarginLeft(25)
+                                                     ->setIndent(-25);
+
+      $shape3->getActiveParagraph()->getFont()->setSize(16);
+      $shape3->getActiveParagraph()->getBulletStyle()->setBulletType(Bullet::TYPE_BULLET);
+      $shape3->createTextRun('kostenlos für jeden Leser');
+      $shape3->createParagraph()->createTextRun('sehr hohe Reichweite');
+      $shape3->createParagraph()->createTextRun('Verteilung auch an Werbeverweigerer (Haushalte mit dem Aufkleber "Bitte keine Werbung einwerfen")');
+      $shape3->createParagraph()->createTextRun('generell sehr hohe Akzeptanz bei den Lesern');
+      $shape3->createParagraph()->createTextRun('oft das entscheidende Medium für den geplanten Einkauf');
+      $shape3->createParagraph()->createTextRun('PR-Artikel buchbar');
+
+      $this ->finalize();
     }    
     
     
@@ -271,34 +263,33 @@ class RenderDefault extends PPT_Base {
      * Renders default onlinewerbung Page
      */
     function ppt_render_default_onlinewerbung(){
-            
-            $currentSlide = $this ->createSlide();
-            $color = $this -> getTextColor();
-            
-            $this ->addImage('sites/all/modules/lokalkoenig/vku/ppt/pages/online.jpg', array('height' => 525, 'offsetX' => 585, "offsetY" => 100));
-            $shape = $currentSlide->createRichTextShape()->setHeight(100)->setWidth(500)->setOffsetX(LK_PPT_MARGIN)->setOffsetY(120);
-            $shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_LEFT );
-            $this ->textRun($shape, 'Was spricht für die ...', 23, true);
-          
-            
-            $shape = $currentSlide->createRichTextShape()->setHeight(100)->setWidth(500)->setOffsetX(LK_PPT_MARGIN + 25)->setOffsetY(180);
-            $this ->textRun($shape, 'Online Werbung (Display-Ads)', 20, false);
-            
-            $shape = $currentSlide->createRichTextShape()->setHeight(600)->setWidth(490)->setOffsetX(LK_PPT_MARGIN)->setOffsetY(220);
-            $shape->getActiveParagraph()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)
-                                                    ->setMarginLeft(25)->setIndent(-25);
-            $shape->getActiveParagraph()->getFont()->setSize(16)->setColor($color)->setName($this->getFont());
-     
-            $shape->getActiveParagraph()->getBulletStyle()->setBulletType(Bullet::TYPE_BULLET);
-            
-            $shape->createTextRun('geeignet zum Image-Aufbau, zur Adressgenerierung und für den Verkauf von Produkten oder Dienstleistungen');
-            $shape->createParagraph()->createTextRun('kann sofortige Handlungsimpulse erzeugen');
-            $shape->createParagraph()->createTextRun('thematische Aussteuerung der Werbung, bei Buchung spezieller Rubriken, Inhalte, (Sonder-) Themen');
-            $shape->createParagraph()->createTextRun('PR-Text bzw. thematische Micro-Sites buchbar');
-            $shape->createParagraph()->createTextRun('Werbeerfolgskontrolle: Gute Messbarkeit der Werbeeinblendungen, Klick-Raten o.ä.');
-            $shape->createParagraph()->createTextRun('Werbeinhalt kann problemlos geändert werden');
-            $shape->createParagraph()->createTextRun('aktive Kundenansprache: zahlreiche Möglichkeiten der Interaktivität');
-            $this -> finalize();
+
+      $this ->createSlide();
+      $this->getPPT()->addImage('sites/all/modules/lokalkoenig/vku/ppt/pages/online.jpg', ['height' => 525, 'offsetX' => 585, "offsetY" => 100]);
+
+      $shape = $this->getPPT()->createRichTextShape();
+      $shape->setHeight(100)->setWidth(500)->setOffsetX(LK_PPT_MARGIN)->setOffsetY(120);
+      $this ->textRun($shape, 'Was spricht für die ...', 23, true);
+
+      $shape = $this->getPPT()->createRichTextShape();
+      $shape->setHeight(100)->setWidth(500)->setOffsetX(LK_PPT_MARGIN + 15)->setOffsetY(180);
+      $this ->textRun($shape, 'Online Werbung (Display-Ads)', 20, false);
+
+      $shape = $this->getPPT()->createRichTextShape();
+      $shape->setHeight(600)->setWidth(490)->setOffsetX(LK_PPT_MARGIN)->setOffsetY(220);
+      $shape->getActiveParagraph()->getAlignment()->setMarginLeft(15)->setIndent(-15);
+      $shape->getActiveParagraph()->getFont()->setSize(16);
+      $shape->getActiveParagraph()->getBulletStyle()->setBulletType(Bullet::TYPE_BULLET);
+      
+      $shape->createTextRun('geeignet zum Image-Aufbau, zur Adressgenerierung und für den Verkauf von Produkten oder Dienstleistungen');
+      $shape->createParagraph()->createTextRun('kann sofortige Handlungsimpulse erzeugen');
+      $shape->createParagraph()->createTextRun('thematische Aussteuerung der Werbung, bei Buchung spezieller Rubriken, Inhalte, (Sonder-) Themen');
+      $shape->createParagraph()->createTextRun('PR-Text bzw. thematische Micro-Sites buchbar');
+      $shape->createParagraph()->createTextRun('Werbeerfolgskontrolle: Gute Messbarkeit der Werbeeinblendungen, Klick-Raten o.ä.');
+      $shape->createParagraph()->createTextRun('Werbeinhalt kann problemlos geändert werden');
+      $shape->createParagraph()->createTextRun('aktive Kundenansprache: zahlreiche Möglichkeiten der Interaktivität');
+      
+      $this -> finalize();
     }   
     
     
@@ -307,25 +298,23 @@ class RenderDefault extends PPT_Base {
      */
     function ppt_render_default_tageszeitung(){
     
-        $currentSlide = $this ->createSlide();
-        $color = $this -> getTextColor();
-    
-        $shape = $currentSlide->createDrawingShape();
-        $shape->setName('logo')->setPath('sites/all/modules/lokalkoenig/vku/pages/shutterstock_64607632_small.jpg')
-        ->setHeight(525)->setOffsetX(599)->setOffsetY(100);   
- 
-        $shape = $currentSlide->createRichTextShape()->setHeight(100)->setWidth(500)->setOffsetX(LK_PPT_MARGIN)->setOffsetY(120);
-        $shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_LEFT );
-        $textRun = $shape->createTextRun('Was spricht für die Werbung in...');
-        $textRun->getFont()->setName($this->getFont())->setBold(true)->setSize(23)->setColor($color);
+        $this ->createSlide();
+        $this->getPPT()->addImage('sites/all/modules/lokalkoenig/vku/pages/shutterstock_64607632_small.jpg', ['height' => 525, 'offsetX' => 599, "offsetY" => 100]);
+
+        $shape = $this->getPPT()->createRichTextShape();
+        $shape->setHeight(100)->setWidth(500)->setOffsetX(LK_PPT_MARGIN)->setOffsetY(120);
         
-        $shape = $currentSlide->createRichTextShape()->setHeight(100)->setWidth(500)->setOffsetX(LK_PPT_MARGIN + 25)->setOffsetY(180);
+        $textRun = $shape->createTextRun('Was spricht für die Werbung in...');
+        $textRun->getFont()->setSize(23)->setBold(TRUE);
+
+        $shape = $this->getPPT()->createRichTextShape();
+        $shape->setHeight(100)->setWidth(500)->setOffsetX(LK_PPT_MARGIN + 15)->setOffsetY(180);
         $this ->textRun($shape, 'Tageszeitungen', 20, false);
-       
-        $shape = $currentSlide->createRichTextShape()->setHeight(600)->setWidth(510)->setOffsetX(LK_PPT_MARGIN)->setOffsetY(220);
-        $shape->getActiveParagraph()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)
-                                                       ->setMarginLeft(25)->setIndent(-25);
-        $shape->getActiveParagraph()->getFont()->setSize(16)->setColor($color)->setName($this->getFont());
+
+        $shape = $this->getPPT()->createRichTextShape();
+        $shape->setHeight(600)->setWidth(510)->setOffsetX(LK_PPT_MARGIN)->setOffsetY(220);
+        $shape->getActiveParagraph()->getAlignment()->setMarginLeft(15)->setIndent(-15);
+        $shape->getActiveParagraph()->getFont()->setSize(16);
         $shape->getActiveParagraph()->getBulletStyle()->setBulletType(Bullet::TYPE_BULLET);
         
         $shape->createTextRun('hohe Glaubwürdigkeit (höchste Glaubwürdigkeit aller Medien)');
@@ -369,6 +358,8 @@ class RenderDefault extends PPT_Base {
         $shape = $currentSlide->createRichTextShape()->setHeight(100)->setWidth(500)->setOffsetX(60)->setOffsetY(120);
         $shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_LEFT );
         $textRun = $shape->createTextRun('Kampagnenplanung ' . implode(" / ", $years));
+        $shape->setInsetLeft(0);
+        $shape->setInsetRight(0);
         $textRun->getFont()->setName($this->getFont())->setBold(true)->setSize(23)->setColor($color);
         
         $dateComponents = getdate();
@@ -390,7 +381,7 @@ class RenderDefault extends PPT_Base {
         11 => 'Dezember');
   
         $y_offset = 180;
-        $x_offset = 64;
+        $x_offset = 60;
         $x = 0;
         foreach($dates as $date){
             
@@ -460,11 +451,16 @@ class RenderDefault extends PPT_Base {
         $currentSlide = $this ->getCurrentSlide();
         
         $shape = $currentSlide->createRichTextShape()->setHeight(20)->setWidth(200)->setOffsetX($x_pos)->setOffsetY($y_pos - 30);
+        $shape->setInsetLeft(0);
+        $shape->setInsetRight(0);
         $shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_LEFT );
         $this ->textRun($shape, $title, 12, true);
         
         $shape = $currentSlide->createRichTextShape()->setHeight(20)->setWidth(200)->setOffsetX($x_pos + 220)->setOffsetY($y_pos - 30);
         $shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_LEFT );
+        $shape->setInsetLeft(0);
+        $shape->setInsetRight(0);
+        
         $this ->textRun($shape, "Thema", 10, true);
         
         $this ->drawLine($x_pos + 230, $y_pos + 0, 165);
@@ -472,7 +468,7 @@ class RenderDefault extends PPT_Base {
         $this ->drawLine($x_pos + 230, $y_pos + 40, 165);
         $this ->drawLine($x_pos + 230, $y_pos + 60, 165);
         
-        $x_pos = $x_pos + 10;
+        $x_pos = $x_pos + 1;
         $w = $this -> table_cell_width;
         
         $this -> setCellBgColor("KW", 'e2e4e5', true, $y_pos, $x_pos + $w *0);

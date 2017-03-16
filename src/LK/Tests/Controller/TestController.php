@@ -77,5 +77,6 @@ function lokalkoenig_admin_show_tests_case_form($form, $form_state, $cases, $fie
 }
 
 function lokalkoenig_admin_show_tests_case_form_submit($form, $form_state){
-    //drupal_goto($_GET['q'], array('query' => $form_state['values']));
+  form_state_values_clean($form_state);
+  drupal_goto($_GET['q'], array('query' => $form_state['values']));
 }

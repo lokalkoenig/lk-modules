@@ -25,7 +25,21 @@ abstract class ExportProcessorInterface {
     return $this->document;
   }
 
-   /**
+  /**
+   * Loads Markup and gives back the parseAble Instance
+   *
+   * @param string $markup
+   * @return \stdObject
+   */
+  final public function loadMarkup($markup){
+    $instance = new \simple_html_dom();
+    $instance->load('<html><body>'. $markup .'</body></html>');
+    $body = $instance -> find('body');
+
+    return $body[0];
+  }
+
+  /**
    * Removes ending BR
    *
    * @param string $string

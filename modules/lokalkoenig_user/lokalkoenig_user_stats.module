@@ -40,6 +40,17 @@ function lokalkoenig_user_stats_menu(){
 return $items;
 }
 
+function lokalkoenig_user_stats_page_alter(&$page){
+  // logging users time spent sessions & hits
+
+  $current = \LK\current();
+  if($current) {
+    $tracker = new \LK\Stats\TimeTracker();
+    $tracker->track($current);
+  }
+}
+
+
 function lk_agenturabrechnung_access($agentur){
   $current = \LK\current();  
   $account = \LK\get_user($agentur);
@@ -57,286 +68,45 @@ return false;
 
 
 function lokalkoenig_user_stats_page_verlag($verlag){
-  return _lk_statsUser(array("verlag" => $verlag -> uid));
+  $stats = new \LK\Stats\Views\StatsViewer('verlag', $verlag -> uid);
+
+  return $stats->render();
 }
 
 
 function lk_verlagsaccount_access($account){
-    $accessed = \LK\get_user($account -> uid);
-    if(!$accessed ->isVerlag()){
-        return false;
-    }
-    
-    $current = \LK\current();
-    if($current ->isModerator()){
-        return true;
-    }
-    
-    if($current ->isVerlagController() OR $current ->isVerlag()){
-        $verlag = $current ->getVerlag();
-        if($verlag == $accessed ->getUid()){
-            return true;
-        }
-    }
- 
-    return false;
+  $accessed = \LK\get_user($account -> uid);
+  if(!$accessed ->isVerlag()){
+
+    return FALSE;
+  }
+
+  $current = \LK\current();
+  if($current ->isModerator()){
+
+    return TRUE;
+  }
+
+  if($current ->isVerlagController() OR $current ->isVerlag()){
+      $verlag = $current ->getVerlag();
+      if($verlag == $accessed ->getUid()){
+
+        return TRUE;
+      }
+  }
+
+  return FALSE;
 }
 
 
 function lokalkoenig_user_stats_page($account){
    
-   $obj = \LK\get_user($account);
-   if(!$obj OR $obj ->isAgentur()){
-       drupal_goto("user");
-   }
-
-   return _lk_statsUser(array("user" => $account -> uid));
-}
-
-
-function lkstats_form_month_select($form, $form_state, $monthes){
-
-  $options = array();
-  
-  foreach($monthes as $month){
-    $options[] = $month;
+  $obj = \LK\get_user($account);
+  if(!$obj OR $obj ->isAgentur()){
+    drupal_goto("user");
   }
-  
- 
-  $form['#method'] = 'get';
-  
-  $form["month"] = array(
-    '#type' => 'select',
-    '#title' => 'Monat',
-    '#options' => $options
-  );
-  
-  if(isset($_GET["month"])){
-      $form["month"]["#default_value"] = $_GET["month"];
-  }
-  
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => 'Anzeigen',
-  );
 
-return $form;
+  $stats = new \LK\Stats\Views\StatsViewer('user', $account -> uid);
+
+  return $stats->render();
 }
-
-function _lk_statsUser($options){
-global $user;
-    
-   $isuser = false;
-   $ausgaben = array();
-   
-   if(isset($options["team"])){
-      $team = \LK\get_team($options["team"]);
-      drupal_set_title("Statistiken: " . $team ->getTitle());
-      $uids = $team ->getUser();
-      
-      $bundle = 'team';
-      $bundle_id = $team ->getId();
-   }
-   elseif(isset($options["user"])){
-      $account = \LK\get_user($options["user"]);
-      
-      drupal_set_title("Statistiken");
-      
-      if($account ->getUid() == $user -> uid){
-        drupal_set_title("Ihre Statistiken");
-        $isuser = $account ->getUid();
-      }
-      
-      $bundle = 'user';
-      $bundle_id = $account ->getUid();
-  
-      
-      $uids = array($bundle_id);
-   } 
-   elseif(isset($options["verlag"])){
-      $verlag = \LK\get_user($options["verlag"]);
-      $uids = $verlag -> getAllUsers();  
-      drupal_set_title("Verlagsstatistiken");
-      $bundle = 'verlag';
-      $bundle_id = $verlag ->getUid();
-      
-      $aus = $verlag -> getAusgaben();
-      foreach($aus as $item){
-         $ausgaben[] = $item ->getTitleFormatted();
-      }
-   }
-  elseif(isset($options["lk"])){
-      $bundle = 'lk';
-      $bundle_id = 0;
-      drupal_set_title("Statistiken");
-      $uids = array(0);
-  }
-   
-   $vormonat = false;
-   
-   // Get monthes from Database   
-   $monthes = \LK\Stats::getLogMonthes($bundle, $bundle_id);
-   
-   if(count($uids) == 0 OR count($monthes) == 0) {
-        return '<div class="well well-white">Keine Statistiken vorhanden.</div>'; 
-   } 
-  
-   if(isset($_GET["month"]) AND isset($monthes[$_GET["month"]])){
-       $stats = \LK\Stats::getLastEntry($bundle, $bundle_id, $monthes[$_GET["month"]]);
-       $test_month = $_GET["month"] + 1;
-       $monat =  $monthes[$_GET["month"]];
-       
-   }
-   else {
-        $stats = \LK\Stats::getLastEntry($bundle, $bundle_id, $monthes[0]);
-        $test_month = 1;
-        $monat =  $monthes[0];
-   }
-   
-   if(isset($monthes[$test_month])){
-       $vormonat = \LK\Stats::getLastEntry($bundle, $bundle_id, $monthes[$test_month]);
-   }
-   
- 
-   
-   // Vormonat
-   
-   
-   
-   // Anzahl MA
-   if($stats -> activated_users){
-      $rows[0] = array('Anzahl Mitarbeiter', $stats -> activated_users, "", "");
-   }
-
-   if(!$isuser AND !isset($options["user"])):
-        $rows[2] = array('Im Zeitraum aktive Benutzer', $stats -> active_users, "", "");
-    endif;
-    
-    $rows[3] = array('Erstellte Verkaufsunterlagen', $stats -> created_vku, "", "");
-    $rows[4] = array('Abgeschlossene Verkaufsunterlagen', $stats -> generated_vku, "", "");
-    $rows[5] = array('Gekaufte Lizenzen', $stats -> purchased_vku, "", "");
-    $rows[6] = array('Merklisten Einträge', $stats -> merklisten, "", "");  
-    $rows[7] = array('Key-Wort-Suchen', $stats -> searches, "", "");
-    $rows[8] = array('Angesehene Kampagnen', $stats -> accessed_kampagnen, "", "");
-    
-    if($isuser):
-        $rows[6][0] .= ' ' . l('<span class="glyphicon glyphicon-search"></span>', 'merkliste', array("html" => true));
-        $rows[3][0] .= ' ' .  l('<span class="glyphicon glyphicon-search"></span>', 'user/' . $isuser . "/vku", array("html" => true));
-        $rows[5][0] .= ' ' .  l('<span class="glyphicon glyphicon-search"></span>', 'user/' . $isuser . "/vku", array("html" => true, 'query' => array('vku_status_2' => 2)));
-        $rows[8][0] .= ' ' .  l('<span class="glyphicon glyphicon-search"></span>', 'history', array("html" => true));
-        $rows[7][0] .= ' ' .  l('<span class="glyphicon glyphicon-search"></span>', 'user/' . $isuser . "/searches", array("html" => true));
-    endif;
-    
-    if($vormonat){
-        if(isset($rows[0])){
-            $rows[0][2] = $vormonat -> activated_users; 
-            $rows[0][3] = _stats_calculate_diff($stats -> activated_users, $vormonat -> activated_users); 
-        }
-        
-       if(!$isuser AND !isset($options["user"])): 
-            $rows[2][2] = $vormonat -> active_users;
-            $rows[2][3] = _stats_calculate_diff($stats -> active_users, $vormonat -> active_users);
-       endif;
-       
-       $rows[3][2] = $vormonat -> created_vku;
-       $rows[3][3] = _stats_calculate_diff($stats -> created_vku, $vormonat -> created_vku);
-       
-       
-       $rows[4][2] = $vormonat -> generated_vku;
-       $rows[4][3] = _stats_calculate_diff($stats -> generated_vku, $vormonat -> generated_vku);
-       
-       
-       $rows[5][2] = $vormonat -> purchased_vku;
-       $rows[5][3] = _stats_calculate_diff($stats -> purchased_vku, $vormonat -> purchased_vku);
-      
-       
-       $rows[6][2] = $vormonat -> merklisten;
-       $rows[6][3] = _stats_calculate_diff($stats -> merklisten, $vormonat -> merklisten);
-      
-       
-       $rows[7][2] = $vormonat -> searches;
-       $rows[7][3] = _stats_calculate_diff($stats -> searches, $vormonat -> searches);
-      
-       
-       $rows[8][2] = $vormonat -> accessed_kampagnen;
-       $rows[8][3] = _stats_calculate_diff($stats -> accessed_kampagnen, $vormonat -> accessed_kampagnen);
-    }
- 
-    $title = 'Statistiken';
-    $subtitle = '<div class="help-block">Die Statistiken geben einen Überblick der Aktivitäten der Mitarbeiter.</div>';
-    
-    if($isuser || isset($options["user"])){
-        $subtitle = '';
-    }
-    
-    
-    if(!isset($options["form"])){
-       $options["form"] = true; 
-    }
-    
-    
-    if($options["form"]){
-        $form = drupal_get_form("lkstats_form_month_select", $monthes);
-        $render_form = render($form);
-        
-       return  '<div class="well well-white">
-     <div class="row">
-        <div class="col-xs-6">
-           <h4>'. $title .'</h4> 
-           '. $subtitle .'
-        </div>
-        <div class="col-xs-6">'. $render_form . '</div>
-     </div>  
-     <hr />
-     <div class="well well-white">' . theme('table', array('header' => array("", $monat, "Vormonat", "%"), 'rows' => $rows)) . '</div></div>';
-
-        
-     }
-     else {
-        $render_form = ''; 
-        return '<div class="well well-white"><h4>'. $title .'</h4><hr />' . theme('table', array('header' => array("", $monat, "Vormonat", "%"), 'rows' => $rows)) . '</div></div>';
-     }
-     
-}
-
-
-function _stats_calculate_diff($value1, $value2){
-    
-    
-    
-    if($value1 > $value2){
-        
-        if($value1 == 0){
-            $value = 100;
-        }
-        elseif($value2 == 0){
-            return '-';
-        }
-        else {
-            $value = round((($value1 - $value2) / $value2), 2)  * 100;
-        }
-        
-        
-        return '<span style="color:green">+ '. $value .'%</span>';
-    }
-    
-    if($value1 < $value2){
-         if($value2 == 0){
-            $value = 100;
-        }
-        elseif($value1 == 0){
-           return '-';
-        }
-        else {
-            $value = abs(round((($value1 - $value2) / $value2), 2)  * 100);
-        }
-        
-        return '<span style="color:red">- '. $value .'%</span>';
-    }
-        
-    
-return '-';    
-}
-
-
-?>

@@ -152,42 +152,22 @@ return $libraries;
 function vku_editor_image_default_styles() {
   
   $styles = array();
-  
-  $manager = new LK\VKU\Editor\Manager();
-  $image_styles = $manager -> getImagePresets();
-  
-  while(list($key, $val) = each($image_styles)){
-    $styles[$key] = array(
-      'label' => "[PXEdit] " . $val['title'],
+  $styles['jpg'] = array(
+      'label' => "[PXEdit] JPEG",
       'effects' =>  [
           [
-          'name' => 'image_scale_and_crop',
-          'data' => array('height' => $val['height'], 'width' => $val['width']),
-          'weight' => 1,
+          'name' => 'imagecache_alpha',
+          'data' => array('opacity' => 1, 'flatten' => 1, 'RGB' => ['HEX' => '#FFF']),
+          'weight' => -10,
       ],
-      //  [
-      //  'name' => 'image_scale',
-      //  'data' => array('height' => $val['height'], 'upscale' => 0, 'width' => ''),
-      //  'weight' => 1,
-      //],
-      //[
-      //  'name' => 'image_scale',
-      //  'data' => ['width' => $val['width'], 'height' => '', 'upscale' => 0],
-      //  'weight' => 2,
-      //],
-      ],  
+       [
+          'name' => 'coloractions_convert',
+          'data' => array('format' => 'image/jpeg', 'quality' => 95),
+          'weight' => -9,
+      ],
+      ],
     );
-  }
-  
-  /**
-  array(
-        array(
-          'name' => 'image_scale_and_crop',
-          'data' => array('width' => $val['width'], 'height' => $val['height']),
-          'weight' => 0,
-        ),
-      ),
- */ 
+
   // Footer Logos
   $styles['pxedit_footer_logo'] = array(
     'label' => "[PXEdit] Verlag logos (Footer)",

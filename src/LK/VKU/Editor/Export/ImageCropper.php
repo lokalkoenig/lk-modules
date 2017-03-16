@@ -22,8 +22,9 @@ class ImageCropper {
    */
   public static function process(\stdClass $file, $options){
 
-    $url = file_create_url($file->uri);
-
+    //$url = file_create_url($file->uri);
+    $url = image_style_url('jpg', $file->uri);
+    
     // if there are no croppie-information
     if(!isset($options['points']) && !isset($options['zoom'])){
       return $url;
@@ -34,16 +35,17 @@ class ImageCropper {
     $fn[] = str_replace('.', '-', $options['zoom']);
     
     $ext = 'jpg';
-    if($file->filemime === 'image/png'){
-      $ext = 'png';
-    }
-
     $filename = implode('-', $fn) . "." . $ext;
 
     $dir = drupal_realpath(self::SAFE_DIR);
     if(!file_exists($dir . '/' . $filename)){
       $img = new Image(file_get_contents($url));
       $img -> crop($points[0], $points[1], $points[2], $points[3]);
+
+      if($img->getWidth() > 1000) {
+        $img->bestFit(1000, 1000);
+      }
+   
       $img->saveAs($dir . '/' . $filename, 90);
     }
 

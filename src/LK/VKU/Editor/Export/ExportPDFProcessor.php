@@ -16,7 +16,7 @@ class ExportPDFProcessor extends ExportProcessorInterface {
   var $pdf = null;
   var $debug = FALSE;
   var $text_sep = 5;
-
+  var $calculated_height = 0;
 
   function __construct(Document $document) {
     parent::__construct($document);
@@ -46,11 +46,21 @@ class ExportPDFProcessor extends ExportProcessorInterface {
     $pdf = $this->getPDF();
 
     $pdf->setX(25);
-    $pdf->setY(178.5);
+    $pdf->setY(174.5);
     $pdf ->SetLeftMargin(25);
     $pdf ->SetRightMargin(25);
-    $pdf ->SetFont(VKU_FONT, '', 8);
-    $pdf->MultiCell(0, 10, $footnote, '', 'R');
+    $pdf ->SetFont('', '', 8);
+    //$pdf->Cell();
+    $pdf->setColor('text', 119, 119, 119);
+    $pdf->Cell(0, 10, $footnote, 0, 0, 'R');
+  }
+
+  function setCalculatedRegionHeight($height){
+    $this->calculated_height = $height;
+  }
+
+  function getCalculatedRegionHeight(){
+    return $this->calculated_height;
   }
 
   /**
@@ -86,6 +96,7 @@ class ExportPDFProcessor extends ExportProcessorInterface {
         $height_region = ($height_100 * 100) / 100;
       }
       elseif($val['height'] === 'calc') {
+        $this->setCalculatedRegionHeight($pdf -> getY() - $top_x);
         $height_region = $height_100 - ($pdf -> getY() - $top_x + $text_sep);
       }
       else {

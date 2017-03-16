@@ -27,7 +27,6 @@ class UserSearch {
     $this->logCurrentSearch($search);
   }
   
-  
   protected function logCurrentSearch($search){
     $current = \LK\current();
     $word = $search['search_api_views_fulltext'];
@@ -44,7 +43,9 @@ class UserSearch {
     $insert["created"] = time();
     $insert["search_text"] = serialize($search);
     $insert["search_count"] = $GLOBALS['pager_total_items'][0];
-    
+
+    \LK\Stats::logUserSearches($current->getUid());
+
     $id = \db_insert('lk_search_history')->fields($insert)->execute();            
     $_SESSION["lksearch"][$key] = $id;
     

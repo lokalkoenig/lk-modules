@@ -84,9 +84,10 @@ global $user;
     
     $stats = theme('mitarbeiterinfo', array('account' => $account));
     
-    if($obj ->isAgentur() OR $obj ->isModerator()){ }
-    else {
-      $stats .= _lk_statsUser(array("user" => $account -> uid, 'form' => false));
+    if(!$obj ->isAgentur()) {
+      $obj = new \LK\Stats\Views\StatsViewer('user', $account -> uid);
+      $obj->hideForm();
+      $stats .= $obj->render();
     }
     
     return $stats;
