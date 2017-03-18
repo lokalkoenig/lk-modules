@@ -32,6 +32,8 @@ class RemoveOrphanedFiles {
         unlink($dirname . "/" . $date);
       } 
     }
-    
-  }
+
+    // Remove some Entries from Watchdog
+    db_query("DELETE FROM watchdog WHERE message='Login attempt failed for %user.' OR type IN ('access denied', 'page not found')");
+ }
 }

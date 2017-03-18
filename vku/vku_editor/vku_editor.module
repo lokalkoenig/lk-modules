@@ -15,6 +15,12 @@ require_once __DIR__ . '/vku_editor.field_widget.php';
 function vku_editor_vku2_add_module(){
 
   $current = \LK\current();
+
+  if(!$current) {
+    
+    return [];
+  }
+
   if(!$current ->isModerator()){
     $verlag = $current ->getVerlagObject();
     if(!$verlag || !$verlag ->getVerlagSetting('vku_editor', false) || !$verlag ->getVerlagSetting('vku_2', false)){

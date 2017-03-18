@@ -60,7 +60,7 @@ class VKU2 extends PageManager {
         $this->sendJSON($response);
       }
 
-      $this->sendJSON($this->generateExports());
+      $this->sendJSON($this->generateExports([]));
     }
   }
 

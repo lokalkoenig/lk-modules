@@ -318,8 +318,7 @@ function lokalkoenig_team_stats_abrechnung_page($team_id){
    
    //drupal_set_title("Abrechnung");
    
-   
-   $tables = _lk_verlag_abrechnung($v, $have, $excel, $team_id);
+   $tables = _lk_verlag_abrechnung(user_load($v), $have, $excel, $team_id);
    
     $output = '<div class="well clearfix">
       <div class="pull-right" style="width: 400px;">'. render($form) .'</div>
