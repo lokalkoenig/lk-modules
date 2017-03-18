@@ -14,7 +14,7 @@ class StatsViewer {
    * 
    * @var string 
    */
-  var $stats_type;
+  private $stats_type;
 
 
   /**
@@ -22,9 +22,13 @@ class StatsViewer {
    *
    * @var int
    */
-  protected $stats_uid;
+  private $stats_uid;
 
+  protected $aggregator_synthax = '____-__';
   protected $hide_form = FALSE;
+  protected $time_label = 'Monat';
+  protected $time_label_prev = 'Vormonat';
+
 
   var $stats_values = [
     'activated_users' => 'Anzahl Mitarbeiter',
@@ -42,6 +46,11 @@ class StatsViewer {
   function __construct($type, $id = 0) {
     $this->stats_type = $type;
     $this->stats_uid = $id;
+
+    $current = \LK\current();
+    if($current->isModerator()) {
+      $this->stats_values += ['page_sessions' => 'Sessions', 'page_hits' => "Seitenaufrufe", 'page_time' => "Verbrachte Zeit"];
+    }
   }
 
   public function hideForm(){
@@ -49,14 +58,14 @@ class StatsViewer {
   }
 
 
-  function getForm($values, $selected){
+  protected function getForm($values, $selected){
 
     $form['#method'] = 'get';
 
     $form["month"] = array(
       '#type' => 'select',
-      '#name' => 'month',
-      '#title' => 'Monat',
+      '#name' => 'time',
+      '#title' => $this->time_label,
       '#options' => $values,
       '#value' => $selected,
       '#default_value' => $selected,
@@ -78,6 +87,7 @@ class StatsViewer {
   private function getLogMonthes(){
     $where = array("stats_user_type='" .$this->stats_type ."'");
     $where[] = "stats_bundle_id='". $this->stats_uid ."'";
+    $where[] = "stats_date LIKE '". $this->aggregator_synthax ."'";
 
     $monthes = array();
     $dbq = db_query("SELECT DISTINCT stats_date FROM lk_verlag_stats WHERE " . implode(" AND ", $where) . " ORDER BY stats_date DESC");
@@ -86,6 +96,27 @@ class StatsViewer {
     }
 
     return $monthes;
+  }
+
+  /**
+   * Gets a Stats DataSet
+   *
+   * @param string $type
+   * @param int $id
+   * @param string $time
+   * @return Object
+   */
+  private function getLogData($time) {
+    $where = array("stats_user_type='" .$this->stats_type ."'");
+    $where[] = "stats_bundle_id='". $this->stats_uid ."'";
+    $where[] = "stats_date='". $time ."'";
+
+     $dbq = db_query("SELECT * FROM lk_verlag_stats "
+            . "WHERE " . implode(" AND ", $where));
+
+
+
+     return (array)$dbq -> fetchObject();
   }
 
 
@@ -101,10 +132,10 @@ class StatsViewer {
       return '<div class="well well-white">Keine Statistiken vorhanden.</div>';
     }
 
-    if(isset($_GET['month']) && isset($monthes[$_GET['month']])) {
-      $monat = $monthes[$_GET['month']];
-      $test_next_month = $_GET['month'] + 1;
-      $selected_month = $_GET['month'];
+    if(isset($_GET['time']) && isset($monthes[$_GET['time']])) {
+      $monat = $monthes[$_GET['time']];
+      $test_next_month = $_GET['time'] + 1;
+      $selected_month = $_GET['time'];
     }
     else {
       $monat = $monthes[0];
@@ -113,10 +144,10 @@ class StatsViewer {
     }
 
     $vormonat = [];
-    $stats = (array)\LK\Stats::getLastEntry($this->stats_type, $this->stats_uid, $monat);
+    $stats = $this->getLogData($monat);
 
     if(isset($monthes[$test_next_month])) {
-      $vormonat = (array)\LK\Stats::getLastEntry($this->stats_type, $this->stats_uid, $monthes[$test_next_month]);
+      $vormonat = $this->getLogData($monthes[$test_next_month]);
     }
   
     $table = [];
@@ -127,10 +158,10 @@ class StatsViewer {
         continue;
       }
 
-      $table[$x] = [$title, $stats[$key], '', ''];
+      $table[$x] = [$title, $this->formatValue($key, $stats[$key]), '', ''];
 
       if($vormonat) {
-        $table[$x][2] = $vormonat[$key];
+        $table[$x][2] = $this->formatValue($key, $vormonat[$key]);
         $table[$x][3] = $this->calculate_diff($stats[$key], $vormonat[$key]);
       }
       
@@ -148,7 +179,31 @@ class StatsViewer {
       $table = $this->alterTableForCurrentUser($table);
     }
 
-    $table_rendered = '<div class="well well-white">' . theme('table', array('header' => array("", $monat, "Vormonat", "%"), 'rows' => $table)) . '</div>';
+    $table_rendered = '<div class="well well-white">' . theme('table', array('header' => array("", $monat, $this->time_label_prev, "%"), 'rows' => $table)) . '</div>';
+
+    if(!in_array($this->stats_type, ['user', 'user-weekly']) && lk_is_admin()) {
+
+      
+
+      $where = ["stats_date='". $stats['stats_date'] ."'"];
+      if($this->stats_type === 'lk-weekly') {
+        $where[] = "stats_user_type='user-weekly'";
+      }
+      else {
+        $where[] = "stats_user_type='user'";
+      }
+
+      $user_table = [];
+
+      $dbq = db_query('SELECT * FROM lk_verlag_stats WHERE ' . implode(' AND ', $where) . ' ORDER BY page_time DESC');
+      foreach($dbq as $all) {
+        $user_table[] = [\LK\u($all->stats_bundle_id), format_interval($all->page_time), $all->page_hits, $all->page_sessions];
+      }
+
+      $user_table_rendered = theme('table', array('header' => array("Benutzer", "Zeit", "Seitenaufrufe", "Sessions"), 'rows' => $user_table));
+      $table_rendered .= '<div class="well well-white"><h4>Aktive Benutzer *</h4>'. $user_table_rendered .'<div><hr /><small>* Einige Benutzer sind nicht in den generellen Statistiken  inkludiert.</small></div></div>';
+
+    }
 
     if($this->hide_form) {
       return $table_rendered;
@@ -165,6 +220,17 @@ class StatsViewer {
      <hr />
      ' . $table_rendered . '</div>';
   }
+
+  private function formatValue($key, $value) {
+
+    if($key === 'page_time' && $value != 0) {
+      return \format_interval($value);
+    }
+
+    return $value;
+  }
+
+
 
   /**
    * Alters the Table-Data for the current User

@@ -57,6 +57,8 @@ function lokalkoenig_merkliste_ajax_callback(){
       $manager ->addKampagne($term, $nid);
     }
 
+    \LK\Stats::logUserMerklisteAdded(\LK\current()->getUid());
+
     $response['message'] = "Die Kampagne wurde in Ihren Merklisten gespeichert.";
   }
   elseif($action === 'load'){

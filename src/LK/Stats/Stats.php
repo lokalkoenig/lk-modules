@@ -35,12 +35,11 @@ class Stats {
     self::__logVku($vku, "purchased_vku");
   }
    
-  private static function __get_id($bundle, $user_id, $month_select = null){
+  private static function __get_id($bundle, $user_id, $month_select){
 
-    $month = $month_select;
     $where = array("stats_user_type='" .$bundle ."'");
     $where[] = "stats_bundle_id='". $user_id ."'";
-    $where[] = "stats_date='". $month ."'";
+    $where[] = "stats_date='". $month_select ."'";
 
     $dbq = db_query("SELECT id FROM lk_verlag_stats "
             . "WHERE " . implode(" AND ", $where));
@@ -53,9 +52,10 @@ class Stats {
 
       if($bundle === 'user' || $bundle === 'user-weekly'){
         $account = \LK\get_user($user_id);
+       
         if($account):
-          $team_id = (int)$account ->getTeam();
-          $verlag_uid = (int)$account ->getVerlag();
+          $team_id = $account ->getTeam();
+          $verlag_uid = $account ->getVerlag();
         endif;
       }
 
@@ -71,7 +71,7 @@ class Stats {
         "user_stats_team_id" => $team_id,
         "stats_user_type" => $bundle,
         "stats_bundle_id" => $user_id,
-        "stats_date" => $month];
+        "stats_date" => $month_select];
 
       $id = db_insert('lk_verlag_stats')->fields($fields)->execute();
     }
@@ -80,23 +80,6 @@ class Stats {
     } 
 
     return $id;
-  }
-    
-  public static function getLastEntry($bundle, $user_id, $month = null){
-
-    if(!$month) {
-      $month = date("Y-m");
-    }
-
-    $id = self::__get_id($bundle, $user_id, $month);
-
-    if($id){
-      $dbq = db_query("SELECT * FROM lk_verlag_stats WHERE id='". $id ."'");
-
-      return $dbq -> fetchObject();
-    }
-
-    return false;    
   }
     
   public static function logOverall($key, $value){
