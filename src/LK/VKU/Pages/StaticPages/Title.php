@@ -75,7 +75,7 @@ class Title {
     
     $array = [
       'title' => $vku -> get("vku_title", false),
-      'company' =>  $vku -> get("vku_title", false),
+      'company' =>  $vku -> get("vku_company", false),
       'underline' =>  $vku -> get("vku_untertitel", false),   
     ];
     

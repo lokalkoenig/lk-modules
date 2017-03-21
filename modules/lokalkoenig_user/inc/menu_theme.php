@@ -71,6 +71,15 @@ $themes["lk_user_change_ausgaben"] = [
               'account' => NULL
             )
     );
+  $themes["lokalkoenig_user_new_dashboard"] = array(
+            'template' => 'inc/lokalkoenig_user_new_dashboard', // your template file called custompage.tpl.php
+            'variables' => array(
+              'account' => NULL
+            )
+    );
+
+
+
   
 return $themes;
 }
@@ -84,7 +93,6 @@ function lokalkoenig_user_menu(){
       'page arguments' => array(1),
       'title' => 'Meine Kampagnen',
       'type' => MENU_LOCAL_TASK);
-   
-      return $items;    
-      
+
+  return $items;         
 }

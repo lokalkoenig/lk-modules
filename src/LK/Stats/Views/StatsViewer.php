@@ -48,8 +48,12 @@ class StatsViewer {
     $this->stats_uid = $id;
 
     $current = \LK\current();
-    if($current->isModerator()) {
-      $this->stats_values += ['page_sessions' => 'Sessions', 'page_hits' => "Seitenaufrufe", 'page_time' => "Verbrachte Zeit"];
+    if(lk_is_admin() && $current->isModerator()) {
+      $this->stats_values += [
+        'page_sessions' => 'Sessions',
+        'page_hits' => "Seitenaufrufe",
+        'page_time' => "Verbrachte Zeit",
+      ];
     }
   }
 
@@ -181,10 +185,7 @@ class StatsViewer {
 
     $table_rendered = '<div class="well well-white">' . theme('table', array('header' => array("", $monat, $this->time_label_prev, "%"), 'rows' => $table)) . '</div>';
 
-    if(!in_array($this->stats_type, ['user', 'user-weekly']) && lk_is_admin()) {
-
-      
-
+    if(!in_array($this->stats_type, ['user', 'user-weekly', 'verlag', 'team']) && lk_is_admin()) {
       $where = ["stats_date='". $stats['stats_date'] ."'"];
       if($this->stats_type === 'lk-weekly') {
         $where[] = "stats_user_type='user-weekly'";

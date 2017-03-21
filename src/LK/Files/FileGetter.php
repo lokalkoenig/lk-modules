@@ -37,7 +37,7 @@ class FileGetter {
             file_prepare_directory($mydir, FILE_CREATE_DIRECTORY);
             $dir = drupal_realpath($mydir);
             
-            $file = file_get_contents($url);
+            $file = @file_get_contents($url);
             if(!$file){
                 $error = new \LK\Log\Debug('Die VKU Datei wurde nicht gefunden: ' . $url);
                 $error ->setCategory('error');

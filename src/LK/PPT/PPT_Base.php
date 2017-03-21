@@ -1,17 +1,8 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 namespace LK\PPT;
 
-use PhpOffice\PhpPresentation\Shape\Drawing\File;
 use PhpOffice\PhpPresentation\Style\Fill;
-use PhpOffice\PhpPresentation\Shape\Drawing;
-
 
 /**
  * Description of PPT_Base
@@ -51,26 +42,22 @@ abstract class PPT_Base {
         return $this -> reference ->getVku();
     }
     
-    function getFontBold(){
-      return 'Calibri';
-    }
-    
     function getSetting($key){
         return $this -> reference ->getSetting($key);
     }
     
     function drawLine($x, $y, $width, $height = 1, $color = null){
         
-        $bg_color = $this ->getTextColor();
-        if(!$color){
-            $bg_color = $this ->getColorFromHex($color);
-        }
-        
-        $currentSlide = $this -> getCurrentSlide();
-        $shape = $currentSlide->createRichTextShape()->setHeight($height)->setWidth($width);
-        $shape->setOffsetX($x);
-        $shape->setOffsetY($y);
-        $shape->getFill()->setFillType(Fill::FILL_SOLID)->setStartColor($bg_color);
+      $bg_color = $this ->getTextColor();
+      if(!$color){
+        $bg_color = $this ->getColorFromHex($color);
+      }
+
+      $currentSlide = $this -> getCurrentSlide();
+      $shape = $currentSlide->createRichTextShape()->setHeight($height)->setWidth($width);
+      $shape->setOffsetX($x);
+      $shape->setOffsetY($y);
+      $shape->getFill()->setFillType(Fill::FILL_SOLID)->setStartColor($bg_color);
     
     return $shape;
     }
@@ -81,8 +68,10 @@ abstract class PPT_Base {
      * @return \PhpOffice\PhpPresentation\Slide
      */
     function createSlide(){
-       $this -> current_slide = $this -> reference ->createSlide(); 
-       return $this -> current_slide;
+
+      $this -> current_slide = $this->getPPT()->createSlide();
+
+      return $this -> current_slide;
     }
     
     
@@ -108,33 +97,11 @@ abstract class PPT_Base {
      * @return \PhpOffice\PhpPresentation\Slide
      */
     function getCurrentSlide(){
-        return $this -> current_slide;
+      return $this -> current_slide;
     }
     
     function addImage($image, $options){
-       //$shape_image = $this -> current_slide -> createDrawingShape();
-       $shape_image = new Drawing();
-       $shape_image->setName('logo')->setPath($image);
-       //$shape_image->setMimeType(Drawing\Gd::MIMETYPE_DEFAULT);
-       
-       if(isset($options["height"])){
-          $shape_image -> setHeight($options["height"]); 
-       }
-       
-       if(isset($options["width"])){
-          $shape_image -> setWidth($options["width"]); 
-       }
-       
-       if(isset($options["offsetX"])){
-          $shape_image -> setOffsetX($options["offsetX"]); 
-       }
-      
-       if(isset($options["offsetY"])){
-          $shape_image -> setOffsetY($options["offsetY"]); 
-       }
-       
-       $this -> current_slide->addShape($shape_image);
-       return $shape_image;
+      return $this->addImage($image, $options);
     }   
     
     function finalize(){

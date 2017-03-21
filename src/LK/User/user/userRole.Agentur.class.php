@@ -19,7 +19,15 @@ class Agentur extends User {
          
     return $this;
    }    
-   
+
+   function getTeam() {
+     return 0;
+   }
+
+   function getVerlag() {
+     return 0;
+   }
+
    function isAgentur(){
         return true;       
     }

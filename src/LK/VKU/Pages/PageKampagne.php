@@ -235,7 +235,7 @@ class PageKampagne extends PageInterface {
 
     return $kampagnen;  
   }
-
+  
   /**
    * Loads the GIF-Parts from an Online-Medium
    *

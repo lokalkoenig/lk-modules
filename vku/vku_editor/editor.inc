@@ -214,8 +214,8 @@ function vku_editor_verlag_documents_themed(\LK\Verlag $verlag){
   while(list($key, $val) = each($categories)){
     $array[$key] = [
         'title' => $val, 
-        'documents' => $manager ->getDocumentsPerVerlag($verlag, $key),
-        'documents_unpublished' => $manager ->getDocumentsPerVerlag($verlag, $key, 0),
+        'documents' => $manager ->getDocumentsPerVerlag($verlag, $key, 1, 'document_changed DESC'),
+        'documents_unpublished' => $manager ->getDocumentsPerVerlag($verlag, $key, 0, 'document_changed DESC'),
         'presets' => [],
     ];
     

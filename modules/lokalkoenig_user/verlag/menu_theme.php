@@ -108,7 +108,15 @@ function lokalkoenig_user_verlag_menu(){
       'page arguments' => array('telefonmitarbeiter_set_plz', 1),
       'title' => 'Postleitzahlen festlegen',
       'type' => MENU_CONTEXT_NONE);  
-  
+
+
+    $items['dashboard'] = array(
+      'access callback' => 'lk_is_moderator',
+      'file' => 'inc/new_dashboard.inc',
+      'page callback' => 'lokalkoenig_user_new_dashboard',
+      'title' => 'Dashboard',
+      'type' => MENU_LOCAL_TASK);
+
       return $items;    
 } 
 

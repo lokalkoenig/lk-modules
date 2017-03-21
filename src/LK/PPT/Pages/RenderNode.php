@@ -80,7 +80,7 @@ class RenderNode extends PPT_Base {
     
     
     function addMediumPrint($medium){
-      $slide2 = $this ->createSlide();
+      $this ->createSlide();
       $this -> addMediumPrintHeader($medium);
       
       $tax = $medium->field_medium_typ['und'][0]['tid'];
@@ -99,7 +99,7 @@ class RenderNode extends PPT_Base {
         $spacing = $spacing + (190 - $width);
       } 
         
-      $offset_x = 60;
+      $offset_x = 65;
       $i = 0;
       $i_count = count($medium->field_medium_varianten["und"]);
 
@@ -118,7 +118,7 @@ class RenderNode extends PPT_Base {
         $shape->setHeight(40)->setWidth(250)->setOffsetX($offset_x)->setOffsetY(200);
         $this ->textRun($shape, $name, 12);
         
-        $this->getPPT()->addImage($teaser_img_url, ['height' => $calc, "offsetX" => $offset_x + 10, "offsetY" => 230]);
+        $this->getPPT()->addImage($teaser_img_url, ['height' => $calc, "offsetX" => $offset_x, "offsetY" => 230]);
         //$y = $shape -> getOffsetY();
         
         $shape2 = $this->getPPT()->createRichTextShape()->setHeight(40)->setWidth(250)->setOffsetX($offset_x)->setOffsetY(230 + $calc);
@@ -128,7 +128,7 @@ class RenderNode extends PPT_Base {
         $i++;
 
         if(($offset_x + $width) > $this -> print_max_width && $i != $i_count){
-          $offset_x = 60;
+          $offset_x = 65;
           $this ->finalize();
 
           $this ->createSlide();
@@ -207,16 +207,13 @@ class RenderNode extends PPT_Base {
     } 
     
     function addOnlineMediumHeader($medium){
-      
-      $this ->getCurrentSlide(); 
-
       $shape = $this->getPPT()->createRichTextShape()->setHeight(40)->setWidth(500)->setOffsetX(60)->setOffsetY(130);
       $this ->textRun($shape, $medium -> title, 30, false);
       
       $shape2 = $this->getPPT()->createRichTextShape()->setHeight(40)->setWidth(500)->setOffsetX(400)->setOffsetY(140);
-      $tr = $this ->textRun($shape2, 'Animiertes Banner', 16, false);
+      $this ->textRun($shape2, 'Animiertes Banner', 16, false);
 
-      $shape->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_RIGHT );
+      $shape2->getActiveParagraph()->getAlignment()->setHorizontal( Alignment::HORIZONTAL_RIGHT );
     }
     
     
@@ -228,8 +225,8 @@ class RenderNode extends PPT_Base {
       $term = taxonomy_term_load($tax);
       $name = $term -> field_medientyp_online_label["und"][0]["value"];
      
-      $offset_x = $offset_x_base = 60;
-      $offset_y = $offset_y_base = 250;
+      $offset_x = $offset_x_base = 65;
+      $offset_y = $offset_y_base = 260;
       $color_black = new Color("FF000000");
       
       $oFill = new Fill();
@@ -247,6 +244,7 @@ class RenderNode extends PPT_Base {
       }
 
       $v = 0;
+      $offset_y -= 10;
       foreach($medium->field_medium_varianten["und"] as $variante){
       
         // Gif get
@@ -269,10 +267,9 @@ class RenderNode extends PPT_Base {
 
         $desc = $this->getPPT()->createRichTextShape()->setHeight(20)->setWidth(300)->setOffsetX($offset_x)->setOffsetY($offset_y - 60);
         $this ->textRun($desc, $variante_title, 12);
-        $offset_y = $offset_y - 10;
             
         foreach($frames as $frame){
-          $textshape[$x . 'a'] = $slide2->createRichTextShape()->setHeight(20)->setWidth(80)->setOffsetX($offset_x + 9)->setOffsetY($offset_y - 20);
+          $textshape[$x . 'a'] = $slide2->createRichTextShape()->setHeight(20)->setWidth(80)->setOffsetX($offset_x)->setOffsetY($offset_y - 20);
           $textshape[$x . 'a'] -> setFill($oFill);
         
           $image = "sites/all/modules/lokalkoenig/vku/pages/repeat_000000_64.png";
@@ -284,7 +281,7 @@ class RenderNode extends PPT_Base {
                     
                 
           $slideshape[$x] = $slide2->createDrawingShape();
-          $slideshape[$x]->setName('logo_' . $x )->setPath($image)->setWidth(18)->setHeight(18)->setOffsetX($offset_x + 10 + $breite - 18)->setOffsetY($offset_y - 20);
+          $slideshape[$x]->setName('logo_' . $x )->setPath($image)->setWidth(18)->setHeight(18)->setOffsetX($offset_x + 1 + $breite - 18)->setOffsetY($offset_y - 20);
         
           $textshape[$x] = $slide2->createRichTextShape()->setHeight(20)->setWidth(90)->setOffsetX($offset_x + 10)->setOffsetY($offset_y - 30);
           $textshape[$x] -> getActiveParagraph()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)->setVertical(Alignment::VERTICAL_BASE);
@@ -293,10 +290,10 @@ class RenderNode extends PPT_Base {
           $textshape[$x] -> setInsetTop(12);
                 
           $slideshape[$x] = $slide2->createDrawingShape();
-          $slideshape[$x]->setName('logo_' . $x )->setPath($frame)->setWidth($breite)->setHeight($hoehe)->setOffsetX($offset_x + 10)->setOffsetY($offset_y);
+          $slideshape[$x]->setName('logo_' . $x )->setPath($frame)->setWidth($breite)->setHeight($hoehe)->setOffsetX($offset_x + 1)->setOffsetY($offset_y);
           $slideshape[$x]->getBorder()->setColor($color_black)->setLineStyle(Border::LINE_SINGLE)->setDashStyle(Border::DASH_SOLID);
 
-          $slideshape[$x . 'a'] = $slide2->createRichTextShape()->setWidth($breite)->setHeight($hoehe)->setOffsetX($offset_x + 10)->setOffsetY($offset_y);
+          $slideshape[$x . 'a'] = $slide2->createRichTextShape()->setWidth($breite)->setHeight($hoehe)->setOffsetX($offset_x + 1)->setOffsetY($offset_y);
           $slideshape[$x . 'a']->getBorder()->setColor($color_black)->setLineStyle(Border::LINE_SINGLE)->setDashStyle(Border::DASH_SOLID);
           $offset_x += $breite + 10;
           $x++;
@@ -310,10 +307,10 @@ class RenderNode extends PPT_Base {
           $offset_x = $offset_x_base;
 
           if($offset_y + $hoehe > $this -> online_max_height){
-              $offset_y = $offset_y_base;
+              $offset_y = $offset_y_base - 10;
               $this -> finalize();
 
-              $this ->createSlide();
+              $slide2 = $this ->createSlide();
               $this ->addOnlineMediumHeader($medium);
           }    
         }

@@ -18,9 +18,6 @@ use PhpOffice\PhpPresentation\Style\Alignment;
 use PhpOffice\PhpPresentation\Style\Color;
 use PhpOffice\PhpPresentation\Style\Fill;
 
-use LK\PPT\Pages\RenderDefault;
-use LK\PPT\Pages\RenderNode;
-
 
 /**
  * Default Margin Left / Right
@@ -74,9 +71,17 @@ class LK_PPT_Creator {
     function setVKU(\VKUCreator $vku){
       $this -> vku = $vku;
       $account = \LK\get_user($this->vku->getAuthor());
-      $this -> settings = \LK\VKU\VKUManager::getVKU_RenderSettings($account);
+      $this->setAccount($account);
     }
 
+    /**
+     * Sets the User
+     *
+     * @param \LK\User $account
+     */
+    function setAccount(\LK\User $account) {
+      $this -> settings = \LK\VKU\VKUManager::getVKU_RenderSettings($account);
+    }
 
     /**
      * Creates a Rich-Text Shape
@@ -125,11 +130,11 @@ class LK_PPT_Creator {
      */
     function getSetting($id){
         
-        if(isset($this -> settings[$id])){
-           return $this -> settings[$id]; 
-        }
+      if(isset($this -> settings[$id])){
+        return $this -> settings[$id];
+      }
         
-    return false;    
+      return false;
     }
     
     /**
@@ -138,7 +143,7 @@ class LK_PPT_Creator {
      * @return Int
      */
     function getPageCount(){
-        return $this -> ppt -> getSlideCount();
+      return $this -> ppt -> getSlideCount();
     }
     
     /**
@@ -150,14 +155,9 @@ class LK_PPT_Creator {
      * @return type
      */
     function getImageFile($uri, $style){
-    global $base_url;    
-    
-        $dir = file_directory_temp();
-        
-        $real = drupal_realpath($uri);
-        $img_url = image_style_url($style, $uri);
-        
-       return \LK\Files\FileGetter::get($img_url);
+      $img_url = image_style_url($style, $uri);
+
+      return \LK\Files\FileGetter::get($img_url);
     }
    
     /**
@@ -168,15 +168,15 @@ class LK_PPT_Creator {
      * @param Integer $size
      */
     function text($textrun, $bold, $size){
-        $color = $this ->getTextColor();
-        $font = $textrun->getFont()->setName($this ->getFont())->setColor($color);
-        $font -> setBold($bold);
-        
-        if($bold){
-            $font -> setName($this -> getFontSemiBold());
-        }
-        
-        $font -> setSize($size);
+      $color = $this ->getTextColor();
+      $font = $textrun->getFont()->setName($this ->getFont())->setColor($color);
+      $font -> setBold($bold);
+
+      if($bold){
+          $font -> setName($this -> getFontSemiBold());
+      }
+
+      $font -> setSize($size);
     }
     
     /**
@@ -289,9 +289,11 @@ class LK_PPT_Creator {
      * @return Color
      */
     public function getColorFromHex($input){
-        $color = new Color("FF" . strtoupper($input));
+      
+      $color_convert = strtoupper(str_replace('#', '', $input));
+      $color = new Color("FF" . $color_convert);
     
-       return $color;   
+      return $color;   
     }
 
     /**
@@ -331,77 +333,68 @@ class LK_PPT_Creator {
      */
     public function slide_finalize($currentSlide){
         
-        // Add Background-Color
-        $color = $this -> getColorFromHex($this ->getSetting('vku_hintergrundfarbe'));
-        $color_line = $this -> getColorFromHex($this ->getSetting('title_bg_color'));
-        
-         // Immitate a Border-top
-        $shape_footer_top = $currentSlide->createRichTextShape()->setHeight(101)->setWidth(960);
-        $shape_footer_top->setOffsetX(0);
-        $shape_footer_top->setOffsetY(0);
-        $shape_footer_top->getFill()->setFillType(Fill::FILL_SOLID)->setRotation(90)->setStartColor($color_line);
-        
-        $logo_pos = $this ->getSetting('logo_position');
-        $shape2 = $currentSlide->createRichTextShape()->setHeight(100)->setWidth(960);
-        $shape2->setOffsetX(0);
-        $shape2->getFill()->setFillType(Fill::FILL_SOLID)->setRotation(90)->setStartColor($color)->setEndColor($color);
-        $header_logo = $this ->getSetting('logo_oben');
+      // Add Background-Color
+      $color = $this -> getColorFromHex($this ->getSetting('vku_hintergrundfarbe'));
+      $color_line = $this -> getColorFromHex($this ->getSetting('title_bg_color'));
 
-        if($header_logo):
-            $shape = $currentSlide->createDrawingShape();
-            
-            $image = $this -> getImageFile($header_logo, "ppt_logos");
-        
-            $shape->setName('logo')
-                ->setDescription('logo')
-                ->setPath($image)
-                ->setHeight(80)
-                ->setOffsetX(60)
-                ->setOffsetY(10);
-            
-                // when the Logo position is right side
-                if($logo_pos == 'right'):
-                    $size = getimagesize($image);
-                    $calc = 80 / $size[1];
-                    $width = $size[0] * $calc;
+      // Immitate a Border-top
+      $shape_footer_top = $currentSlide->createRichTextShape()->setHeight(101)->setWidth(960);
+      $shape_footer_top->setOffsetX(0);
+      $shape_footer_top->setOffsetY(0);
+      $shape_footer_top->getFill()->setFillType(Fill::FILL_SOLID)->setRotation(90)->setStartColor($color_line);
 
-                    $shape -> setOffsetX(960 - $width - LK_PPT_MARGIN);
-                endif;
+      $logo_pos = $this ->getSetting('logo_position');
+      $shape2 = $currentSlide->createRichTextShape()->setHeight(100)->setWidth(960);
+      $shape2->setOffsetX(0);
+      $shape2->getFill()->setFillType(Fill::FILL_SOLID)->setRotation(90)->setStartColor($color)->setEndColor($color);
+      $header_logo = $this ->getSetting('logo_oben');
+
+      if($header_logo):
+        $shape = $currentSlide->createDrawingShape();
+        $image = $this -> getImageFile($header_logo, "ppt_logos");
+        $shape->setName('logo')->setDescription('logo')->setPath($image)->setHeight(80)->setOffsetX(60)->setOffsetY(10);
+
+        // when the Logo position is right side
+        if($logo_pos == 'right'):
+          $size = getimagesize($image);
+          $calc = 80 / $size[1];
+          $width = $size[0] * $calc;
+
+          $shape -> setOffsetX(960 - $width - LK_PPT_MARGIN);
         endif;
+      endif;
+
+      // Immitate a Border-top
+      $shape_footer2 = $currentSlide->createRichTextShape()->setHeight(1)->setWidth(960);
+      $shape_footer2->setOffsetX(0);
+      $shape_footer2->setOffsetY(620);
+      $shape_footer2->getFill()->setFillType(Fill::FILL_SOLID)->setRotation(90)->setStartColor($color_line);
+
+      $shape_footer = $currentSlide->createRichTextShape()->setHeight(102)->setWidth(960);
+      $shape_footer->setOffsetX(0);
+      $shape_footer->setOffsetY(621);
+      $shape_footer->getFill()->setFillType(Fill::FILL_SOLID)->setRotation(90)->setStartColor($color)->setEndColor($color);
         
-        // Immitate a Border-top
-        $shape_footer2 = $currentSlide->createRichTextShape()->setHeight(1)->setWidth(960);
-        $shape_footer2->setOffsetX(0);
-        $shape_footer2->setOffsetY(620);
-        $shape_footer2->getFill()->setFillType(Fill::FILL_SOLID)->setRotation(90)->setStartColor($color_line);
+      $logos = $this ->getSetting('logos_unten');
+      $logo_height = 40;
         
-        
-        $shape_footer = $currentSlide->createRichTextShape()->setHeight(102)->setWidth(960);
-        $shape_footer->setOffsetX(0);
-        $shape_footer->setOffsetY(621);
-        $shape_footer->getFill()->setFillType(Fill::FILL_SOLID)->setRotation(90)->setStartColor($color)->setEndColor($color);
-        
-        
-        //$shape->getShadow()->setVisible(true)->setAlpha(75)->setBlurRadius(2)->setDirection(45);
-        
-        $logos = $this ->getSetting('logos_unten');
-        $logo_height = 40;
-        
-        if($logos):
-            $offset_x = 60;
-            $x = 0;
-            $marken_shapes = array();
-            foreach($logos as $logo){
-                $size = getimagesize($logo);
-                $height = $size[1];
-                $width = $size[0];
-                $calc =  $logo_height / $height;
-                $calc_width = round($width * $calc, 0);
-                $marken_shapes[$x] = $currentSlide->createDrawingShape();
-                $marken_shapes[$x]->setName('logo2')->setPath($this -> getImageFile($logo, 'ppt_logos'))->setHeight($logo_height)->setWidth($calc_width)->setOffsetX($offset_x)->setOffsetY(650);
-                $offset_x += $calc_width + 20;
-                $x++;
-            }
-        endif;
+      if($logos):
+        $offset_x = 60;
+        $x = 0;
+        $marken_shapes = array();
+
+        foreach($logos as $logo){
+          $size = getimagesize($logo);
+          $height = $size[1];
+          $width = $size[0];
+          $calc =  $logo_height / $height;
+          $calc_width = round($width * $calc, 0);
+          $marken_shapes[$x] = $currentSlide->createDrawingShape();
+          $marken_shapes[$x]->setName('logo2')->setPath($this -> getImageFile($logo, 'ppt_logos'))->setHeight($logo_height)->setWidth($calc_width)->setOffsetX($offset_x)->setOffsetY(650);
+          $offset_x += $calc_width + 20;
+          $x++;
+        }
+
+      endif;
     }
 }

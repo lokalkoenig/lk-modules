@@ -35,14 +35,18 @@ class UserStats {
 
     $stats = new UserStats();
     $stats->UserSessionsLog(date('Y-m-01'), date('Y-m-t'), $month, 'user');
-    
-    $date = new \DateTime();
-    $date->modify('this week');
-    $date_from_week = $date->format('Y-m-d');
 
-    $date->modify('this week +6 days');
-    $date_from_week_end = $date->format('Y-m-d');
-    $stats->UserSessionsLog($date_from_week, $date_from_week_end, $kw, 'user-weekly');
+    $monday    = date('Y-m-d', strtotime(date('Y') ."-W". date('W') . "-1"));
+    $sunday    = date('Y-m-d', strtotime(date('Y') ."-W". date('W') ."-7"));
+
+    //$date = new \DateTime();
+    //$date->setTimezone(new \DateTimezone("europe/rome"));
+    //$date->modify('this week');
+    //$date_from_week = $date->format('Y-m-d');
+
+    //$date->modify('this week +6 days');
+    //$date_from_week_end = $date->format('Y-m-d');
+    $stats->UserSessionsLog($monday, $sunday, $kw, 'user-weekly');
 
     $stats->TeamStats('team-weekly', $kw, 'user-weekly');
     $stats->TeamStats('team', $month, 'user');
@@ -64,11 +68,11 @@ class UserStats {
   public function UserSessionsLog($date_from, $date_to, $time_key, $user_type_key){
 
     $uids = [];
-    $dbq = db_query("SELECT DISTINCT uid FROM lk_actions_time WHERE action_date BETWEEN '". $date_from ."' AND '". $date_to ."'");
+    $dbq = db_query("SELECT DISTINCT uid FROM lk_actions_time WHERE action_date BETWEEN '". $date_from ."' AND '". $date_to ."' AND action_date='". date('Y-m-d') . "'");
     while ($all = $dbq->fetchObject()) {
       $uids[] = $all->uid;
     }
-
+    
     foreach($uids as $uid) {
       $dbq = db_query("SELECT count(*) as count, sum(action_hits) as count_hits, sum(action_time) as count_time FROM lk_actions_time WHERE action_date BETWEEN '". $date_from ."' AND '". $date_to ."' AND uid='". $uid ."'");
       $result = $dbq->fetchObject();

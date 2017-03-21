@@ -126,12 +126,12 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
    * @param int $status
    * @return array
    */
-  function getDocumentsPerVerlag(\LK\Verlag $verlag, $category, $status = 1){
+  function getDocumentsPerVerlag(\LK\Verlag $verlag, $category, $status = 1, $order_by = 'document_title ASC'){
 
     $array = [];
     $preset = $this -> getPresetsAvailable($verlag);
 
-    $dbq = db_query("SELECT * FROM " . Document::TABLE . " WHERE document_vorlage=1 AND uid=:uid AND document_category=:category AND status=:status ORDER BY document_title ASC",[
+    $dbq = db_query("SELECT * FROM " . Document::TABLE . " WHERE document_vorlage=1 AND uid=:uid AND document_category=:category AND status=:status ORDER BY ". $order_by,[
         ':uid' => $verlag ->getUid(),
         ':category' => $category,
         ':status' => $status,

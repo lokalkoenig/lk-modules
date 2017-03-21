@@ -22,11 +22,11 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
   protected $ppt = NULL;
   protected $slide = NULL;
   protected $text_sep = 25;
-  protected $table_font_size = 8;
-
+  protected $table_font_size = 9;
   protected $h1_font_size = 23;
   protected $h2_font_size = 17;
   protected $text_font_size = 9.5;
+  protected $pdf_multiplicator = 2.6;
 
   /**
    * Initializing
@@ -85,11 +85,11 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
     $content = $this->getDocument()->getContent();
 
     $left_y = 60;
-    $top_x = 180;
+    $top_x = $top_run_region = 180;
 
     $text_sep = $this->text_sep;
     $height_100 = 380;
-    $width_100 = 940 - (2 * $left_y) + $text_sep ;
+    $width_100 = 960 - (2 * $left_y);
 
     $top_run = $top_x;
     $left_run = $left_y;
@@ -105,7 +105,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
       // only the case in the Preiskalulation!
       elseif($val['height'] === 'calc') {
         $pdf_calc = $this->getPDFAutoHeight();
-        $top_run_region = $top_x + $text_sep + $pdf_calc * 5;
+        $top_run_region = $top_x + $text_sep + ($pdf_calc * $this->pdf_multiplicator);
         $height_region = $height_100;
       }
       else {
@@ -162,7 +162,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
         $field = $content[$fields];
         $this->addContent($field, $left_run, $top_run, $content_width - $text_sep, $content_height);
 
-        $top_run += $text_sep + $content_height;
+        $top_run += $content_height + ($text_sep / 2);
         $fields++;
       }
       
@@ -277,7 +277,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
         $paragraph->getAlignment()->setMarginLeft(0);
         $paragraph->getFont()->setSize($this->table_font_size);
 
-        $this->SimpleMarkupParser($paragraph, $cell_content_sanitized);
+        $this->SimpleMarkupParser($paragraph, $cell_content_sanitized, $this->table_font_size);
       }
 
       $x_row++;
@@ -368,19 +368,24 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
     $body = $this->loadMarkup($content['value']);
 
     $section = $this->getSlide()->createRichTextShape()->setOffsetY($y)->setOffsetX($x);
-    $section->setInsetLeft(0);
+    $section->setParagraphs([]);
+    $section->setInsetLeft(2);
     $section->setInsetTop(0);
-    $section->setInsetRight(0);
+    $section->setInsetRight(2);
     $section->setWidth($width);
-   
+
+
+    $x = 0;
     foreach($body -> nodes as $child){
       
       if($child->tag === 'h2'){
-        $this->addH2($section, html_entity_decode($child-> innertext));
+        $section->createParagraph();
+        $this->addH2($section, $this->removeTrailingBR(html_entity_decode($child-> innertext)));
       }
 
       if($child->tag === 'h1'){
-        $this->addH1($section, html_entity_decode($child-> innertext));
+        $section->createParagraph();
+        $this->addH1($section, $this->removeTrailingBR(html_entity_decode($child-> innertext)));
       }
 
       if($child->tag === 'ul' || $child->tag === 'ol'){
@@ -439,7 +444,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
   function addContent($content, $x, $y, $width, $height){
 
     $ppt = $this->getPPT();
-  
+
     if($content['widget'] === 'table'){
       $this->addContentTable($content, $x, $y, $width, $height);
     }

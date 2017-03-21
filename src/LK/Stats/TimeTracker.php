@@ -10,7 +10,17 @@ namespace LK\Stats;
 class TimeTracker {
   use Action;
 
-  const TIME_BETWEEN = 3600;
+  /**
+   * Maximum time between two sessions
+   * 1800 seconds / 30 Minutes
+   */
+  const TIME_BETWEEN = 1800;
+
+  /**
+   * Current Account
+   *
+   * @var \LK\User
+   */
   private $account;
 
   /**

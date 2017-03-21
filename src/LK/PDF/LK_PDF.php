@@ -3,7 +3,7 @@ namespace LK\PDF;
 
 define('K_PATH_FONTS', $_SERVER['DOCUMENT_ROOT'] . '/sites/all/fonts/');
 define('VKU_FONT', "DejaVu");
-require_once $_SERVER['DOCUMENT_ROOT'] .'/sites/all/modules/vendor/tecnick.com/tcpdf/tcpdf.php';
+require_once $_SERVER['DOCUMENT_ROOT'] .'/sites/all/vendor/tecnick.com/tcpdf/tcpdf.php';
 
 
 /**

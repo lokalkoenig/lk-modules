@@ -48,9 +48,10 @@
                             </div>
                         </div>
                     </div> 
-                    
-                    <button class="btn btn-success" id="basic_information">Speichern und weiter zum nächsten Schritt</button>
-                </form>    
+
+                    <div style="margin-top: 20px;">
+                      <button class="btn btn-success" id="basic_information">Speichern und weiter zum nächsten Schritt</button>
+                   </div>
             </div>    
             <div class="col-xs-4">
                 <p><strong>Vorlage auswählen <sup class="optional">(optional)</sup></strong></p>

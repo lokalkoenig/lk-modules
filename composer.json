@@ -7,7 +7,7 @@
         }
     ],
     "config": {
-        "vendor-dir": "./../vendor"
+        "vendor-dir": "./../../vendor"
     },
     "require": {
         "phpoffice/phpexcel": "1.8.0",
