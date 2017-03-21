@@ -216,6 +216,14 @@ class VKU2Handler extends PageInterface {
     $handler = $this->getDocumentHandler();
     $document = $handler->getDocumentMitarbeiter($items['data_entity_id']);
     $new_document = $handler->cloneDocument($document);
+
+    // check for Admin
+    $current = \LK\current();
+    if($current->isModerator()) {
+      $new_document->setUser($current->getUid())->save();
+    }
+
+    // Valid Documents must be owned by the user
     $items['data_entity_id'] = $new_document->getId();
     
     return $items;
