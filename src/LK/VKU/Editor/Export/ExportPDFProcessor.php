@@ -223,9 +223,13 @@ class ExportPDFProcessor extends ExportProcessorInterface {
       $cellwidth = [25, 25, 25, 25];
     }
 
-    $pdf->SetFont('','', 10);
+    if(count($value['rows'][0]) === 5){
+      $cellwidth = [20, 20, 20, 20, 20];
+    }
+
+    $pdf->SetFont('','', 9);
     $x = 0;
-    $table = '<table cellspacing="0" cellpadding="4">';
+    $table = '<table cellspacing="0" cellpadding="5">';
     foreach($value['rows'] as $row){
       $table .= '<tr>';
 

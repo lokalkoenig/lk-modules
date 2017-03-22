@@ -20,7 +20,7 @@ class FileGetter {
     //put your code here
     public static function get($url){
         //$hash = md5($url);
-        
+        //dpm($url);
         // remove ?
         $path_parts = pathinfo($url);    
         $file_type = $path_parts['extension'];
@@ -37,13 +37,13 @@ class FileGetter {
             file_prepare_directory($mydir, FILE_CREATE_DIRECTORY);
             $dir = drupal_realpath($mydir);
             
-            $file = @file_get_contents($url);
+            $file = file_get_contents($url);
             if(!$file){
-                $error = new \LK\Log\Debug('Die VKU Datei wurde nicht gefunden: ' . $url);
-                $error ->setCategory('error');
-                $error ->save();
-                
-                return self::PLACEHOLDER;
+              $error = new \LK\Log\Debug('Die VKU Datei wurde nicht gefunden: ' . $url);
+              $error ->setCategory('error');
+              $error ->save();
+
+              return self::PLACEHOLDER;
             }
             
             file_put_contents($dir . '/' . $md5, $file);

@@ -20,6 +20,7 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     
     EditorLoader::enable();
     $this->addPreset('OnlineMediumCollection', '\\LK\\VKU\\Editor\\Presets\\OnlineMediumCollection');
+    $this->addPreset('InvestitionsUebersicht', '\\LK\\VKU\\Editor\\Presets\\InvestitionsUebersicht');
   }
 
   /**
@@ -440,10 +441,10 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
            'category' => 'sonstiges',
         ],
 
-       //'OnlineMediumCollection' => [
-       //    'title' => 'Online Medien Kollektion',
-       //    'category' => 'online',
-       // ],
+       'InvestitionsUebersicht' => [
+        'title' => 'Investitionsübersicht',
+        'category' => 'sonstiges',
+       ],
     ];
   }
 

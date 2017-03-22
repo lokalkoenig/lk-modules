@@ -22,7 +22,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
   protected $ppt = NULL;
   protected $slide = NULL;
   protected $text_sep = 25;
-  protected $table_font_size = 9;
+  protected $table_font_size = 8.5;
   protected $h1_font_size = 23;
   protected $h2_font_size = 17;
   protected $text_font_size = 9.5;
@@ -159,9 +159,12 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
         }
 
         $content_width = ($region['width'] * $width_region) / 100;
-        $field = $content[$fields];
-        $this->addContent($field, $left_run, $top_run, $content_width - $text_sep, $content_height);
 
+        if(isset($content[$fields])) {
+          $field = $content[$fields];
+          $this->addContent($field, $left_run, $top_run, $content_width - $text_sep, $content_height);
+        }
+        
         $top_run += $content_height + ($text_sep / 2);
         $fields++;
       }
@@ -171,7 +174,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
       $left_run += $width_region + ($text_sep / 3);
     }
 
-    $footer = $this->getDocument()->getFootnote();
+    $footer = trim($this->getDocument()->getFootnote());
 
     if($footer) :
       $footer_shape = $this->slide->createRichTextShape()->setHeight(20)->setWidth(825)->setOffsetX(60)->setOffsetY(590);
@@ -267,17 +270,20 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
         $cell->getBorders()->getLeft()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
         $cell->getBorders()->getTop()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
         $cell->getBorders()->getRight()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
-
         $cell->setColSpan(0);
         $cell->setRowSpan(0);
-
-        $cell_content_sanitized = strip_tags($cell_content, '<p><br><strong><b><em><i>');
+        $cell_content_sanitized = trim(strip_tags($cell_content, '<br><b><strong><u><i><em>'));
 
         $paragraph = $cell->getActiveParagraph();
         $paragraph->getAlignment()->setMarginLeft(0);
         $paragraph->getFont()->setSize($this->table_font_size);
 
-        $this->SimpleMarkupParser($paragraph, $cell_content_sanitized, $this->table_font_size);
+        if($cell_content_sanitized) {
+          $this->SimpleMarkupParser($paragraph, $this->removeTrailingBR(html_entity_decode($cell_content_sanitized)), $this->table_font_size, false);
+        }
+        else {
+          $paragraph->createTextRun(' ');
+        }
       }
 
       $x_row++;
@@ -290,7 +296,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
    * @param Paragraph $paragraph
    * @param type $markup
    */
-  private function SimpleMarkupParser(Paragraph $paragraph, $markup, $font_size = 8){
+  private function SimpleMarkupParser(Paragraph $paragraph, $markup, $font_size = 8, $add_spacing = true){
 
     $body = $this->loadMarkup(trim($markup));
     
@@ -298,8 +304,10 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
     $paragraph->getFont()->setColor($this->getPPT()->getTextColor());
 
     if(count($body -> children()) === 0){
-      $tr = $paragraph->createTextRun(trim($markup));
-      $tr->getFont()->setSize($font_size);
+      if($markup) {
+        $tr = $paragraph->createTextRun($markup);
+        $tr->getFont()->setSize($font_size);
+      }
       return ;
     }
 
@@ -314,21 +322,12 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
 
       // if empty
       if($child->tag === "br"){
+        $paragraph->createTextRun(' ');
+        $paragraph->getFont()->setSize(5);
         $paragraph->createBreak();
+        //dpm('BR: ' . $markup);
+        //$paragraph->getFont()->setSize($font_size);
         continue;
-      }
-
-      if($child -> tag === 'p'){
-        $paragraph->getFont()->setItalic(false);
-        $paragraph->getFont()->setBold(false);
-        
-        if($child->nodes){
-          $this->SimpleMarkupParser($paragraph, html_entity_decode($child-> innertext), $font_size);
-        }
-    
-        if(($x + 1) !== $child_count) {
-          $paragraph->createBreak();
-        }
       }
 
       if($child->tag === 'b' || $child->tag=="strong"){
@@ -365,15 +364,20 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
    * @param type $height
    */
   private function addEditorContent($content, $x, $y, $width, $height){
+
+    if(!isset($content['value']) || empty($content['value'])) {
+
+      return ;
+    }
+
     $body = $this->loadMarkup($content['value']);
 
     $section = $this->getSlide()->createRichTextShape()->setOffsetY($y)->setOffsetX($x);
-    $section->setParagraphs([]);
     $section->setInsetLeft(2);
     $section->setInsetTop(0);
     $section->setInsetRight(2);
     $section->setWidth($width);
-
+    $section->setParagraphs([]);
 
     $x = 0;
     foreach($body -> nodes as $child){

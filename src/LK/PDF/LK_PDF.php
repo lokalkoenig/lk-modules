@@ -150,7 +150,7 @@ class LK_PDF extends \TCPDF {
 
     $logo = $this->getUserSettings('logo_oben');
     if($logo){
-      $logo_img = \LK\Files\FileGetter::get($logo);
+      $logo_img = \LK\Files\FileGetter::get(image_style_url('ppt_logos', $logo));
     }
 
     $verlag_logo_position = $this->getUserSettings('verlag_logo_position');
@@ -184,13 +184,12 @@ class LK_PDF extends \TCPDF {
     $this->SetFont('Arial','I',8);
     $this -> SetDrawColor(105,105,105);
     $this -> Line(0,185, 297, 185);
-
     $logos = $this->getUserSettings('logos_unten', []);
 
     $y = 25;
     foreach($logos as $logo){
-      $logo_img = \LK\Files\FileGetter::get($logo);
-      $this->Image($logo_img, $y, 190, 30);
+      $logo_img = \LK\Files\FileGetter::get(image_style_url('pxedit_footer_logo', $logo));
+      $this->Image($logo_img, $y, 193, 30);
       $y += 35;
     }
   }

@@ -352,7 +352,7 @@ class LK_PPT_Creator {
       if($header_logo):
         $shape = $currentSlide->createDrawingShape();
         $image = $this -> getImageFile($header_logo, "ppt_logos");
-        $shape->setName('logo')->setDescription('logo')->setPath($image)->setHeight(80)->setOffsetX(60)->setOffsetY(10);
+        $shape->setName('logo')->setDescription('logo')->setPath($image)->setHeight(60)->setOffsetX(60)->setOffsetY(20);
 
         // when the Logo position is right side
         if($logo_pos == 'right'):
@@ -384,13 +384,16 @@ class LK_PPT_Creator {
         $marken_shapes = array();
 
         foreach($logos as $logo){
-          $size = getimagesize($logo);
+
+          $logo_img = \LK\Files\FileGetter::get(image_style_url('pxedit_footer_logo', $logo));
+
+          $size = getimagesize($logo_img);
           $height = $size[1];
           $width = $size[0];
           $calc =  $logo_height / $height;
           $calc_width = round($width * $calc, 0);
           $marken_shapes[$x] = $currentSlide->createDrawingShape();
-          $marken_shapes[$x]->setName('logo2')->setPath($this -> getImageFile($logo, 'ppt_logos'))->setHeight($logo_height)->setWidth($calc_width)->setOffsetX($offset_x)->setOffsetY(650);
+          $marken_shapes[$x]->setName('logo2')->setPath($logo_img)->setHeight($logo_height)->setWidth($calc_width)->setOffsetX($offset_x)->setOffsetY(650);
           $offset_x += $calc_width + 20;
           $x++;
         }

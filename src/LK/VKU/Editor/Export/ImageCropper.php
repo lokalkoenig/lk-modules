@@ -31,7 +31,7 @@ class ImageCropper {
     }
 
     $points = $options['points'];
-    $fn = [$file->fid, $points[0], $points[1], $points[2], $points[3]];
+    $fn = ['t2', $file->fid, $points[0], $points[1], $points[2], $points[3]];
     $fn[] = str_replace('.', '-', $options['zoom']);
     
     $ext = 'jpg';
