@@ -64,4 +64,19 @@ abstract class ExportProcessorInterface {
   }
 
 
+  /**
+   * Gets the HTML for the Table-Cell
+   *
+   * @param string $html
+   * @return string
+   */
+  final function getTableMarkupSpripped($html){
+
+    $html = str_replace('<p><br></p>', "&nbsp;<br>", $html);
+    $html = str_replace('</p><p>', "</p><br><p>", $html);
+    $html = strip_tags($html, "<br><b><strong><u><i><em>");
+
+    return $html;
+  }
+
 }

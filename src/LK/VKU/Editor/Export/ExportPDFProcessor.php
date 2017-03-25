@@ -49,7 +49,7 @@ class ExportPDFProcessor extends ExportProcessorInterface {
     $pdf->setY(174.5);
     $pdf ->SetLeftMargin(25);
     $pdf ->SetRightMargin(25);
-    $pdf ->SetFont('', '', 8);
+    $pdf ->SetFont('', '', 7.5);
     //$pdf->Cell();
     $pdf->setColor('text', 119, 119, 119);
     $pdf->Cell(0, 10, $footnote, 0, 0, 'R');
@@ -229,7 +229,7 @@ class ExportPDFProcessor extends ExportProcessorInterface {
 
     $pdf->SetFont('','', 9);
     $x = 0;
-    $table = '<table cellspacing="0" cellpadding="5">';
+    $table = '<table cellspacing="0" cellpadding="3">';
     foreach($value['rows'] as $row){
       $table .= '<tr>';
 
@@ -240,11 +240,8 @@ class ExportPDFProcessor extends ExportProcessorInterface {
       }
       $y = 0;
       foreach($row as $cell){
-        $stripped = strip_tags($cell, "<br><b><strong><u><i><em>");
-        $table .= '<td width="'. $cellwidth[$y] .'%" bgcolor="'. $bg_color . '">'. $stripped. '</td>';
-
+        $table .= '<td width="'. $cellwidth[$y] .'%" bgcolor="'. $bg_color . '">'. $this->getTableMarkupSpripped($cell) . '</td>';
         $y++;
-
       }
       
       $table .= '</tr>';

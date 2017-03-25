@@ -21,7 +21,7 @@ global $user;
   if(arg(0) == "backoffice"){
     lk_set_icon('cog');
     drupal_add_css(drupal_get_path('theme', 'bootstrap_lk') .'/dist/admin.css');
-  }   
+  }
 
   // Takeover
   if(arg(0) == 'user'){

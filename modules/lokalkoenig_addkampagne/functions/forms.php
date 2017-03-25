@@ -385,41 +385,14 @@ function _form_edit_tax_branchen(&$form){
   
   $form['field_kamp_themenbereiche']['und']['#element_validate'][0] = '_validate_lk_tags';
   $form['field_kamp_themenbereiche']['und']['#autocomplete_deluxe_path'] = url('lkautoeditbranche');
-  
-  $config = array(
-    'vid' => 3,
-    'exclude_tid' => NULL,
-    'root_term' => 0,
-    'entity_count_for_node_type' => NULL
-  );
-  
-  
-  $values = array();
-  
-  if(isset($form['#node']->field_kamp_themenbereiche['und'])){
-    $tax_bisher = $form['#node']->field_kamp_themenbereiche['und'];
-  }
-  else $tax_bisher = array();
-  
-  
-  $selection = array();
-  foreach($tax_bisher as $tax){
-    $term = taxonomy_term_load($tax["tid"]);
-    $selection[] = $tax["tid"];  
-    // Hier noch die Line darstellen
-    $values[] = $term -> name . ' [tid:'. $term -> tid  .']';
-  }
-  
-  // Use Helper from the Other Module
-  $taxes = _hierarchical_select_dropbox_reconstruct_lineages_save_lineage_enabled('hs_taxonomy', $selection, $config);
-  
-  //dpm($taxes);
+
+  $tool = new \LK\Kampagne\Admin\KampagenTools($form['#node']);
+  $taxes = $tool->getKampagnenBranchen();
   
   $returns = array();
   foreach($taxes as $val){
     $returns[] = str_replace(",", ' ', _lk_generate_lineage_label($val));
   }
-
  
   $form['field_kamp_themenbereiche']['und']['#default_value'] = implode(",", $returns);
   $form['field_kamp_anlass']['und']['#default_value'] = implode(",", explode(",", $form['field_kamp_anlass']['und']['#default_value']));

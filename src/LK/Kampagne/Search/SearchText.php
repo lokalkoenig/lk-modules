@@ -7,7 +7,7 @@ namespace LK\Kampagne\Search;
  *
  * @author Maikito
  */
-class SearchText extends \LK\Kampagne\Kampagne {
+class SearchText extends \LK\Kampagne\Admin\KampagenTools {
 
   function __construct(\stdClass $node) {
     parent::__construct($node);
@@ -20,20 +20,16 @@ class SearchText extends \LK\Kampagne\Kampagne {
   */
   function getSearchString(){
 
-    $node = $this ->getNode();
+    $node = $this ->getKampagne()->getNode();
     $content = array();
     $content[] = $node -> title;
     $content[] = $node -> field_sid['und'][0]['value'];
     $content[] = $node -> field_kamp_untertitel['und'][0]['value'];
     $content[] = $node -> field_kamp_teasertext['und'][0]['value'];
-
-    // Themenbereiche
-    if(isset($node->field_kamp_themenbereiche['und'])){
-      foreach($node->field_kamp_themenbereiche['und'] as $tax){
-        $term = taxonomy_term_load($tax["tid"]);
-        $content[] = $term -> name;
-        $content[] = $term -> description;
-      }
+    
+    $terms = $this->getSmallestChildBranchenTerms();
+    foreach($terms as $term) {
+      $content[] = $term;
     }
 
     if(isset($node->field_kamp_anlass['und'])){

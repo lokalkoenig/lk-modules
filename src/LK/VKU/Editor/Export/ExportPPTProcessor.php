@@ -22,7 +22,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
   protected $ppt = NULL;
   protected $slide = NULL;
   protected $text_sep = 25;
-  protected $table_font_size = 8.5;
+  protected $table_font_size = 8;
   protected $h1_font_size = 23;
   protected $h2_font_size = 17;
   protected $text_font_size = 9.5;
@@ -162,7 +162,13 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
 
         if(isset($content[$fields])) {
           $field = $content[$fields];
-          $this->addContent($field, $left_run, $top_run, $content_width - $text_sep, $content_height);
+          $content_width_calc = $content_width;
+          
+          if($content_width_calc !== $width_100) {
+            $content_width_calc -= $text_sep;
+          }
+
+          $this->addContent($field, $left_run, $top_run, $content_width_calc, $content_height);
         }
         
         $top_run += $content_height + ($text_sep / 2);
@@ -272,11 +278,11 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
         $cell->getBorders()->getRight()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
         $cell->setColSpan(0);
         $cell->setRowSpan(0);
-        $cell_content_sanitized = trim(strip_tags($cell_content, '<br><b><strong><u><i><em>'));
-
+        
         $paragraph = $cell->getActiveParagraph();
-        $paragraph->getAlignment()->setMarginLeft(0);
+        $paragraph->getAlignment()->setMarginLeft(0)->setIndent();
         $paragraph->getFont()->setSize($this->table_font_size);
+        $cell_content_sanitized = $this->getTableMarkupSpripped($cell_content);
 
         if($cell_content_sanitized) {
           $this->SimpleMarkupParser($paragraph, $this->removeTrailingBR(html_entity_decode($cell_content_sanitized)), $this->table_font_size, false);
@@ -317,13 +323,13 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
 
       if($child->tag === "text"){
         $paragraph->getFont()->setSize($font_size);
-        $paragraph->createTextRun($child ->innertext); //createText($markup);
+        $paragraph->createTextRun($child ->innertext);
       }
 
       // if empty
       if($child->tag === "br"){
         $paragraph->createTextRun(' ');
-        $paragraph->getFont()->setSize(5);
+        //$paragraph->getFont()->setSize(5);
         $paragraph->createBreak();
         //dpm('BR: ' . $markup);
         //$paragraph->getFont()->setSize($font_size);
@@ -421,7 +427,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
         $paragrah2 = $section->createParagraph();
         $section->getActiveParagraph()->getAlignment()->setMarginLeft(0)->setIndent(0);
         $section->getActiveParagraph()->getBulletStyle()->setBulletType(Bullet::TYPE_NONE);
-        $paragrah2->getFont()->setSize(5);
+        $paragrah2->getFont()->setSize($this->text_font_size / 2);
         $paragrah2->createTextRun(' ');
       }
 
@@ -430,7 +436,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
         $this->SimpleMarkupParser($shape, $this->removeTrailingBR(html_entity_decode($child-> innertext)), $this->text_font_size);
         
         $paragrah2 = $section->createParagraph();
-        $paragrah2->getFont()->setSize(5);
+        $paragrah2->getFont()->setSize($this->text_font_size / 2);
         $paragrah2->createTextRun(' ');
       }
     }
