@@ -329,7 +329,7 @@ class LK_PPT_Creator {
     /**
      * Adds Header and Footer to the slide
      * 
-     * @param type $currentSlide
+     * @param \PhpOffice\PhpPresentation\Slide $currentSlide
      */
     public function slide_finalize($currentSlide){
         
@@ -353,13 +353,12 @@ class LK_PPT_Creator {
         $shape = $currentSlide->createDrawingShape();
         $image = $this -> getImageFile($header_logo, "ppt_logos");
         $shape->setName('logo')->setDescription('logo')->setPath($image)->setHeight(60)->setOffsetX(60)->setOffsetY(20);
-
+     
         // when the Logo position is right side
-        if($logo_pos == 'right'):
+        if($logo_pos === 'right'):
           $size = getimagesize($image);
-          $calc = 80 / $size[1];
+          $calc = 60 / $size[1];
           $width = $size[0] * $calc;
-
           $shape -> setOffsetX(960 - $width - LK_PPT_MARGIN);
         endif;
       endif;

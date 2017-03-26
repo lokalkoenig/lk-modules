@@ -8,7 +8,6 @@
  */
 function _vku2_callback($vku_id){
     
-  $obj = $_POST["save"];
   $vku = new VKUCreator($vku_id);
     
   // Preview
@@ -17,6 +16,7 @@ function _vku2_callback($vku_id){
     $pagemanager ->generatePDF(0, true);
   }
 
+  $obj = $_POST["save"];
   $manager = new \LK\VKU\VKU2($vku, $_POST['save']);
   $manager ->performClient();
 }

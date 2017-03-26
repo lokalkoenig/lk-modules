@@ -23,9 +23,9 @@ class SearchText extends \LK\Kampagne\Admin\KampagenTools {
     $node = $this ->getKampagne()->getNode();
     $content = array();
     $content[] = $node -> title;
-    $content[] = $node -> field_sid['und'][0]['value'];
-    $content[] = $node -> field_kamp_untertitel['und'][0]['value'];
-    $content[] = $node -> field_kamp_teasertext['und'][0]['value'];
+    $content[] = @$node -> field_sid['und'][0]['value'];
+    $content[] = @$node -> field_kamp_untertitel['und'][0]['value'];
+    $content[] = @$node -> field_kamp_teasertext['und'][0]['value'];
     
     $terms = $this->getSmallestChildBranchenTerms();
     foreach($terms as $term) {

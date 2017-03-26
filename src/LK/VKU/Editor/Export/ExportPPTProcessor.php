@@ -21,12 +21,13 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
  
   protected $ppt = NULL;
   protected $slide = NULL;
-  protected $text_sep = 25;
+  protected $text_sep = 30;
   protected $table_font_size = 8;
   protected $h1_font_size = 23;
   protected $h2_font_size = 17;
   protected $text_font_size = 9.5;
-  protected $pdf_multiplicator = 2.6;
+  protected $pdf_multiplicator = 4.5;
+  protected $_margin = 60;
 
   /**
    * Initializing
@@ -36,6 +37,43 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
   function __construct(\LK\VKU\Editor\Document $document) {
     $this->document=$document;
     parent::__construct($document);
+  }
+
+
+  function getHeight() {
+    return 360;
+  }
+
+  function getTopMargin() {
+    return 180;
+  }
+
+  function getTextSeperator() {
+    return $this->text_sep;
+  }
+
+  function getOffsetY() {
+
+    $document = $this->getDocument();
+    $pdf = \LK\PDF\PDF_Loader::getPDF(\LK\current()->getUid());
+    $processor = new \LK\VKU\Editor\Export\ExportPDFProcessor($document);
+    $processor->processPDF($pdf);
+
+    $value = $processor->getSavedOffsetY();
+    return $value * $this->pdf_multiplicator;
+  }
+
+  function getWidth() {
+    return 960;
+  }
+
+  /**
+   * Get the Margin
+   *
+   * @return int
+   */
+  function getMargins() {
+    return 60;
   }
 
   /**
@@ -73,113 +111,12 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
     $this->ppt = $ppt;
     $this->slide = $ppt->createSlide();
    
-    // Take the PDF for calculations in consideration
-
     // Title
     $shape = $this->slide->createRichTextShape()->setHeight(100)->setWidth(800)->setOffsetX(60)->setOffsetY(120);
     $shape->setInsetLeft(0);
     $shape->setInsetRight(0);
     $this->addH1($shape, $this->getDocument()->getPageTitle());
-
-    $defintion = $this->getLayoutDefinition();
-    $content = $this->getDocument()->getContent();
-
-    $left_y = 60;
-    $top_x = $top_run_region = 180;
-
-    $text_sep = $this->text_sep;
-    $height_100 = 380;
-    $width_100 = 960 - (2 * $left_y);
-
-    $top_run = $top_x;
-    $left_run = $left_y;
-
-    $fields = 0;
-    $regions_processed = 0;
-
-    while(list($key, $val) = each($defintion)){
-
-      if($val['height'] === 'auto'){
-        $height_region = ($height_100 * 100) / 100;
-      }
-      // only the case in the Preiskalulation!
-      elseif($val['height'] === 'calc') {
-        $pdf_calc = $this->getPDFAutoHeight();
-        $top_run_region = $top_x + $text_sep + ($pdf_calc * $this->pdf_multiplicator);
-        $height_region = $height_100;
-      }
-      else {
-        $height_region = ($height_100 * $val['height']) / 100;
-      }
-
-      $width_region = ($width_100 * $val['width']) / 100;
-      $top_run = $top_x;
-
-      foreach($val['fields'] as $region){
-
-        if($val['height'] === 'auto'){
-          $content_height = -1;
-        }
-        // Continue on height = 0
-        elseif($region['height'] === 0){
-          $fields++;
-          continue;
-        }
-        elseif($region['height'] === 100){
-          $content_height = $height_region + $text_sep;
-        }
-        else {
-          $content_height = ($region['height'] * $height_region) / 100;
-        }
-
-        if(isset($region['left'])){
-          $top_run = $top_run_region + $text_sep;
-
-          if($region['left'] === 0){
-            $left_run = 60;
-          }
-
-          if($region['left'] === 33){
-            $left_run = (($width_100 + 20) * 0.33) + 60;
-          }
-
-          if($region['left'] === 66){
-            $left_run = (($width_100 + 20) * 0.66) + 60;;
-          }
-
-          if($region['left'] === 50){
-            $left_run = (($width_100 + 20) * 0.5) + 60;;
-          }
-        }
-
-        if(isset($region['top'])){
-          if($region['top'] === 0){
-            $top_run = $top_x;
-          }
-        }
-
-        $content_width = ($region['width'] * $width_region) / 100;
-
-        if(isset($content[$fields])) {
-          $field = $content[$fields];
-          $content_width_calc = $content_width;
-          
-          if($content_width_calc !== $width_100) {
-            $content_width_calc -= $text_sep;
-          }
-
-          $this->addContent($field, $left_run, $top_run, $content_width_calc, $content_height);
-        }
-        
-        $top_run += $content_height + ($text_sep / 2);
-        $fields++;
-      }
-      
-      $top_run_region = $this->getSlide()->getOffsetY(); //$pdf ->GetY();
-      $regions_processed++;
-      $left_run += $width_region + ($text_sep / 3);
-    }
-
+    $this->processContent();
     $footer = trim($this->getDocument()->getFootnote());
 
     if($footer) :
@@ -187,7 +124,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
       $footer_shape->setInsetLeft(0);
       $footer_shape->setInsetRight(0);
       $footer_shape->getActiveParagraph()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-      $footer_shape->getActiveParagraph()->getFont()->setSize(8)->setColor(new Color('FF777777'));
+      $footer_shape->getActiveParagraph()->getFont()->setSize(7.5)->setColor(new Color('FF777777'));
       $footer_shape->createTextRun($footer);
     endif;
 
@@ -285,7 +222,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
         $cell_content_sanitized = $this->getTableMarkupSpripped($cell_content);
 
         if($cell_content_sanitized) {
-          $this->SimpleMarkupParser($paragraph, $this->removeTrailingBR(html_entity_decode($cell_content_sanitized)), $this->table_font_size, false);
+          $this->SimpleMarkupParser($paragraph, (html_entity_decode($cell_content_sanitized)), $this->table_font_size, false);
         }
         else {
           $paragraph->createTextRun(' ');
@@ -329,10 +266,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
       // if empty
       if($child->tag === "br"){
         $paragraph->createTextRun(' ');
-        //$paragraph->getFont()->setSize(5);
         $paragraph->createBreak();
-        //dpm('BR: ' . $markup);
-        //$paragraph->getFont()->setSize($font_size);
         continue;
       }
 
@@ -451,7 +385,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
    * @param type $width
    * @param type $height
    */
-  function addContent($content, $x, $y, $width, $height){
+  function addContent($content, $x, $y, $width, $height, $base){
 
     $ppt = $this->getPPT();
 

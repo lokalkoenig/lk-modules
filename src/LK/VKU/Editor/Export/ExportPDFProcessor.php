@@ -16,7 +16,8 @@ class ExportPDFProcessor extends ExportProcessorInterface {
   var $pdf = null;
   var $debug = FALSE;
   var $text_sep = 5;
-  var $calculated_height = 0;
+  var $offset_y_save = 0;
+  var $text_size = 9;
 
   function __construct(Document $document) {
     parent::__construct($document);
@@ -25,6 +26,42 @@ class ExportPDFProcessor extends ExportProcessorInterface {
       $this->debug = TRUE;
     }
   }
+
+  function getHeight() {
+    return 115;
+  }
+
+  function getTopMargin() {
+    return 55;
+  }
+
+  function getTextSeperator() {
+    return 5;
+  }
+
+  function getSavedOffsetY() {
+    return $this->offset_y_save;
+  }
+
+  function getOffsetY() {
+    $this->offset_y_save = $this->getPDF()->GetY() - $this->getTopMargin();
+
+    return $this->offset_y_save;
+  }
+
+  function getWidth() {
+    return 297;
+  }
+
+  /**
+   * Get the Margin
+   *
+   * @return int
+   */
+  function getMargins() {
+    return 25;
+  }
+
 
   /**
    * Gets the PDF Object
@@ -50,17 +87,8 @@ class ExportPDFProcessor extends ExportProcessorInterface {
     $pdf ->SetLeftMargin(25);
     $pdf ->SetRightMargin(25);
     $pdf ->SetFont('', '', 7.5);
-    //$pdf->Cell();
     $pdf->setColor('text', 119, 119, 119);
     $pdf->Cell(0, 10, $footnote, 0, 0, 'R');
-  }
-
-  function setCalculatedRegionHeight($height){
-    $this->calculated_height = $height;
-  }
-
-  function getCalculatedRegionHeight(){
-    return $this->calculated_height;
   }
 
   /**
@@ -72,125 +100,46 @@ class ExportPDFProcessor extends ExportProcessorInterface {
     $this -> pdf = $pdf;
     
     $document = $this ->getDocument();
-    $defintion = $this->getLayoutDefinition();
-    $content = $document->getContent();
     $this->addPageTitle($document->getPageTitle());
-  
-    $left_y = 25;
-    $top_x = 55;
-
-    $text_sep = $this->text_sep;
-
-    $height_100 = 115;
-    $width_100 = 297 - (2 * $left_y) + $text_sep ;
-
-    $top_run = $top_x;
-    $left_run = $left_y;
-
-    $fields = 0;
-    $regions_processed = 0;
-
-    while(list($key, $val) = each($defintion)){
-
-      if($val['height'] === 'auto'){
-        $height_region = ($height_100 * 100) / 100;
-      }
-      elseif($val['height'] === 'calc') {
-        $this->setCalculatedRegionHeight($pdf -> getY() - $top_x);
-        $height_region = $height_100 - ($pdf -> getY() - $top_x + $text_sep);
-      }
-      else {
-        $height_region = ($height_100 * $val['height']) / 100;
-      }
-
-      $width_region = ($width_100 * $val['width']) / 100;
-      $top_run = $top_x;
-    
-      foreach($val['fields'] as $region){
-
-        if($val['height'] === 'auto'){
-          $content_height = -1;
-        }
-        // Continue on height = 0
-        elseif($region['height'] === 0){
-          $fields++;
-          continue;
-        }
-        elseif($region['height'] === 100){
-          $content_height = $height_region + $text_sep;
-        }
-        else {
-          $content_height = ($region['height'] * $height_region) / 100;
-        }
-
-        if(isset($region['left'])){
-          $top_run = $top_run_region + $text_sep;
-
-          if($region['left'] === 0){
-            $left_run = 25;
-          }
-
-          if($region['left'] === 33){
-            $left_run = 110;
-          }
-
-          if($region['left'] === 66){
-            $left_run = 193.8;
-          }
-
-          if($region['left'] === 50){
-            $left_run = 152;
-          }
-        }
-
-        if(isset($region['top'])){
-          if($region['top'] === 0){
-            $top_run = $top_x;
-          }
-        }
-
-        $content_width = ($region['width'] * $width_region) / 100;
-
-        $this->PDF_Position($pdf, $left_run, $top_run, $content_width, $content_height);
-        $field = $content[$fields];
-        $this->addPDFContent($pdf, $content_width - $text_sep, $content_height, $field);
-
-        $top_run += $text_sep + $content_height;
-        $fields++;
-      }
-      $top_run_region = $pdf ->GetY();
-      $regions_processed++;
-      $left_run += $width_region + ($text_sep / 3);
-    }
-    
+    $this->processContent();
     $this->addFootnote($document ->getFootnote());
   }
 
-  private function PDF_Position(LK_PDF $pdf, $x, $y, $width, $height){
+  function addContent($field, $left_run, $top_run, $content_width_calc, $content_height, $base_width) {
+    $pdf = $this->getPDF();
+    $this->PDF_Position($pdf, $left_run, $top_run, $content_width_calc, $content_height, $base_width);
+    $this->addPDFContent($pdf, $content_width_calc, $content_height, $field);
+  }
+
+
+  private function PDF_Position(LK_PDF $pdf, $x, $y, $width, $height, $base_width){
 
     $pdf -> SetXY($x, $y);
-
-    $width_100 = 297 - 50;
-    $content_spacing = $this->text_sep;
 
     // calc margins
     $margin_right = 25;
     $margin_left = 25;
 
     if($x === 25){
-      $margin_right = 297 - $x - $width + ($content_spacing); //(float)$width_100 - (float)($width) + (float)($content_spacing / 2);
-    }  
+      // exclude 100 % layouts
+      if($width != 247) {
+        $margin_right = $this->getWidth() - $x - $width;
+      }
+      else {
+        $margin_left = 25;
+      }
+    }
     else {
       $margin_left = $x;
       $margin_right_test = $x + $width;
-      $margin_right = 297 - $margin_right_test + ($content_spacing);
+      $margin_right = $this->getWidth() - $margin_right_test;
     }
 
     $pdf -> SetLeftMargin($margin_left);
     $pdf -> SetRightMargin($margin_right - 0);
     $pdf ->SetFont(VKU_FONT, '', 10.5);
     
-    if($this -> debug && $height !== -1){
+    if($this -> debug && $height !== 115){
       $pdf ->SetFont(VKU_FONT, '', 6);
       $pdf -> Text($x, $y - 4,  'X: ' . round($x, 1) . '; Y: ' . round($y, 1) . ", Height: " . round($height, 1) . "; Width: " . round($width, 1) . " / MR ". round($margin_right, 1) . '/ML ' . round($margin_left, 1));
       $pdf ->SetFont(VKU_FONT, '', 10.5);
@@ -229,7 +178,7 @@ class ExportPDFProcessor extends ExportProcessorInterface {
 
     $pdf->SetFont('','', 9);
     $x = 0;
-    $table = '<table cellspacing="0" cellpadding="3">';
+    $table = '<table cellspacing="0" cellpadding="4">';
     foreach($value['rows'] as $row){
       $table .= '<tr>';
 
@@ -264,7 +213,7 @@ class ExportPDFProcessor extends ExportProcessorInterface {
     $y = $pdf->GetY();
     $maxY = $y + $height;
 
-    $pdf->SetFont('DejaVu', '', 10);
+    $pdf->SetFont('DejaVu', '', $this->text_size);
     $body = $dom -> find('body');
     $x = 0;
     foreach($body[0] -> children() as $child){
@@ -312,7 +261,7 @@ class ExportPDFProcessor extends ExportProcessorInterface {
           }
 
           $pdf->SetLeftMargin($left_margin + 5);
-          $pdf ->WriteOwnHTML($this->removeTrailingBR(html_entity_decode($li-> innertext)));
+          $pdf->WriteOwnHTML($this->removeTrailingBR(html_entity_decode($li-> innertext)));
           
           if($ol !== $max_items){
             $pdf->Ln(4);
@@ -333,9 +282,15 @@ class ExportPDFProcessor extends ExportProcessorInterface {
         $pdf->Ln(4);
       }
 
-      $pdf->SetFont('DejaVu', '', 10);
+      $pdf->SetFont('DejaVu', '', $this->text_size);
       $x++;
     }
+  }
+
+  protected function getEditorMarkup($html) {
+    $html = str_replace('<p><br></p>', '<p> </p>', $html);
+
+    return $html;
   }
 
   /**
@@ -359,7 +314,8 @@ class ExportPDFProcessor extends ExportProcessorInterface {
 
     if($content['widget'] === 'editor'){
       $instance = new \simple_html_dom();
-      $instance->load('<html><body>'. $content['value'] .'</body></html>');
+      
+      $instance->load('<html><body>'. $this->getEditorMarkup($content['value']) .'</body></html>');
       $this ->addEditorDocument($instance, $height);
     }
     elseif($content['widget'] === 'table') {

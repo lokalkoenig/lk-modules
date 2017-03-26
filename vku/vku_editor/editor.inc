@@ -63,7 +63,10 @@ function vku_editor_page_alter(&$page) {
     if($account && $account ->isVerlag()){
       $manager ->setAccount($account);
       $html = $manager-> getEditorTemplate();
-    
+
+      $vku_basics = \LK\VKU\VKUManager::getVKU_RenderSettings($account);
+      drupal_add_css('.pxedit header, .pxedit footer { background-color: '. $vku_basics['vku_hintergrundfarbe'] .' !important; }', 'inline');
+
       $page['page_bottom']['vku_editor'] = array(
         '#weight' => -10,
         '#markup' => $html
@@ -78,7 +81,11 @@ function vku_editor_page_alter(&$page) {
       return ;
     }
 
-    $manager = new \LK\VKU\Editor\UserManager(\LK\get_user($vku->getAuthor()));
+    $account = \LK\get_user($vku->getAuthor());
+    $manager = new \LK\VKU\Editor\UserManager($account);
+    
+    $vku_basics = \LK\VKU\VKUManager::getVKU_RenderSettings($account);
+    drupal_add_css('.pxedit header, .pxedit footer { background-color: '. $vku_basics['vku_hintergrundfarbe'] .' !important; }', 'inline');
 
     $html = $manager-> getEditorTemplate();
     $page['page_bottom']['vku_editor'] = array(

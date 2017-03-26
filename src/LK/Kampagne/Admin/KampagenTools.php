@@ -46,7 +46,11 @@ class KampagenTools {
    */
   public function getKampagnenBranchen() {
     $node = $this->getKampagne()->getNode();
-    $branchen = $node->field_kamp_themenbereiche['und'];
+    $branchen = [];
+
+    if(isset($node->field_kamp_themenbereiche['und'])) {
+      $branchen = $node->field_kamp_themenbereiche['und'];
+    }
     
     $config = [
       'vid' => 3,

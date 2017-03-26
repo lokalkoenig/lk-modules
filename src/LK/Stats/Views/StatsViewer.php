@@ -185,25 +185,8 @@ class StatsViewer {
 
     $table_rendered = '<div class="well well-white">' . theme('table', array('header' => array("", $monat, $this->time_label_prev, "%"), 'rows' => $table)) . '</div>';
 
-    if(!in_array($this->stats_type, ['user', 'user-weekly', 'verlag', 'team']) && lk_is_admin()) {
-      $where = ["stats_date='". $stats['stats_date'] ."'"];
-      if($this->stats_type === 'lk-weekly') {
-        $where[] = "stats_user_type='user-weekly'";
-      }
-      else {
-        $where[] = "stats_user_type='user'";
-      }
-
-      $user_table = [];
-
-      $dbq = db_query('SELECT * FROM lk_verlag_stats WHERE ' . implode(' AND ', $where) . ' ORDER BY page_time DESC');
-      foreach($dbq as $all) {
-        $user_table[] = [\LK\u($all->stats_bundle_id), format_interval($all->page_time), $all->page_hits, $all->page_sessions];
-      }
-
-      $user_table_rendered = theme('table', array('header' => array("Benutzer", "Zeit", "Seitenaufrufe", "Sessions"), 'rows' => $user_table));
-      $table_rendered .= '<div class="well well-white"><h4>Aktive Benutzer *</h4>'. $user_table_rendered .'<div><hr /><small>* Einige Benutzer sind nicht in den generellen Statistiken  inkludiert.</small></div></div>';
-
+    if(!in_array($this->stats_type, ['user', 'user-weekly']) && lk_is_admin()) {
+      $table_rendered .= $this->getUsersOnStatstype($stats);
     }
 
     if($this->hide_form) {
@@ -231,6 +214,43 @@ class StatsViewer {
     return $value;
   }
 
+
+  private function getUsersOnStatstype($stats) {
+
+    $where = ["stats_date='". $stats['stats_date'] ."'"];
+
+    if($this->stats_type === 'lk-weekly') {
+      $where[] = "stats_user_type='user-weekly'";
+    }
+    elseif($this->stats_type === 'lk') {
+      $where[] = "stats_user_type='user'";
+    }
+    elseif($this->stats_type === 'verlag-weekly') {
+      $where[] = "stats_user_type='user-weekly' AND user_stats_verlag_uid='". $stats['stats_bundle_id'] ."'";
+    }
+    elseif($this->stats_type === 'verlag') {
+      $where[] = "stats_user_type='user' AND user_stats_verlag_uid='". $stats['stats_bundle_id'] ."'";
+    }
+    else {
+
+      return ;
+    }
+
+    $user_table = [];
+
+    $dbq = db_query('SELECT * FROM lk_verlag_stats WHERE ' . implode(' AND ', $where) . ' ORDER BY page_time DESC');
+    foreach($dbq as $all) {
+      $user_table[] = [\LK\u($all->stats_bundle_id), format_interval($all->page_time), $all->page_hits, $all->page_sessions];
+    }
+
+    if(!$user_table) {
+      return ;
+
+    }
+
+    $user_table_rendered = theme('table', array('header' => array("Benutzer", "Zeit", "Seitenaufrufe", "Sessions"), 'rows' => $user_table));
+    return '<div class="well well-white"><h4>Aktive Benutzer *</h4>'. $user_table_rendered .'<div><hr /><small>* Einige Benutzer sind nicht in den generellen Statistiken  inkludiert.</small></div></div>';
+  }
 
 
   /**

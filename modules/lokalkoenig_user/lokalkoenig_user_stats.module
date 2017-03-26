@@ -68,8 +68,14 @@ return false;
 
 
 function lokalkoenig_user_stats_page_verlag($verlag){
-  $stats = new \LK\Stats\Views\StatsViewer('verlag', $verlag -> uid);
 
+  if(arg(3) === 'weekly') {
+    $stats = new \LK\Stats\Views\StatsViewerWeekly('verlag', $verlag -> uid);
+  }
+  else {
+    $stats = new \LK\Stats\Views\StatsViewer('verlag', $verlag -> uid);
+  }
+  
   return $stats->render();
 }
 

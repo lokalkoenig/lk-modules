@@ -149,15 +149,13 @@ class LK_PDF extends \TCPDF {
     $this -> Rect(0,0, 297, 30, 'F');
 
     $logo = $this->getUserSettings('logo_oben');
-    if($logo){
-      $logo_img = \LK\Files\FileGetter::get(image_style_url('ppt_logos', $logo));
-    }
-
-    $verlag_logo_position = $this->getUserSettings('verlag_logo_position');
+    $verlag_logo_position = $this->getUserSettings('logo_position');
 
     if($logo) {
+      $logo_img = \LK\Files\FileGetter::get(image_style_url('ppt_logos', $logo));
+
       if($verlag_logo_position === 'right'){
-        $size = getimagesize($this -> logo_oben);
+        $size = getimagesize($logo_img);
         $width = $size[0];
         $height = $size[1];
         $height_calc =  $height / 20;
