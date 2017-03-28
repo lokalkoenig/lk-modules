@@ -208,13 +208,7 @@ function vku_editor_verlag_documents_themed(\LK\Verlag $verlag){
   $manager = new \LK\VKU\Editor\Manager(); 
   $categories = $manager ->getCategoriesAvailable($verlag);
   
-  $allowed = [];
-  $items = $verlag -> getVerlagSettingMultiple('vku_editor_dokumente');
-  
-  foreach($items as $item){
-    $allowed[] = $item['option'];
-  }
-
+  $items = $verlag -> getVerlagSetting('vku_editor_dokumente');
   $presets = $manager->getPresetsAvailable();
 
   $array = [];
@@ -225,11 +219,11 @@ function vku_editor_verlag_documents_themed(\LK\Verlag $verlag){
         'documents_unpublished' => $manager ->getDocumentsPerVerlag($verlag, $key, 0, 'document_changed DESC'),
         'presets' => [],
     ];
-    
+
     // Aggregate presets
     reset($presets);
     while(list($key2, $val2) = each($presets)){
-     if($val2['category'] === $key){
+     if($val2['category'] === $key && in_array($key2, $items)){
        $array[$key]['presets'][$key2] = $val2;
      } 
     }

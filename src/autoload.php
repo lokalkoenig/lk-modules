@@ -21,6 +21,18 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 function lokalkoenig_Autoload($className) {
   
   $explode = explode('\\', $className);
+
+  //PhpOffice\PhpPresentation\PhpPresentation
+  if($explode[0] === 'PhpOffice' && $explode[1] === 'PhpPresentation') {
+    $trim = $explode;
+    unset($trim[0]);
+    $include_file = str_replace('\\', '/', implode('//', $trim));
+    $path = 'sites/all/libraries/phppresentation/src/' . $include_file . '.php';
+    require_once $path;
+
+    return TRUE;
+  }
+
   if($explode[0] != "LK"):
     return ;
   endif;

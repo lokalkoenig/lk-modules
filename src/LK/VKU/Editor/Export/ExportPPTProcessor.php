@@ -207,26 +207,37 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
       }
       $row->setHeight(10);
 
+      $tmp_paragraph_size = 3;
+
       foreach($row_content as $cell_content){
         $cell = $row->nextCell();
         $cell->getBorders()->getBottom()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
         $cell->getBorders()->getLeft()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
         $cell->getBorders()->getTop()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
         $cell->getBorders()->getRight()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
-        $cell->setColSpan(0);
-        $cell->setRowSpan(0);
-        
         $paragraph = $cell->getActiveParagraph();
-        $paragraph->getAlignment()->setMarginLeft(0)->setIndent();
-        $paragraph->getFont()->setSize($this->table_font_size);
+        $paragraph->getAlignment()->setMarginLeft(5)->setMarginTop(2)->setMarginBottom(5)->setMarginTop(2);
+        
         $cell_content_sanitized = $this->getTableMarkupSpripped($cell_content);
 
+        $paragraph->getFont()->setSize($tmp_paragraph_size);
+        $paragraph->createTextRun(' ');
+
+        $paragraph2 = $cell->createParagraph();
+        $paragraph2->getFont()->setSize($this->table_font_size);
+
         if($cell_content_sanitized) {
-          $this->SimpleMarkupParser($paragraph, (html_entity_decode($cell_content_sanitized)), $this->table_font_size, false);
+          $this->SimpleMarkupParser($paragraph2, (html_entity_decode($cell_content_sanitized)), $this->table_font_size, false);
         }
         else {
-          $paragraph->createTextRun(' ');
+          $paragraph2->createTextRun(' ');
         }
+
+        $paragraph3 = $cell->createParagraph();
+        $paragraph3->getFont()->setSize($tmp_paragraph_size);
+        $paragraph3->createTextRun(' ');
+
+
       }
 
       $x_row++;

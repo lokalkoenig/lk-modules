@@ -47,8 +47,16 @@ function _vku_download_vku($account, $vku_id, $ppt = false){
 
   $vku ->logEvent('download', "VKU wurde heruntergeladen (". $file_name_out .")");
 
+
+  header('Content-Description: File Transfer');
   header("Content-Type: ". $mime);
+  header('Expires: 0');
+  header('Cache-Control: must-revalidate');
+  header('Pragma: public');
+  header('Content-Length: ' . filesize($dir.$filename));
+  header('Content-Transfer-Encoding: binary');
   header("Content-Disposition: attachment; filename=\"". $file_name_out ."\"");
   readfile($dir.$filename);
-  drupal_exit();
+
+  exit();
 }   

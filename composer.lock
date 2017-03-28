@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "9d29038045d01454f01e69d3993968f8",
-    "content-hash": "4b8bb7278564a5f630c13b8708f581df",
+    "hash": "1f9d43ec8166669e313e51c7a8c174d6",
+    "content-hash": "b40364eb4c842016f120353c1d50c930",
     "packages": [
         {
             "name": "jbzoo/data",
@@ -376,73 +376,6 @@
                 "xlsx"
             ],
             "time": "2014-03-02 15:22:49"
-        },
-        {
-            "name": "phpoffice/phppresentation",
-            "version": "0.6.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/PHPOffice/PHPPresentation.git",
-                "reference": "b70f7eaddf2ccb8d44a5fec0618ac26efbf6c656"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PHPPresentation/zipball/b70f7eaddf2ccb8d44a5fec0618ac26efbf6c656",
-                "reference": "b70f7eaddf2ccb8d44a5fec0618ac26efbf6c656",
-                "shasum": ""
-            },
-            "require": {
-                "ext-xml": "*",
-                "ext-zip": "*",
-                "php": ">=5.3.0",
-                "phpoffice/common": "0.2.*"
-            },
-            "require-dev": {
-                "phpdocumentor/phpdocumentor": "2.*",
-                "phploc/phploc": "2.*",
-                "phpmd/phpmd": "2.*",
-                "phpunit/phpunit": "3.7.*",
-                "sebastian/phpcpd": "2.*",
-                "squizlabs/php_codesniffer": "2.*"
-            },
-            "suggest": {
-                "ext-gd2": "Required to add images"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "PhpOffice\\PhpPresentation\\": "src/PhpPresentation/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL"
-            ],
-            "authors": [
-                {
-                    "name": "Mark Baker"
-                },
-                {
-                    "name": "Ivan Lanin",
-                    "homepage": "http://ivan.lanin.org"
-                },
-                {
-                    "name": "Franck Lefevre",
-                    "homepage": "http://rootslabs.net"
-                }
-            ],
-            "description": "PHPPresentation - Read, Create and Write Presentations documents in PHP",
-            "homepage": "http://phpoffice.github.io",
-            "keywords": [
-                "LibreOffice",
-                "PowerPoint",
-                "odp",
-                "php",
-                "ppt",
-                "pptx",
-                "presentations"
-            ],
-            "time": "2016-01-24 10:39:19"
         },
         {
             "name": "simple-html-dom/simple-html-dom",
