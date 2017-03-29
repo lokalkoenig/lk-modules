@@ -69,14 +69,31 @@ return false;
 
 function lokalkoenig_user_stats_page_verlag($verlag){
 
-  if(arg(3) === 'weekly') {
+  $tabs = '';
+  $url = 'user/' . $verlag->uid . '/verlagstats';
+
+  if(arg(3) === 'weekly' && lk_is_moderator()) {
     $stats = new \LK\Stats\Views\StatsViewerWeekly('verlag', $verlag -> uid);
+
+    drupal_set_title('Wochenstatistiken');
+
+    $tabs = \LK\UI\Tabs::render([
+      ['title' => 'Monatsstatistiken', 'url' => url($url)],
+      ['title' => 'Wochenstatistiken', 'url' => url($url . '/weekly'), 'active' => TRUE]]);
   }
   else {
     $stats = new \LK\Stats\Views\StatsViewer('verlag', $verlag -> uid);
+
+    drupal_set_title('Monatsstatistiken');
+
+    if (lk_is_moderator()) {
+      $tabs = \LK\UI\Tabs::render([
+        ['title' => 'Monatsstatistiken', 'url' => url($url), 'active' => TRUE],
+        ['title' => 'Wochenstatistiken', 'url' => url($url . '/weekly')]]);
+    }
   }
-  
-  return $stats->render();
+ 
+  return $tabs . $stats->render();
 }
 
 
@@ -109,10 +126,32 @@ function lokalkoenig_user_stats_page($account){
    
   $obj = \LK\get_user($account);
   if(!$obj OR $obj ->isAgentur()){
-    drupal_goto("user");
+    return "Keine Detailierten Statistiken verfügbar";
   }
 
-  $stats = new \LK\Stats\Views\StatsViewer('user', $account -> uid);
+  $tabs = '';
+  $url = 'user/' . $account->uid . '/stats';
 
-  return $stats->render();
+  if(arg(3) === 'weekly' && lk_is_moderator()) {
+    $stats = new \LK\Stats\Views\StatsViewerWeekly('user', $account -> uid);
+
+    drupal_set_title('Wochenstatistiken');
+
+    $tabs = \LK\UI\Tabs::render([
+      ['title' => 'Monatsstatistiken', 'url' => url($url)],
+      ['title' => 'Wochenstatistiken', 'url' => url($url . '/weekly'), 'active' => TRUE]]);
+  }
+  else {
+    $stats = new \LK\Stats\Views\StatsViewer('user', $account -> uid);
+
+    drupal_set_title('Monatsstatistiken');
+
+    if (lk_is_moderator()) {
+      $tabs = \LK\UI\Tabs::render([
+        ['title' => 'Monatsstatistiken', 'url' => url($url), 'active' => TRUE],
+        ['title' => 'Wochenstatistiken', 'url' => url($url . '/weekly')]]);
+    }
+  }
+
+  return $tabs . $stats->render();
 }

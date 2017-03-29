@@ -214,9 +214,16 @@ class RenderDefault extends PPT_Base {
            $shape2->createBreak();
         }
 
-        if($sub_title){
-            $this -> textRun($shape2, $sub_title, 25, true); 
-            $shape2->createBreak();
+        if(!$sub_title) {
+          $sub_title = "\n";
+        }
+        
+        $this -> textRun($shape2, $sub_title, 25, FALSE);
+        $shape2->createBreak();
+
+        if(!$company) {
+           $this -> textRun($shape2, "\n", 28, true);
+           $shape2->createBreak();
         }
     
         $shape2->createBreak();

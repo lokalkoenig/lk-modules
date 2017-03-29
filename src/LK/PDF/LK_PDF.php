@@ -187,8 +187,8 @@ class LK_PDF extends \TCPDF {
     $y = 25;
     foreach($logos as $logo){
       $logo_img = \LK\Files\FileGetter::get(image_style_url('pxedit_footer_logo', $logo));
-      $this->Image($logo_img, $y, 193, 30);
-      $y += 35;
+      $this->Image($logo_img, $y, 193, 37);
+      $y += 42;
     }
   }
 

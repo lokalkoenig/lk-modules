@@ -120,9 +120,10 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
     $footer = trim($this->getDocument()->getFootnote());
 
     if($footer) :
-      $footer_shape = $this->slide->createRichTextShape()->setHeight(20)->setWidth(825)->setOffsetX(60)->setOffsetY(590);
+      $footer_shape = $this->slide->createRichTextShape()->setHeight(20)->setWidth(850)->setOffsetX(60)->setOffsetY(590);
       $footer_shape->setInsetLeft(0);
-      $footer_shape->setInsetRight(0);
+      $footer_shape->setInsetRight();
+      //$footer_shape->getActiveParagraph()->getAlignment()->setMarginRight(60);
       $footer_shape->getActiveParagraph()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
       $footer_shape->getActiveParagraph()->getFont()->setSize(7.5)->setColor(new Color('FF777777'));
       $footer_shape->createTextRun($footer);

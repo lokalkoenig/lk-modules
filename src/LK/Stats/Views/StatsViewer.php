@@ -47,6 +47,11 @@ class StatsViewer {
     $this->stats_type = $type;
     $this->stats_uid = $id;
 
+    if(in_array($type, ['user', 'user-weekly'])) {
+      unset($this->stats_values['activated_users']);
+      unset($this->stats_values['active_users']);
+    }
+
     $current = \LK\current();
     if(lk_is_admin() && $current->isModerator()) {
       $this->stats_values += [
@@ -147,6 +152,16 @@ class StatsViewer {
       $selected_month = 0;
     }
 
+    // From a Link _time can have 2017-02
+    if(isset($_GET['_time'])) {
+      $key = array_search($_GET['_time'], $monthes);
+      if($key) {
+        $monat = $monthes[$key];
+        $selected_month = $key;
+        $test_next_month = $key + 1;
+      }
+    }
+
     $vormonat = [];
     $stats = $this->getLogData($monat);
 
@@ -185,8 +200,14 @@ class StatsViewer {
 
     $table_rendered = '<div class="well well-white">' . theme('table', array('header' => array("", $monat, $this->time_label_prev, "%"), 'rows' => $table)) . '</div>';
 
-    if(!in_array($this->stats_type, ['user', 'user-weekly']) && lk_is_admin()) {
-      $table_rendered .= $this->getUsersOnStatstype($stats);
+    if(lk_is_moderator()) {
+      if(!in_array($this->stats_type, ['user', 'user-weekly', 'team', 'team-weekly'])) {
+        $table_rendered .= $this->getUsersOnStatstype($stats);
+      }
+
+      if(in_array($this->stats_type, ['user', 'user-weekly'])) {
+        $table_rendered .= $this->getUserSearches($stats);
+      }
     }
 
     if($this->hide_form) {
@@ -214,6 +235,41 @@ class StatsViewer {
     return $value;
   }
 
+  /**
+   * Gets the Users Search-Keywords
+   * for the given Time-Frame
+   *
+   * @param array $stats
+   * @return string
+   */
+  private function getUserSearches($stats) {
+
+    if(get_class($this) === 'LK\Stats\Views\StatsViewerWeekly') {
+      //2017-KW-12
+      $explode = explode('-', $stats['stats_date']);
+      $from = strtotime(date('Y-m-d -01 00:00:01', strtotime($explode[0] ."-W". $explode[2] . "-1")));
+      $to = strtotime(date('Y-m-d 23:59:59', strtotime($explode[0] ."-W". $explode[2] ."-7")));
+    }
+    else {
+      $from = strtotime($stats['stats_date'] . '-01 00:00:01');
+      $to = strtotime(date("Y-m-t", $from) . ' 23:59:59');
+    }
+
+    $words = [];
+    $dbq = db_query('SELECT * FROM lk_search_history WHERE uid=:uid AND created BETWEEN '. $from .' AND '. $to .' ORDER BY created DESC',
+            [':uid' => $stats['stats_bundle_id']]);
+    foreach($dbq as $all) {
+      $link = \LK\Solr\SearchQueryParser::buildLink(unserialize($all->search_text));
+      $words[] = [date('d.m.Y', $all -> created), $all->search_string, $all->search_count, '<a href="'. $link .'"><span class="glyphicon glyphicon-link"></span></a>'];
+    }
+   
+    if(!$words) {
+      return ;
+    }
+
+    $user_table_rendered = theme('table', array('header' => array("Datum", "Suchwort", "Ergebnisse", 'Link'), 'rows' => $words));
+    return '<div class="well well-white"><h4>Suchen</h4>'. $user_table_rendered .'</div>';
+  }
 
   private function getUsersOnStatstype($stats) {
 
@@ -236,11 +292,30 @@ class StatsViewer {
       return ;
     }
 
+    $base = 'stats';
+    if(get_class($this) === 'LK\Stats\Views\StatsViewerWeekly') {
+      $base = 'stats/weekly';
+    }
+
     $user_table = [];
 
-    $dbq = db_query('SELECT * FROM lk_verlag_stats WHERE ' . implode(' AND ', $where) . ' ORDER BY page_time DESC');
+    $dbq = db_query('SELECT stats_bundle_id, page_hits, page_time, page_sessions, searches, accessed_kampagnen FROM lk_verlag_stats WHERE ' . implode(' AND ', $where) . ' ORDER BY page_time DESC');
     foreach($dbq as $all) {
-      $user_table[] = [\LK\u($all->stats_bundle_id), format_interval($all->page_time), $all->page_hits, $all->page_sessions];
+      $user_name = \LK\u($all->stats_bundle_id);
+      $link = url('user/' . $all->stats_bundle_id . '/' . $base, ['query' => ['_time' => $stats['stats_date']]]);
+      $user_name .= ' <a class="small" href="'.  $link . '"><span class="glyphicon glyphicon-link"></span></a>';
+
+
+      $searches = $kampagnen = '-';
+      if($all->searches) {
+        $searches = $all->searches;
+      }
+
+      if($all->accessed_kampagnen) {
+        $kampagnen = $all->accessed_kampagnen;
+      }
+
+      $user_table[] = [$user_name, format_interval($all->page_time), $all->page_hits, $all->page_sessions, $searches, $kampagnen];
     }
 
     if(!$user_table) {
@@ -248,8 +323,13 @@ class StatsViewer {
 
     }
 
-    $user_table_rendered = theme('table', array('header' => array("Benutzer", "Zeit", "Seitenaufrufe", "Sessions"), 'rows' => $user_table));
-    return '<div class="well well-white"><h4>Aktive Benutzer *</h4>'. $user_table_rendered .'<div><hr /><small>* Einige Benutzer sind nicht in den generellen Statistiken  inkludiert.</small></div></div>';
+    $user_table_rendered = theme('table', array('header' => array("Benutzer", "Zeit", "Seitenaufrufe", "Sessions", "Suchen", "Kampagnen"), 'rows' => $user_table));
+
+    if(in_array($this->stats_type, ['lk', 'lk-weekly'])) {
+      return '<div class="well well-white"><h4>Aktive Benutzer *</h4>'. $user_table_rendered .'<div><hr /><small>* Einige Benutzer sind nicht in den generellen Statistiken inkludiert.</small></div></div>';
+    }
+ 
+    return '<div class="well well-white"><h4>Aktive Benutzer</h4>'. $user_table_rendered .'</div>';
   }
 
 
