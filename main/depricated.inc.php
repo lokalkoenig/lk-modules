@@ -1,15 +1,4 @@
 <?php
-/**
- * 
- * @deprecated since version number
- * @param int $entity_id
- * @return boolean
- */
-function lokalkoenig_nodeaccess_delete_rule($entity_id){
-    $manager = new \LK\Kampagne\SperrenManager();
-    return $manager ->removeSperre($entity_id);
-}
-
 function vku_is_update_user_ppt(){
     return vku_is_update_user();
 }    
@@ -42,11 +31,10 @@ function vku_is_update_user(){
 
 /** Ausgabe changed PLZ */
 function node_access_ausgabe_changed_plz($aid){
-    $ausgabe = \LK\get_ausgabe($aid);
-    $manager = new \LK\Kampagne\SperrenManager();
-    $manager ->updateAusgabe($ausgabe);
+  $ausgabe = \LK\get_ausgabe($aid);
+  $manager = new \LK\Kampagne\SperrenManager();
+  $manager ->updateAusgabe($ausgabe);
 }
-
 
 /**
  * @deprecated

@@ -14,9 +14,9 @@ function _vku_delete_data($vku_id){
     drupal_goto("vku");
   }
 
-  $author = $vku -> getAuthor();
-  $msg = $vku ->logEvent("remove", "Die Verkaufsunterlage (". $vku_id . ") wurde verworfen.");
+  $msg = $vku ->logEvent("Remove VKU", "Die Verkaufsunterlage (". $vku_id . ") wurde verworfen.");
   drupal_set_message($msg);
   $vku ->setStatus('deleted');
-  drupal_goto('user/' . $author . "/vku");
+  
+  drupal_goto($vku->userUrl());
 }

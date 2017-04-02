@@ -35,6 +35,23 @@ class VKU2Handler extends PageInterface {
   }
 
   /**
+   * Feature is enabled
+   *
+   * @return boolean
+   */
+  function featureEnabled() {
+    
+    $verlag = $this->getDocumentHandler()->getVerlag();
+    if($verlag ->getVerlagSetting('vku_editor', 0) && $verlag ->getVerlagSetting('vku_2', 0)) {
+      
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+
+  /**
    * Gets the Implementation for the Front end
    *
    * @param \VKUCreator $vku
@@ -176,6 +193,12 @@ class VKU2Handler extends PageInterface {
    * @return array
    */
   function getPossibilePages($category){
+
+    if(!$this->featureEnabled()) {
+
+      return [];
+    }
+
     $manager = $this ->getDocumentHandler();
     $documents = $manager->getDocumentsPerCategory($category);
 

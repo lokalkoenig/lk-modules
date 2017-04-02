@@ -21,7 +21,7 @@ function vku_delete_line_item($vku_id, $line_item){
   if($seite = $vku -> getPage($line_item)){
       $vku -> removePage($line_item);  
       
-      $message = $vku ->logEvent("remove-page", 'Der Eintrag von der Verkaufsunterlage gelöscht.');
+      $message = $vku ->logEvent("VKU Remove Page", 'Der Eintrag von der Verkaufsunterlage gelöscht.');
       
       if(isset($_GET["ajax"])){
           $msg = array(
@@ -107,7 +107,7 @@ function vku_form_vku_edit_submit($form, &$form_state){
       $vku -> set("vku_company", $values["vku_company"]);
       $vku -> set("vku_untertitel", $values["vku_untertitel"]);
       $vku -> update();
-      $vku ->logEvent("update-title", "Seite Titel wurde editiert");
+      $vku ->logEvent("VKU Update Title", "Seite Titel wurde editiert");
 
      drupal_set_message('Die Verkaufsunterlagen wurden aktualisiert.');
      drupal_goto($vku -> vku_url());
@@ -156,7 +156,3 @@ function vku_form_vku_edit_submit($form, &$form_state){
       
   return $form;  
   }
-
-
-
-?>

@@ -13,25 +13,7 @@ require_once __DIR__ . '/vku_editor.field_widget.php';
  * @param array $modules
  */
 function vku_editor_vku2_add_module(){
-
-  $current = \LK\current();
-
-  if(!$current) {
-    
-    return [];
-  }
-
-  if(!$current ->isModerator()){
-    $verlag = $current ->getVerlagObject();
-    if(!$verlag || !$verlag ->getVerlagSetting('vku_editor', false) || !$verlag ->getVerlagSetting('vku_2', false)){
-      return [];
-    }
-  }
-
-  drupal_add_library('vku_editor', 'vku_inlace_editor');
-  drupal_add_js(drupal_get_path('module', 'vku_editor'). '/js/ma_controller.js');
-
   return [
     'vku_documents' => '\\LK\\VKU\\Editor\\Pages\\VKU2Handler',
-  ]; 
+  ];
 }

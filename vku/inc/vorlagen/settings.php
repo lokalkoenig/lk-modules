@@ -19,7 +19,7 @@ function vkuconn_settings($account){
             if($template -> vku_id == $_GET["delete"]){
                 $vku = new VKUCreator($template -> vku_id);
                 if($vku -> is('template')):
-                    $msg = $vku ->logEvent('template', "Vorlage wurde gelöscht");
+                    $msg = $vku ->logEvent('VKU Template', "Vorlage wurde gelöscht");
                     $vku ->remove();
                     drupal_set_message($msg);
                     drupal_goto('user/' . $account -> uid . "/vkusettings");
@@ -40,12 +40,12 @@ function vkuconn_settings($account){
                     
                     $status = $vku -> get("vku_template_default");
                     if($status == 1){
-                      $msg = $vku ->logEvent('template', "Die VKU ist nicht mehr Ihre Standard-Verkaufsunterlage");  
+                      $msg = $vku ->logEvent('VKU Template', "Die VKU ist nicht mehr Ihre Standard-Verkaufsunterlage");
                       $vku -> set("vku_template_default", 0); 
                     }
                     else {
                       db_query("UPDATE lk_vku SET vku_template_default='0' WHERE uid='". $account -> uid ."' AND vku_status='template' AND vku_template_default='1'"); 
-                      $msg = $vku ->logEvent('template', "Die VKU ist nun Ihre Standard-Verkaufsunterlage");  
+                      $msg = $vku ->logEvent('VKU Template', "Die VKU ist nun Ihre Standard-Verkaufsunterlage");
                       $vku -> set("vku_template_default", 1);    
                         
                     }

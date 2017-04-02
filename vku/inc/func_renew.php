@@ -24,11 +24,9 @@ function _vku_renew_vku($account, $vku_id){
   $vkuauthor = $vku -> getAuthor();
 
   if(vku_is_update_user()){
-    
-
+ 
     // Create a new VKU
     $settings = [
-      'uid' => $current->getUid(),
       'vku_title' => $vku -> get('vku_title', false),
       'vku_company' => $vku -> get('vku_company', false),
       'vku_untertitel' => $vku -> get('vku_untertitel', false),
@@ -36,7 +34,6 @@ function _vku_renew_vku($account, $vku_id){
 
     $new_vku = \LK\VKU\VKUManager::createEmptyVKU($current, $settings);
     $page_manager = new \LK\VKU\Vorlage\Vorlage($new_vku);
-    
     $page_manager ->cloneVKUPages($vku);
   }
   else {
@@ -44,7 +41,7 @@ function _vku_renew_vku($account, $vku_id){
     // @VKU 1.0
     $vku_new_id = $vku -> cloneVku();
     $new_vku = new VKUCreator($vku_new_id);
-    $new_vku -> isCreated();
+    $new_vku->isCreated();
     $new_vku ->setStatus('active');
   }
 
@@ -59,7 +56,7 @@ function _vku_renew_vku($account, $vku_id){
     $msg = $new_vku -> logVerlagEvent("Eine neue Verkaufsunterlage wurde von der Vorlage erstellt.");
   }
   else {
-    $msg = $new_vku -> logEvent("renew", "Die Verkaufsunterlage wurde erneuert.");
+    $msg = $new_vku -> logEvent("Renew VKU", "Die Verkaufsunterlage wurde erneuert.");
   }
 
   $redirect = $new_vku -> url();
@@ -67,9 +64,7 @@ function _vku_renew_vku($account, $vku_id){
 
   if(vku_is_update_user()){
     drupal_goto($redirect . "/title");
-    drupal_exit();
   }
 
   drupal_goto($redirect);
-  drupal_exit();
 }

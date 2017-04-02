@@ -24,11 +24,6 @@ function vku_show_line_item_preview($vku_id, $line_item){
     die("Access denied");	  
   }
   
-  $page = $vku -> getPage($line_item);
-  if(!$page){
-    die("Sie haben keinen Zugriff auf die Seite.");
-  }
-  
   $pagemanager = new \LK\VKU\Export\Manager($vku);
   $pagemanager ->generatePDF($line_item, true);
 }

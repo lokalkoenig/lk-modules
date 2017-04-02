@@ -18,7 +18,7 @@ if(!$vkus): ?>
 
 
     $special = $vkus[0];
-    $copy = new VKUCreator($special -> getId());
+    $copy = $special;
     $last_update = $copy ->get('vku_changed');
     $title = strip_tags($copy ->getTitleTrimmed());
     $link = url($copy ->url());
@@ -42,16 +42,12 @@ if(!$vkus): ?>
        <?php 
         $x = 0;
         foreach($vkus as $vku): 
-           $copy = new VKUCreator($vku -> getId());
+           $copy = $vku;
            $last_update = $copy ->get('vku_changed');
            $title = strip_tags($copy ->getTitleTrimmed());
-   
            $kampagnen= count($copy ->getKampagnen());
            $vku_id = $copy ->getId();
            $link = $copy -> url();      
-          
-           
-           
          ?>
         <li  class="item vku-menu-<?php print $vku_id; ?> <?php if($x == 0) print 'active'; ?>"><div style="padding: 3px 20px;">
                 <p> 
@@ -61,7 +57,6 @@ if(!$vkus): ?>
                 </p>
                 <p>
                    <a href="#" data-url="<?php print url("vku/" . $vku_id . "/setactive"); ?>" class="hide-active btn btn-xs btn-hollow btn-primary btn-sm vku-make-active">Auswählen</a>
-                   <!--<a href="<?php print url($link); ?>" class="btn btn-hollow btn-primary btn-sm"> Fertigstellen</a>-->
                 </p>    
         </div></li>
        

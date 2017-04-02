@@ -88,6 +88,14 @@ function lokalkoenig_user_verlag_admin_settings_form($form, &$form_state, \LK\Ve
     '#description' => 'VKU 2.0 Editor für den Verlag freischalten.',
   ];
 
+  $form['vku2']['vku_2_pptx'] = [
+    '#type' => 'select',
+    '#title' => 'VKU2.0-Editor (PPTX-Generierung) freischalten',
+    '#default_value' => $verlag ->getVerlagSetting('vku_2_pptx', 0),
+    '#options' => [1 => 'Ja', 0 => "Nein"],
+    '#description' => 'VKU 2.0 PPTX für den Verlag freischalten.',
+  ];
+
   $form['vku2']['vku_editor'] = [
     '#type' => 'select',
     '#title' => 'VKU2.0-Dokumente freischalten',

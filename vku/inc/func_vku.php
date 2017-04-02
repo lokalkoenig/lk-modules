@@ -1,33 +1,23 @@
 <?php
 
 function _vku_redirect_current(){
-	
-	$id = vku_get_active_id();        
+  global $user;
 
-	if($id){
-		drupal_goto("vku/". $id);
-		drupal_exit();
-	}
-	else {
+  $id = \LK\VKU\VKUManager::getActiveVku($user -> uid);
+  if($id){
+    drupal_goto("vku/". $id);
+    drupal_exit();
+  }
 		
-		drupal_goto("user");
-		drupal_exit();
-	}
+  drupal_goto("user");
+  drupal_exit();
 }
 
 
 function _vku_create(){
-global $user;
-
-  $vku = new VKUCreator('new', array('uid' => $user -> uid));
-  if(!$vku -> is()){
-    drupal_set_message("Ein Fehler ist aufgetreten");
-    drupal_goto("vku");
-  }
-
+  $vku = \LK\VKU\VKUManager::createEmptyVKU(\LK\current());
+  $vku ->logEvent("New VKU", "Eine neue VKU wurde erstellt");
   $id = $vku -> getId();
-  $vku = new VKUCreator($id);
-  $vku ->logEvent("new", "Eine neue VKU wurde erstellt");
   
   if(vku_is_update_user()){
     $vku ->setStatus('new');
@@ -47,72 +37,61 @@ global $user;
  */
 function _vku_show($id){
 global $user;
-    
-    $vku = new VKUCreator($id);
-    if(!$vku -> is()){  	
-    	drupal_goto("user");
-    }
 
-    $status = $vku ->getStatus();
+  $vku = \LK\VKU\VKUManager::getVKU($id, TRUE);
+
+  if(!$vku) {
+    drupal_goto("user");
+  }
+
+  $status = $vku ->getStatus();
     
-    
-    $author = $vku -> getAuthor();
-    if($user -> uid != $author && !lk_is_moderator()){
-      drupal_goto("user");
-    }
-    
-    drupal_add_library('system', 'ui.sortable');
-    drupal_add_library('system', 'ui.droppable');
+  drupal_add_library('system', 'ui.sortable');
+  drupal_add_library('system', 'ui.droppable');
         
-    if(vku_is_update_user()){
-      if(!in_array($status, array('active', 'template', 'new'))){
-        drupal_goto($vku -> url());
-      }
-    
-      include_once(__DIR__ . "/func_vku2_generate.php");
-      return vku2_generate_form($vku);
-    }    
-    
+  if(vku_is_update_user()){
     if(!in_array($status, array('active', 'template', 'new'))){
-        drupal_goto($vku -> url());
+      drupal_goto($vku -> url());
     }
 
+    include_once(__DIR__ . "/func_vku2_generate.php");
+    return vku2_generate_form($vku);
+  }    
     
-    
-    drupal_set_title("Verkaufsunterlage");
-    lk_set_icon('tint');
-   
-     $add = _vkuconn_generate($vku);
-     
-     drupal_add_library('system', 'ui.sortable');
-     drupal_add_js("sites/all/modules/lokalkoenig/vku/js/vku.js");
-     drupal_add_css("sites/all/modules/lokalkoenig/vku/css/vku.css");
-     
+  if(!in_array($status, array('active', 'template', 'new'))){
+    drupal_goto($vku -> url());
+  }
+
+  drupal_set_title("Verkaufsunterlage");
+  lk_set_icon('tint');
+
+  $add = _vkuconn_generate($vku);
+
+  drupal_add_library('system', 'ui.sortable');
+  drupal_add_js("sites/all/modules/lokalkoenig/vku/js/vku.js");
+  drupal_add_css("sites/all/modules/lokalkoenig/vku/css/vku.css");
+
     if($status == 'active'){
         
-        // Überprüfen ob zu viele Kampagnen vorliegen
-        $count = count($vku -> getKampagnen());
-        $max_nids = variable_get("lk_vku_add_max", 3);
+      // Überprüfen ob zu viele Kampagnen vorliegen
+      $count = count($vku -> getKampagnen());
+      $max_nids = variable_get("lk_vku_add_max", 3);
         
-        if($count > $max_nids){
-            drupal_set_message("Sie haben mehr als <b>" . $max_nids . " Kampagnen</b> in der Verkaufsunterlage. Bitte reduzieren Sie die Anzahl indem Sie Kampagnen entfernen.", 'error');
-        }
+      if($count > $max_nids){
+        drupal_set_message("Sie haben mehr als <b>" . $max_nids . " Kampagnen</b> in der Verkaufsunterlage. Bitte reduzieren Sie die Anzahl indem Sie Kampagnen entfernen.", 'error');
+      }
        
-        $form = drupal_get_form('vku_form_vku_apply', $id, $user -> uid);
-        $form = render($form);
-        
-         return theme('vku', array(
-   		'vkunew' => $vku,
-                'addons' => $add,
-                'submitform' => $form,
-                'ausgaben' => array(
-                    //'days' => 5,
-                    //'telefon' => $account -> isTelefonmitarbeiter(),
-                    //'telefon_link' => url('user/' .  $account -> uid . "/setplz"),
-                    //'ausgaben' => $ausgaben_formatted
-                ),    
-                'template_form' => '')
-          );
+      $form = drupal_get_form('vku_form_vku_apply', $id, $user -> uid);
+      $form = render($form);
+
+      return theme('vku', array(
+             'vkunew' => $vku,
+             'addons' => $add,
+             'submitform' => $form,
+             'ausgaben' => array(
+             ),    
+             'template_form' => '')
+       );
     }    
     else {
        $form = drupal_get_form('vku_form_vorlage', $vku);
@@ -217,19 +196,18 @@ global $user;
     $active = 0;
 
     while(list($key, $val) = each($pages)){
-        if($val["data_active"]){
-            $active++;
-        }
+      if($val["data_active"]){
+          $active++;
+      }
 
-        if($val["data_class"] == 'kampagne'){
-            $node = node_load($val["data_entity_id"]);
-            $access = na_check_user_has_access($author, $node -> nid);
-            if(!$node -> status OR $access["access"] == false){
-              drupal_set_message("Die Kampagen <b>" . $node -> title . "</b> kann nicht mehr lizensiert werden. Bitte löschen Sie die Kampagne aus Ihrer Verkaufsunterlage.");    
-              $error++;
-            }
-        }
-
+      if($val["data_class"] == 'kampagne'){
+          $node = node_load($val["data_entity_id"]);
+          $access = na_check_user_has_access($author, $node -> nid);
+          if(!$node -> status OR $access["access"] == false){
+            drupal_set_message("Die Kampagen <b>" . $node -> title . "</b> kann nicht mehr lizensiert werden. Bitte löschen Sie die Kampagne aus Ihrer Verkaufsunterlage.");    
+            $error++;
+          }
+      }
     }
 
     if($active == 0){
@@ -239,16 +217,15 @@ global $user;
 
     // Checken ob die Nodes verwendet werden dürfen.
     if($error){
-       drupal_goto($vku ->url());
-       drupal_exit();
+      drupal_goto($vku ->url());
+      drupal_exit();
     }
     
     $vku -> setStatus('created');
     $vku -> update();
-    
-    $vku -> setShortPlzSperre();   
-    $vku ->logVerlagEvent('Verkaufsunterlage fertig gemacht');
-    
+
+    $vku->setShortPlzSperre();
+    $vku->logVerlagEvent('Verkaufsunterlage fertig gemacht');
     drupal_goto('user/'. $author .'/vku/'. $id .'/details');
   }
 

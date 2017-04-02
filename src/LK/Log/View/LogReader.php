@@ -28,9 +28,8 @@ abstract class LogReader {
       //dpm($this -> data);
       
       if($this -> data -> vku_id){
-        $vku = new VKUCreator($this -> data -> vku_id);   
-        
-        if(!$vku ->is()){
+        $vku = \LK\VKU\VKUManager::getVKU($this -> data -> vku_id);
+        if(!$vku){
           $context[] = '<p class="small"><strike><span class="glyphicon glyphicon-lock"></span> Verkaufsunterlage #'. $this -> data -> vku_id .' wurde bereits gelöscht.</strike></p>';
         }
         else {
@@ -50,7 +49,7 @@ abstract class LogReader {
       }
 
 
-      if(lk_is_moderator()):
+      if(lk_is_moderator() && FALSE):
           $data = unserialize($this -> data -> context);
           if($data){
             $context[] = "<hr /><p><span class='glyphicon glyphicon-plus'></span> <small>" .  print_r($data, true) . "</small></p>";

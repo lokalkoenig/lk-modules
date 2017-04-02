@@ -81,6 +81,9 @@ function vku_editor_page_alter(&$page) {
       return ;
     }
 
+    drupal_add_library('vku_editor', 'vku_inlace_editor');
+    drupal_add_js(drupal_get_path('module', 'vku_editor'). '/js/ma_controller.js');
+
     $account = \LK\get_user($vku->getAuthor());
     $manager = new \LK\VKU\Editor\UserManager($account);
     

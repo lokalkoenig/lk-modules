@@ -11,28 +11,27 @@ define("VKU_TIME_MAX", 7);
 
 function _vku_details($account, $vku_id){
 global $user;
-    
-   $vku = new VKUCreator($vku_id);
-   if(!$vku -> is()){
-      drupal_goto("user");
-      drupal_exit();
-   }
 
-   $vkuauthor = $vku -> getAuthor();
+  $vku = \LK\VKU\VKUManager::getVKU($vku_id, TRUE);
 
-   if(!$vku -> hasAccess()){
-      drupal_goto("user");
-   }
-  
+  if(!$vku) {
+    drupal_goto("user");
+    drupal_exit();
+  }
 
-   if($vkuauthor != $user -> uid){
-       drupal_set_message("Die Verkaufsunterlage wurde nicht von Ihnen erstellt. Sie haben jedoch trotzdem Zugriff auf diesen Bereich.");
-   }
+  $vkuauthor = $vku->getAuthor();
+
+  // Checken wenn VKU-Author nicht mit dem Pfad übereinstimmt
+  if($account -> uid != $vkuauthor){
+    drupal_goto($vku -> url());
+  }
+
+  if($vkuauthor != $user -> uid){
+    drupal_set_message("Die Verkaufsunterlage wurde nicht von Ihnen erstellt. Sie haben jedoch trotzdem Zugriff auf diesen Bereich.");
+  }
 
   $vkustatus = $vku -> getStatus();
   $vku_company = $vku -> get('vku_company');
-  $vku_ready_filename = $vku -> get('vku_ready_filename');
-  $vku_generic = $vku -> get('vku_generic');
   $kampagnen = $vku -> getKampagnen();
 
   drupal_set_title('Verkaufsunterlage');  
@@ -40,34 +39,29 @@ global $user;
 
   if(lk_is_moderator()){
     drupal_set_title('VKU ('. $vkustatus .')');
-
   }
 
-  // Checken wenn VKU-Author nicht mit dem Pfad übereinstimmt
-  if($account -> uid != $vkuauthor){
-       drupal_goto($vku -> url());
-  }
-
-  if($vkustatus == 'active' AND $user -> uid == $vkuauthor AND !lk_is_moderator()){
-        drupal_goto($vku -> vku_url());
-        drupal_exit();
-   }       
+  if($vkustatus === 'active'){
+    drupal_goto($vku -> vku_url());
+    drupal_exit();
+  }       
    
   if($vku_company){
-      lk_set_subtitle($vku_company);
-   }      
+    lk_set_subtitle($vku_company);
+  }      
 
-   // PDF zu erstellen
-   if($vkustatus == 'created'){
+  // PDF zu erstellen
+  // @vku-1
+  if($vkustatus === 'created'){
     drupal_set_title('Generieren der Verkaufsunterlage');  
     lk_set_icon('download');
     
     return theme('vkudetails_create', array('account' => $account, "vku" => $vku, "form" => ''));
-   }  
+  }  
 
   $admin = NULL;
   if(lk_is_moderator()){
-       $admin = vku_administrate($vku);
+    $admin = vku_administrate($vku);
   }
    
   if(in_array($vkustatus, array("deleted", "active", 'created'))){
@@ -76,11 +70,12 @@ global $user;
   
   lk_set_icon('paperclip');
  
-  if($vkustatus == 'purchased' OR $vkustatus == 'purchased_done'){
+  if($vkustatus == 'purchased' || $vkustatus == 'purchased_done'){
     $lizenzen = $vku -> getLizenzen();  
     
     drupal_set_title('Downloads');  
     lk_set_icon('download');
+
     return theme('vkudetails_lizenzen', 
             array('admin' => $admin, 
                   'lizenzen' => $lizenzen, 
@@ -95,10 +90,6 @@ global $user;
     return theme('vkudetails', array('admin' => $admin, 'account' => $account, "vku" => $vku, "form" => $view));
   }
 }
-
-
-
-
 
 function lk_form_purchase_licences_submit($form, &$form_state){
 global $user;
@@ -115,44 +106,42 @@ global $user;
    // Wenn Testverlag dann eine andere Nachricht anzeigen
    if(lk_is_in_testverlag($user)){
       drupal_get_messages(); 
+
       drupal_set_message("Im Testmodus dürfen Sie keine Kampagnen lizenzieren.");
-      drupal_goto('user/'. $author .'/vku/'. $id .'/details'); 
+      drupal_goto($vku->url());
       drupal_exit();   
    }
    
    if($user -> uid == $author){
-         $show_plz_info = $vku ->hasPlzSperre();
+    $show_plz_info = $vku ->hasPlzSperre();
          
-        if($show_plz_info AND $show_plz_info["ausgaben_ids"]){
-            // Set User to PLZ-Gebiet
-            // Remove from VKU 
-            $vku -> removePLZSperren();
-            $account = \LK\get_user($user -> uid);
-            // Set new Ausgaben
-            $account -> setAusgaben($show_plz_info["ausgaben_ids"]);
-        }
+    if($show_plz_info && $show_plz_info["ausgaben_ids"]){
+        // Set User to PLZ-Gebiet
+        // Remove from VKU 
+        $vku -> removePLZSperren();
+        $account = \LK\get_user($user -> uid);
+        // Set new Ausgaben
+        $account -> setAusgaben($show_plz_info["ausgaben_ids"]);
+    }
    }
   
 
    // Checken ob die Kampagne überhaupt lizensiert werden kann
    // Dbl Check
-   
     $nodes = array();
     $values = $form_state["values"];
     while(list($key, $val) = each($values["kampagnen"])){
-        if($key == $val){
-          
-          
+      if($key == $val){
         $access = lk_user_can_purchase($author, $key);
         if(!$access) {
-             // Reload Page to Show Reasons
-             drupal_get_messages(); 
-             drupal_goto($vku -> url()); 
-             drupal_exit();
-          }
-
-          $nodes[] = $key;  
+          // Reload Page to Show Reasons
+          drupal_get_messages();
+          drupal_goto($vku -> url());
+          drupal_exit();
         }
+
+        $nodes[] = $key;
+      }
     }
    
    $manager = new \LK\Kampagne\LizenzManager(); 
@@ -219,29 +208,28 @@ global $user;
     $form["#vku"] = $vku_id;
     $form["#kampagnen"] = $kampagnen;
     
-    
     $vku = new VKUCreator($vku_id);
     $author = $vku -> getAuthor();
     $show_plz_info = $vku ->hasPlzSperre();
-    
+
     $options = array();
     foreach($kampagnen as $nid){
-        $node = node_load($nid);
-        $node -> access = na_check_user_has_access($author, $nid);
+      $node = node_load($nid);
+      $node -> access = na_check_user_has_access($author, $nid);
         
-        if($node -> access == false OR $node -> access["access"] == false) {
-            // Checken ob Kurzzeitsperre vorliegt
-            if($show_plz_info){
-                 ; // nothing + grant
-            }
-            else {
-                  drupal_set_message("Die Kampage <strong>\"" . $node -> title . "\"</strong> kann nicht lizensiert werden:<br />" . @$node -> access["reason"]);
-                  continue;
-            }
-        }
+      if($node -> access == false OR $node -> access["access"] == false) {
+          // Checken ob Kurzzeitsperre vorliegt
+          if($show_plz_info){
+               ; // nothing + grant
+          }
+          else {
+            drupal_set_message("Die Kampage <strong>\"" . $node -> title . "\"</strong> kann nicht lizensiert werden:<br />" . @$node -> access["reason"]);
+            continue;
+          }
+      }
         
-        $node_view = node_view($node, 'purchase');
-        $options[$nid] = render($node_view);
+      $node_view = node_view($node, 'purchase');
+      $options[$nid] = render($node_view);
     }
 
 

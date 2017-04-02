@@ -27,14 +27,13 @@ class Manager extends PageManager {
     $file_path = $_SERVER['DOCUMENT_ROOT'] . $this->save_dir .'/'. $fn;
     $pdf->Output($file_path, 'F');
 
-    // PPTX
-    if(\vku_is_update_user_ppt()):
+    if($vku->canGeneratePPTX()) {
       $pptx = $this->generatePPTX();
       $file_pptx = \LK\PPT\PPTX_Loader::save($pptx, $this->save_dir, $vku ->getId());
       $vku -> set('vku_ppt_filename', $file_pptx);
       $file_size = filesize($this->save_dir . '/' . $file_pptx);
       $vku -> set('vku_ppt_filesize', $file_size);
-    endif;
+    }
 
     $vku -> set("vku_ready_filename", $fn);
     $vku -> set("vku_ready_time", time());

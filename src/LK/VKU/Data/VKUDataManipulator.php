@@ -238,8 +238,7 @@ abstract class VKUDataManipulator {
   public function removeAllPages(){
     // Make a VKU2-Check to get a propper Configuration for removing
     $vku = $this->getVKU();
-    $vku -> vku2Check();
-
+  
     $config = $this->generatePageConfiguration();
     while(list($key, $val) = each($config)){
       // A container

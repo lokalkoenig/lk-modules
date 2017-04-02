@@ -12,18 +12,23 @@ class VKUManager {
    * @return boolean|\VKUCreator
    */
   public static function getVKU($id, $check_permissions = false){
-    
-    $vku = new \VKUCreator($id);
-    
-    if(!$vku ->is()){
-      return false;
+   
+    try {
+      $vku = new \VKUCreator($id);
+    } catch (\Exception $ex) {
+
+      return FALSE;
     }
-    
+
     if($check_permissions && !$vku ->hasAccess()){
-      return false;
+      
+      return FALSE;
     }
-    
-  return $vku;
+
+    // Check if the Pages are correct
+    $vku->getDataAdmin()->healthCheck();
+
+    return $vku;
   }
 
   /**
@@ -88,13 +93,31 @@ class VKUManager {
    * Creates a new VKU for a User
    *
    * @param \LK\User $account
-   * @param array $options
+   * @param array $overwrites
    * @return \VKUCreator
    */
-  public static function createEmptyVKU(\LK\User $account, $options = []){
+  public static function createEmptyVKU(\LK\User $account, $overwrites = []){
+
+    $options = [];
     $options['uid'] = $account ->getUid();
-    $vku = new \VKUCreator('new', $options);
-    return new \VKUCreator($vku ->getId());
+    $options["vku_changed"] = time();
+    $options["verlag_uid"] = $account->getVerlag();
+    $options["vku_status"] = 'active';
+    $options["vku_changed"] = $options['vku_created'] = time();
+    $options["vku_title"] = 'Ihr Angebot'; 
+    
+    if(\vku_is_update_user()){
+      $options["vku_title"] = '';
+      $options["vku_status"] = 'new';
+    }
+
+    $fields = array_merge($options, $overwrites);
+    
+    $id = db_insert('lk_vku')->fields($fields)->execute();
+    $vku = new \VKUCreator($id);
+    \LK\VKU\Data\VKUUserManager::addDefaultPages($vku);
+    
+    return $vku;
   }
 
   /**

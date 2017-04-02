@@ -2,23 +2,21 @@
 /** Template für alle Kampagnen vor den Lizenzen */
   print $admin;  
  
-  $id = $vku -> getId();
-  $vku = new VKUCreator($id);
-  $file = $vku -> get('vku_ready_filename');
-  $status = $vku -> getStatus();
+$id = $vku -> getId();
+$vku = new VKUCreator($id);
+$file = $vku -> get('vku_ready_filename');
+$status = $vku -> getStatus();
+
+$ppt = false;
   
-  $ppt = false;
-  
-  if(vku_is_update_user_ppt()){
-      $ppt = $vku -> get("vku_ppt_filename");
-      if($ppt){
-        $ppt = true;
-      }     
-   }   
+if(vku_is_update_user_ppt() && $vku->canGeneratePPTX()){
+  $ppt = $vku -> get("vku_ppt_filename");
+  if($ppt){
+    $ppt = true;
+  }     
+}   
       
-   $company = $vku -> get("vku_company");  
-  
-  
+$company = $vku -> get("vku_company");  
 ?>
 
 <div class="clearfix"><a class="btn btn-default pull-right" href="<?php print url($vku -> userUrl()); ?>"><span class="glyphicon glyphicon-chevron-left"></span> Zurück zur Übersicht</a></div>

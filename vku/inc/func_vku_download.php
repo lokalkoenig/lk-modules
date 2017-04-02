@@ -7,14 +7,13 @@
  * @param int $vku_id
  * @param boolean $ppt
  */
-function _vku_download_vku($account, $vku_id, $ppt = false){
+function _vku_download_vku($account, $vku_id, $ppt = FALSE){
 
-  $vku = \LK\VKU\VKUManager::getVKU($vku_id, true);
+  $vku = \LK\VKU\VKUManager::getVKU($vku_id, TRUE);
   if(!$vku){
     drupal_goto("user");
   }
 
-  ob_clean();
   $status = $vku -> getStatus();
 
   $dir = 'sites/default/private/vku/';
@@ -39,15 +38,15 @@ function _vku_download_vku($account, $vku_id, $ppt = false){
    $company = $vku -> get('vku_company');
 
   if(!$company){
-      $file_name_out = "Ihre_Verkaufsunterlage." . $extension;
+    $file_name_out = "Ihre_Verkaufsunterlage." . $extension;
   }
   else {
     $file_name_out = "Ideen_fuer_". ucfirst(transliteration_clean_filename($company)) ."." . $extension;
   }
 
-  $vku ->logEvent('download', "VKU wurde heruntergeladen (". $file_name_out .")");
+  $vku ->logEvent('Download', "VKU wurde heruntergeladen (". $file_name_out .")");
 
-
+  ob_clean();
   header('Content-Description: File Transfer');
   header("Content-Type: ". $mime);
   header('Expires: 0');

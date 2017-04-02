@@ -17,13 +17,12 @@ function _vku_current_delete($id){
   }
 
   // Check Status
-  $status = $vku -> getStatus();
-  if(in_array($status, array("purchased", "purchased_done"))){
+  if(!$vku->isDeleteAble()) {
     drupal_set_message("Die Verkaufsunterlage kann nicht gelöscht werden.");
     drupal_goto($vku ->url());
-    drupal_exit();
   }
-      
+
+  $status = $vku -> getStatus();
   $author = $vku -> getAuthor();
   $pagemanager = new \LK\VKU\PageManager($vku);
 
@@ -33,8 +32,8 @@ function _vku_current_delete($id){
     drupal_set_message($msg);
   }
   else {
-    if($status == 'template'){
-      $vku ->logEvent("remove-vku", "Vorlage wurde gelöscht.");
+    if($status === 'template'){
+      $vku ->logEvent("Remove VKU", "Vorlage wurde gelöscht.");
       $pagemanager->removeVKU();
       drupal_goto('user/' . $author . '/vkusettings');
     }
@@ -46,5 +45,4 @@ function _vku_current_delete($id){
   }
       
   drupal_goto('user/' . $author . '/vku');
-  drupal_exit();
 }

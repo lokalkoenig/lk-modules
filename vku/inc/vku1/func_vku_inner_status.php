@@ -50,5 +50,3 @@ global $user;
 	$array["goto"] = '<front>';
 	lk_check_ajaxrequest($array);
 }
-
-?>

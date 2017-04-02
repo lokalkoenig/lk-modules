@@ -29,7 +29,7 @@ function vku2_generate_form(VKUCreator $vku){
    
    $title = $vku -> get("vku_title");
    if(!$title){
-       $title = 'NEU';
+    $title = 'NEU';
    }
    
    lk_set_subtitle('<span class="vku-title">' . $title . '</span><span class="pull-right label label-primary label-vku-editor">VKU Editor 2.0</span>');
@@ -86,5 +86,5 @@ function vku2_get_ausgaben_hinweis(VKUCreator $vku, $user_uid){
         
    }   
     
-return false;    
+  return false;
 }

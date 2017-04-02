@@ -42,8 +42,7 @@ function vku_get_active_id_count(){
     // New VKU Request
     if(isset($_POST["vku_new"])){
        
-        
-        $vku = new VKUCreator('new');
+      $vku = \LK\VKU\VKUManager::createEmptyVKU(\LK\current());
         if($_POST["vku_title"]){
            $vku ->set('vku_title', $_POST["vku_title"]);
         }
@@ -53,7 +52,7 @@ function vku_get_active_id_count(){
         $vku ->addKampagne($node -> nid);
         
         $max_nids = variable_get("lk_vku_add_max", 3);
-        $vku ->logEvent('nodeadded', 'Kampagne ' . $node -> title . " (". $node -> nid .") wurde hinzugefügt"); 
+        $vku ->logEvent('VKU Kampagne', 'Kampagne ' . $node -> title . " (". $node -> nid .") wurde hinzugefügt");
      
         $return = array();
         $return['msg'] = 'Die Kampagne <em>'. $node -> title . "</em> wurde Ihrer Verkaufsunterlage hinzugefügt";
@@ -106,32 +105,12 @@ function vku_get_active_id_count(){
          }   
     }
     elseif($count == 0) {
-      if(function_exists('vkuconnection_get_user_templates')){
-           $templates = vkuconnection_get_user_templates(); 
-           
-           if($templates AND $templates[0] -> vku_template_default){
-               $template = new VKUCreator($templates[0] -> vku_id);
-               $template ->logEvent('template', "Template wurde automatisch verwendet.");
-               $vku_id = $template ->cloneVku();
-           }
-           else {
-              $vku_new = new VKUCreator('new');
-              $vku_id = $vku_new -> getId(); 
-           }
-       } 
-       else {
-          $vku_new = new VKUCreator('new');
-          $vku_id = $vku_new -> getId();
-       } 
+      $vku_new = \LK\VKU\VKUManager::createEmptyVKU(\LK\current());
+      $vku_id = $vku_new -> getId();
     }
     else {
        $vku_id = vku_get_active_id(); 
-        
     }
-    
-   
-    
-    
    
      $vku = new VKUCreator($vku_id);
      $nodes = $vku -> getKampagnen();
@@ -175,7 +154,7 @@ function vku_get_active_id_count(){
              }
          }
          else {
-            $vku ->logEvent('nodeadded', 'Kampagne ' . $node -> title . " (". $node -> nid .") wurde hinzugefügt"); 
+            $vku ->logEvent('VKU Add Kampagne', 'Kampagne ' . $node -> title . " (". $node -> nid .") wurde hinzugefügt");
             $vku -> addKampagne($node -> nid);
             $vku_id = $vku -> getId();
          }

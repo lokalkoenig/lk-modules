@@ -1,11 +1,5 @@
 <?php
 
-
-function _vku_generate_final_vku($vku){
-  $manager = new \LK\VKU\Export\Manager($vku);
-  return $manager ->finalizeVKU();
-}
-
 function _vku_ontheflygenerate($account, $vku_id){
 global $user;
   
@@ -20,8 +14,10 @@ global $user;
   if($account -> uid != $vkuauthor AND !lk_is_moderator()){
     exit;
   }
-  
-  $result = _vku_generate_final_vku($vku);
+
+  $manager = new \LK\VKU\Export\Manager($vku);
+  $result = $manager ->finalizeVKU();
+
   $vku ->setStatus('ready');
 
   $return = array();
@@ -52,7 +48,7 @@ global $user;
   $return["downloadlink"] = url('user/' . $vkuauthor . "/vku/" . $vku_id . "/download");
   $return["filesize"] = format_size($filesize);
   
-  $vku ->logEvent('pdf', 'PDF generiert ('. $return["filesize"] .')');
+  $vku ->logEvent('VKU PDF', 'PDF generiert ('. $return["filesize"] .')');
   
   if(isset($_GET["ajax"])){
     drupal_json_output($return);
@@ -60,7 +56,7 @@ global $user;
   }  
   else {
     drupal_set_message("Der Download wurde erfolgreich erstellt.");
-    drupal_goto($vku -> getUrl());
+    drupal_goto($vku->url());
     drupal_exit();
   }
 }

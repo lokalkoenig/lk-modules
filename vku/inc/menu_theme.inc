@@ -424,7 +424,7 @@ function vku_menu_version1(&$items){
       'access callback' => 'lk_vku_access',
       'page callback' => '_vku_ontheflygenerate',
       'page arguments' => array(1, 3),
-      'file' => 'inc/func_generate_vku.php',
+      'file' => 'inc/vku1/func_generate_vku.php',
       'title' => 'Generierte Verkaufsunterlagen',
       'type' => MENU_CONTEXT_NONE); 
       

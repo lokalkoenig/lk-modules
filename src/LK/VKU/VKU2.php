@@ -85,10 +85,8 @@ class VKU2 extends PageManager {
     }
 
     $vku_updated -> setStatus('ready');
-
-    // Sets the PLZ-Sperre for Short time
-    $vku_updated -> setShortPlzSperre();
-
+    $vku_updated->setShortPlzSperre();
+  
     // Generate PDF
     $obj["pdf_download_link"] = \url($vku_updated ->downloadUrl());
     $obj["pdf_download_size"] = format_size($vku_updated -> get("vku_ready_filesize"));
@@ -97,12 +95,12 @@ class VKU2 extends PageManager {
     $obj["ppt_download_link"] = null;
     $obj["ppt_download_size"] = 0;
 
-    if(vku_is_update_user_ppt()):
+    if($vku_updated->canGeneratePPTX() && $vku_updated -> get("vku_ppt_filesize")) {
       // Generate PPT
       $obj["ppt_download_link"] = \url($vku_updated ->downloadUrlPPT());;
       $obj["ppt_download_size"] = format_size($vku_updated -> get("vku_ppt_filesize"));
-    endif;
-
+    }
+    
     return $obj;
   }
 
