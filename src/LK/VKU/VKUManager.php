@@ -162,8 +162,12 @@ class VKUManager {
     }
     
     // Logo position
-    $array["logo_position"] = $verlag -> getVerlagSetting("verlag_logo_position", 'left', 'value');
-    
+    $array["logo_position"] = $verlag -> getVerlagSetting("verlag_logo_position", 'left');
+
+    // Logo position
+    $array["hide_size_online"] = $verlag -> getVerlagSetting("verlag_online_formate", 'no');
+
+
     // Logos unten
     $logos = array();
     if(isset($verlag->profile['verlag']->field_verlag_marken_logos['und'])){

@@ -29,8 +29,6 @@ class RenderNode extends PPT_Base {
     var $online_max_height = 800;
     var $print_max_width = 900;
     
-    var $hide_online_label = 'no';
-    
     function getNode(){
       return $this -> node;  
     }   
@@ -44,7 +42,6 @@ class RenderNode extends PPT_Base {
     }
     
     function render($node){
-      $this -> hide_online_label = $this -> reference -> getSetting('hide_size_online');
       $this -> setNode($node);
         
       if($node -> vku_hide == false){
@@ -243,6 +240,8 @@ class RenderNode extends PPT_Base {
         $breite = $destinated_breite;
       }
 
+      $hide_online_label = $this -> reference -> getSetting('hide_size_online');
+
       $v = 0;
       $offset_y -= 10;
       foreach($medium->field_medium_varianten["und"] as $variante){
@@ -258,14 +257,19 @@ class RenderNode extends PPT_Base {
         $slideshape = array();
         $textshape = array();
         $x = 0;
-            
-        if($this -> hide_online_label == 'yes'):
-          $variante_title = $variante["title"];
-        else:
-          $variante_title = $name . " (". $variante["title"] .")";
-        endif;
 
-        $desc = $this->getPPT()->createRichTextShape()->setHeight(20)->setWidth(300)->setOffsetX($offset_x)->setOffsetY($offset_y - 60);
+        // different Online Label possibilities
+        if($hide_online_label === 'yes'){
+          $variante_title = trim($term -> field_medientyp_online_label["und"][0]["value"]) . " (". ($variante["title"]).")";
+        }
+        elseif($hide_online_label === 'no-label') {
+          $variante_title = $variante["title"];
+        }
+        else {
+          $variante_title = $term -> name . " (". $variante["title"]. ")";
+        }
+        
+        $desc = $this->getPPT()->createRichTextShape()->setHeight(20)->setWidth(300)->setOffsetX($offset_x)->setOffsetY($offset_y - 50);
         $this ->textRun($desc, $variante_title, 12);
             
         foreach($frames as $frame){
@@ -278,22 +282,19 @@ class RenderNode extends PPT_Base {
           if($count == ($x + 1)){
             $image = "sites/all/modules/lokalkoenig/vku/pages/refresh_000000_64.png";
           }
-                    
                 
           $slideshape[$x] = $slide2->createDrawingShape();
-          $slideshape[$x]->setName('logo_' . $x )->setPath($image)->setWidth(18)->setHeight(18)->setOffsetX($offset_x + 1 + $breite - 18)->setOffsetY($offset_y - 20);
-        
+          $slideshape[$x]->setName('logo_' . $x )->setPath($image)->setWidth(18)->setHeight(18)->setOffsetX($offset_x + 2 + $breite - 18)->setOffsetY($offset_y - 20);
           $textshape[$x] = $slide2->createRichTextShape()->setHeight(20)->setWidth(90)->setOffsetX($offset_x + 10)->setOffsetY($offset_y - 30);
           $textshape[$x] -> getActiveParagraph()->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT)->setVertical(Alignment::VERTICAL_BASE);
           $this ->textRun($textshape[$x], 'Frame ' . ($x + 1), 10, false, "FFFFFF");
-
           $textshape[$x] -> setInsetTop(12);
                 
           $slideshape[$x] = $slide2->createDrawingShape();
-          $slideshape[$x]->setName('logo_' . $x )->setPath($frame)->setWidth($breite)->setHeight($hoehe)->setOffsetX($offset_x + 1)->setOffsetY($offset_y);
+          $slideshape[$x]->setName('logo_' . $x )->setPath($frame)->setWidth($breite)->setHeight($hoehe)->setOffsetX($offset_x + 2)->setOffsetY($offset_y);
           $slideshape[$x]->getBorder()->setColor($color_black)->setLineStyle(Border::LINE_SINGLE)->setDashStyle(Border::DASH_SOLID);
 
-          $slideshape[$x . 'a'] = $slide2->createRichTextShape()->setWidth($breite)->setHeight($hoehe)->setOffsetX($offset_x + 1)->setOffsetY($offset_y);
+          $slideshape[$x . 'a'] = $slide2->createRichTextShape()->setWidth($breite)->setHeight($hoehe)->setOffsetX($offset_x + 2)->setOffsetY($offset_y);
           $slideshape[$x . 'a']->getBorder()->setColor($color_black)->setLineStyle(Border::LINE_SINGLE)->setDashStyle(Border::DASH_SOLID);
           $offset_x += $breite + 10;
           $x++;
@@ -307,11 +308,10 @@ class RenderNode extends PPT_Base {
           $offset_x = $offset_x_base;
 
           if($offset_y + $hoehe > $this -> online_max_height){
-              $offset_y = $offset_y_base - 10;
-              $this -> finalize();
-
-              $slide2 = $this ->createSlide();
-              $this ->addOnlineMediumHeader($medium);
+            $offset_y = $offset_y_base - 10;
+            $this -> finalize();
+            $slide2 = $this ->createSlide();
+            $this ->addOnlineMediumHeader($medium);
           }    
         }
       
