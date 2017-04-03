@@ -36,7 +36,6 @@ class PageManager extends Data\VKUDataManipulator {
     'node' => '\\LK\\VKU\\Pages\\PageKampagne',
   ];
   
-  var $save_dir = "sites/default/private/vku";
   var $vku = null;
 
   /**

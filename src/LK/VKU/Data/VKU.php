@@ -13,7 +13,7 @@ class VKU {
   var $vku_data = [];
   var $LOG_CATEGORY = 'VKU';
   var $id = NULL;
-
+ 
   /**
    * Constructs a VKU
    *
@@ -178,7 +178,7 @@ class VKU {
   function setStatus($status){
 
     // VKU is completed
-    if($status == 'ready'){
+    if($status === 'ready'){
       $this->setAction('vku-completed', $this ->getId());
       \LK\Stats::countGeneratedVKU($this);
     }
@@ -400,7 +400,7 @@ class VKU {
    * @return string
    */
   function userUrl(){
-  	return 'user/' . $this -> getAuthor() . "/vku";
+    return 'user/' . $this -> getAuthor() . "/vku";
   }
 
   /**
@@ -409,7 +409,7 @@ class VKU {
    * @return string
    */
   function renewUrl(){
-       return 'user/' . $this -> getAuthor() . "/vku/" . $this -> getId() . "/renew";
+    return 'user/' . $this -> getAuthor() . "/vku/" . $this -> getId() . "/renew";
   }
 
   /**
@@ -418,7 +418,7 @@ class VKU {
    * @return string
    */
   function removeUrl(){
-     return $this -> vku_url() . "/delete";
+    return $this -> vku_url() . "/delete";
   }
 
   /**
@@ -427,7 +427,7 @@ class VKU {
    * @return string
    */
   function downloadUrlPPT(){
-      return 'user/' . $this -> getAuthor() . "/vku/" . $this -> getId() . "/download/ppt";
+    return 'user/' . $this -> getAuthor() . "/vku/" . $this -> getId() . "/download/ppt";
   }
 
   /**
@@ -436,7 +436,7 @@ class VKU {
    * @return string
    */
   function downloadUrl(){
-      return 'user/' . $this -> getAuthor() . "/vku/" . $this -> getId() . "/download";
+    return 'user/' . $this -> getAuthor() . "/vku/" . $this -> getId() . "/download";
   }
 
   /**
@@ -484,7 +484,7 @@ class VKU {
   function hasLizenzen(){
     $id = $this -> getId();
 
-    $test = db_query("SELECT count(*) as count FROM lk_vku_lizenzen WHERE vku_id=:id", [':id' => $this->getId()]);
+    $test = db_query("SELECT count(*) as count FROM lk_vku_lizenzen WHERE vku_id=:id", [':id' => $id]);
     $result = $test -> fetchObject();
     
     if($result -> count == 0){
@@ -527,13 +527,25 @@ class VKU {
       return FALSE;
     }
 
+    // Check for files
+    $id = $this->getId();
+    $dir = \LK\VKU\Export\Manager::save_dir;
+    
+    if(file_exists($dir . '/' . $id . '.pdf')) {
+      unlink($dir . '/' . $id . '.pdf');
+    }
+
+    if(file_exists($dir . '/' . $id . '.pptx')) {
+      unlink($dir . '/' . $id . '.pptx');
+    }
+
     $this -> removePLZSperren();
     $this ->logEvent('vku_remove', "VKU-Daten entferenen");
 
-    db_query("DELETE FROM lk_vku WHERE vku_id=:id", [':id' => $this->getId()]);
-    db_query("DELETE FROM lk_vku_data WHERE vku_id=:id", [':id' => $this->getId()]);
-    db_query("DELETE FROM lk_vku_data_categories WHERE vku_id=:id", [':id' => $this->getId()]);
-
+    db_query("DELETE FROM lk_vku WHERE vku_id=:id", [':id' => $id]);
+    db_query("DELETE FROM lk_vku_data WHERE vku_id=:id", [':id' => $id]);
+    db_query("DELETE FROM lk_vku_data_categories WHERE vku_id=:id", [':id' => $id]);
+ 
     return TRUE;
   }
 

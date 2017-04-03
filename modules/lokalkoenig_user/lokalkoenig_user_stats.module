@@ -66,6 +66,42 @@ function lk_agenturabrechnung_access($agentur){
 return false;
 }
 
+/**
+ * Shows the current Team-Stats
+ *
+ * @param \LK\Team $team
+ * @return string
+ */
+function lokalkoenig_user_stats_page_team(\LK\Team $team){
+
+  $tabs = '';
+  $team_id = $team->getId();
+  $url = 'team/' . $team_id . '/stats';
+
+  if(arg(3) === 'weekly' && lk_is_moderator()) {
+    $stats = new \LK\Stats\Views\StatsViewerWeekly('team', $team_id);
+
+    drupal_set_title('Wochenstatistiken');
+
+    $tabs = \LK\UI\Tabs::render([
+      ['title' => 'Monatsstatistiken', 'url' => url($url)],
+      ['title' => 'Wochenstatistiken', 'url' => url($url . '/weekly'), 'active' => TRUE]]);
+  }
+  else {
+    $stats = new \LK\Stats\Views\StatsViewer('team', $team_id);
+
+    drupal_set_title('Monatsstatistiken');
+    
+    if(lk_is_moderator()) {
+      $tabs = \LK\UI\Tabs::render([
+        ['title' => 'Monatsstatistiken', 'url' => url($url), 'active' => TRUE],
+        ['title' => 'Wochenstatistiken', 'url' => url($url . '/weekly')]]);
+    }
+  }
+
+  return $tabs . $stats->render();
+}
+
 
 function lokalkoenig_user_stats_page_verlag($verlag){
 

@@ -35,5 +35,25 @@ class RemoveOrphanedFiles {
 
     // Remove some Entries from Watchdog
     db_query("DELETE FROM watchdog WHERE message='Login attempt failed for %user.' OR type IN ('access denied', 'page not found')");
+
+    $x = 0;
+    $vku_dir = \LK\VKU\Export\Manager::save_dir;
+    $dir_vku = opendir($vku_dir);
+    while($file = readdir($dir_vku)) {
+
+      if(in_array($file, ['.', '..'])) {
+        continue;
+      }
+
+      $explode = explode('.', $file);
+      $id = $explode[0];
+
+      $test = \LK\VKU\VKUManager::getVKU($id);
+      if(!$test) {
+        unlink($vku_dir . '/' . $file);
+        $x++;
+      }
+    }
+    closedir($dir_vku);
  }
 }

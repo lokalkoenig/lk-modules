@@ -138,7 +138,7 @@ class Kampagne {
     $manager = new \LK\Kampagne\SperrenManager();  
     $result = db_query('SELECT field_medium_node_nid as nid, entity_id, entity_type FROM {field_data_field_medium_node} WHERE field_medium_node_nid =:nid', array(':nids' => $this -> node -> nid));
     foreach ($result as $record) {
-       if($record -> entity_type == "plz"){
+       if($record -> entity_type === "plz"){
          $manager ->removeSperre($record -> entity_id);
        }
     }

@@ -201,11 +201,10 @@ class StatsViewer {
     $table_rendered = '<div class="well well-white">' . theme('table', array('header' => array("", $monat, $this->time_label_prev, "%"), 'rows' => $table)) . '</div>';
 
     if(lk_is_moderator()) {
-      if(!in_array($this->stats_type, ['user', 'user-weekly', 'team', 'team-weekly'])) {
+      if(!in_array($this->stats_type, ['user', 'user-weekly'])) {
         $table_rendered .= $this->getUsersOnStatstype($stats);
       }
-
-      if(in_array($this->stats_type, ['user', 'user-weekly'])) {
+      else {
         $table_rendered .= $this->getUserSearches($stats);
       }
     }
@@ -271,25 +270,27 @@ class StatsViewer {
     return '<div class="well well-white"><h4>Suchen</h4>'. $user_table_rendered .'</div>';
   }
 
+  /**
+   * Displays detailed Stats
+   *
+   * @param array $stats
+   * @return string
+   */
   private function getUsersOnStatstype($stats) {
 
     $where = ["stats_date='". $stats['stats_date'] ."'"];
-
-    if($this->stats_type === 'lk-weekly') {
+    if(get_class($this) === 'LK\Stats\Views\StatsViewerWeekly') {
       $where[] = "stats_user_type='user-weekly'";
     }
-    elseif($this->stats_type === 'lk') {
+    else {
       $where[] = "stats_user_type='user'";
     }
-    elseif($this->stats_type === 'verlag-weekly') {
-      $where[] = "stats_user_type='user-weekly' AND user_stats_verlag_uid='". $stats['stats_bundle_id'] ."'";
-    }
-    elseif($this->stats_type === 'verlag') {
-      $where[] = "stats_user_type='user' AND user_stats_verlag_uid='". $stats['stats_bundle_id'] ."'";
-    }
-    else {
 
-      return ;
+    if($stats['stats_user_type'] === 'verlag-weekly' || $stats['stats_user_type'] === 'verlag') {
+      $where[] = "user_stats_verlag_uid='". $stats['stats_bundle_id'] ."'";
+    }
+    elseif($stats['stats_user_type'] === 'team' || $stats['stats_user_type'] === 'team-weekly') {
+      $where[] = "user_stats_team_id='". $stats['stats_bundle_id'] ."'";
     }
 
     $base = 'stats';

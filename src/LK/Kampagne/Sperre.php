@@ -15,25 +15,26 @@ namespace LK\Kampagne;
  */
 class Sperre {
     
-    use \LK\Log\LogTrait;
-    var $LOG_CATEGORY = "PLZ";
-  
-    var $manager = null;
-    var $entity = null;
-    
-    function __construct(SperrenManager $manager, $id = 0) {
-        $this->manager = $manager;
-        
-        if($id){
-            $this -> entity = entity_load_single('plz', $id);
-            if(!$this -> entity){
-                throw new \Exception("Can not find PLZ " . $id);
-            }
-        }
-        else {
-             $this -> entity = entity_create('plz', array('type' => "plz"));
-        }
+  use \LK\Log\LogTrait;
+  var $LOG_CATEGORY = "PLZ";
+
+  var $manager = null;
+  var $entity = null;
+
+  function __construct(SperrenManager $manager, $id = 0) {
+
+    $this->manager = $manager;
+
+    if($id){
+      $this -> entity = entity_load_single('plz', $id);
+      if(!$this -> entity){
+          throw new \Exception("Can not find PLZ " . $id);
+      }
     }
+    else {
+      $this -> entity = entity_create('plz', array('type' => "plz"));
+    }
+  }
     
    /**
     * Sets the Ausgaben, therefor the PLZ

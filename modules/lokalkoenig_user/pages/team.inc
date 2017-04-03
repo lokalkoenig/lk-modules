@@ -46,6 +46,7 @@ global $user;
     drupal_goto('<front>');
     drupal_exit();  
   }
+
   $leiter = $team -> getLeiter();
   $verlag = $team -> getVerlag();
   $verlag_obj = \LK\get_user($verlag);
@@ -107,8 +108,7 @@ global $user;
       break;
       
     case 'stats';
-      $obj = new \LK\Stats\Views\StatsViewer('team', $team->getId());
-      return $tabs . $obj->render();
+      return $tabs . lokalkoenig_user_stats_page_team($team);
       break;
       
     case 'abrechnung':
@@ -120,10 +120,10 @@ global $user;
       return $tabs. team_show_members_and_admin($team);
       break;  
   }
-  
-  
-return 'No Access';
-}  
+   
+  return 'No Access';
+}
+
 /**
  * 
  * @param LK\Team $team

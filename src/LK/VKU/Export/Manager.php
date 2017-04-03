@@ -10,6 +10,8 @@ use LK\VKU\PageManager;
  */
 class Manager extends PageManager {
 
+  const save_dir = "sites/default/private/vku";
+
   function __construct(\VKUCreator $vku) {
     parent::__construct($vku);
   }
@@ -22,16 +24,18 @@ class Manager extends PageManager {
    */
   function finalizeVKU(){
     $vku = $this->getVKU();
+    $dir = self::save_dir;
     $pdf = $this->generatePDF();
     $fn = $vku -> getId() . ".pdf";
-    $file_path = $_SERVER['DOCUMENT_ROOT'] . $this->save_dir .'/'. $fn;
+
+    $file_path = $_SERVER['DOCUMENT_ROOT'] . $dir .'/'. $fn;
     $pdf->Output($file_path, 'F');
 
     if($vku->canGeneratePPTX()) {
       $pptx = $this->generatePPTX();
-      $file_pptx = \LK\PPT\PPTX_Loader::save($pptx, $this->save_dir, $vku ->getId());
+      $file_pptx = \LK\PPT\PPTX_Loader::save($pptx, $dir, $vku ->getId());
       $vku -> set('vku_ppt_filename', $file_pptx);
-      $file_size = filesize($this->save_dir . '/' . $file_pptx);
+      $file_size = filesize($dir . '/' . $file_pptx);
       $vku -> set('vku_ppt_filesize', $file_size);
     }
 

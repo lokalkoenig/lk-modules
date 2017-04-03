@@ -181,14 +181,14 @@ class SperrenManager {
      * @return boolean True or False
      */
     function removeSperre($id){
-        $sperre = $this ->getSperre($id);
-                
-        if($sperre){
-            $sperre ->remove();
-            return true;
-        }
+      $sperre = $this ->getSperre($id);
+
+      if($sperre){
+        $sperre ->remove();
+        return TRUE;
+      }
     
-    return $false;    
+      return FALSE;
     }
     
 }
