@@ -95,7 +95,7 @@ class InvestitionsUebersicht extends Preset {
       'layout_content' => 0,
       'change_layout' => 0,
       'change_input' => 0,
-      'page_title' => 'Investitionsuebersicht',
+      'page_title' => 'Investitionsübersicht',
     );
   }
 }

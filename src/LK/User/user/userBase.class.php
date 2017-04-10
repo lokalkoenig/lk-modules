@@ -4,39 +4,50 @@ namespace LK;
 
 class User {
     
-    var $uid = 0;
-    var $name = null;
-    var $mail = null;
+  var $uid = 0;
+  var $name = null;
+  var $mail = null;
+  var $manager = null;
+  var $telefon = false;
+  var $team = 0;
+  var $verlag = 0;
+  var $user_data = null;
+  var $user_role = 0;
+  var $profile = null;
+  var $testverlag = 0;
+  var $role_name = 'user';
+  var $title;
+
+  private $current_ausgaben = array();
     
-    var $manager = null;
-    var $telefon = false;
-    var $team = 0;
-    var $verlag = 0;
-    var $user_data = null;
-    var $user_role = 0;
-    var $profile = null;
-    var $testverlag = 0;
-    var $role_name = 'user';
-    var $title;
-    
-    
-    private $current_ausgaben = array();
-    
-    function __construct($user, $reference) {
-        $this -> manager = $reference;
-        $this -> uid = $user -> uid;
-        $this -> name = $user -> name;
-        $this -> mail = $user -> mail;
-        return $this -> fetchUser($user);
+  function __construct($user, $reference) {
+    $this -> manager = $reference;
+    $this -> uid = $user -> uid;
+    $this -> name = $user -> name;
+    $this -> mail = $user -> mail;
+
+    return $this -> fetchUser($user);
+  }
+
+  function isLKTestverlag() {
+
+    $verlag = $this->getVerlag();
+
+    if($verlag == 352){
+
+      return TRUE;
     }
+
+    return FALSE;
+  }
+  
+  function getRole(){
+    return $this -> role_name;
+  }
     
-    function getRole(){
-        return $this -> role_name;
-    }
-    
-    function getUsername(){
-        return $this ->name;
-    }
+  function getUsername(){
+    return $this ->name;
+  }
     
     function getCreated(){
         return $this -> user_data -> created;
@@ -74,7 +85,7 @@ class User {
     function getTeam(){
         return $this -> team;
     }
-    
+
     function getTeamObject(){
         if($this -> team){
             return get_team($this  -> team);

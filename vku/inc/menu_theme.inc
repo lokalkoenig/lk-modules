@@ -138,6 +138,13 @@ function vku_theme(){
             ),
         );        
 
+   $themes["node_page_lizenz_purchased_small"] = array(
+    'template' => 'templates/node_page_lizenz_purchased_small', // your template file called custompage.tpl.php
+    'variables' => array(
+      'lizenz' => NULL,
+      "link" => NULL
+     ),
+    );
 
   $themes["node_page_lizenz_to_purchase"] = [
     'template' => 'templates/node_page_lizenz_to_purchase', // your template file called custompage.tpl.php

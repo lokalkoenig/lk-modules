@@ -222,7 +222,20 @@ function lokalkoenig_admin_views_data() {
       'handler' => 'views_handler_sort',
      )  
   );
-  
+
+  //lizenz_uid
+  $data['lk_vku_lizenzen']['lizenz_uid'] = array(
+    'title' => ('User-UID'),
+    'help' => ('Some example content that references a User-ID.'),
+    'relationship' => array(
+      'base' => 'users',
+      'field' => 'lizenz_uid',
+      'base field' => 'uid',
+      'handler' => 'views_handler_relationship',
+      'label' => ('User ID'),
+    ),
+   );
+
   $data['lk_vku_lizenzen']['lizenz_verlag_uid'] = array(
     'title' => ('Verlag-ID'), 
     'help' => ('Some example content that references a User-ID.'),

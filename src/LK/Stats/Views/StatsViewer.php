@@ -345,10 +345,17 @@ class StatsViewer {
     $isuser = $this->stats_uid;
 
     $rows[1][0] .= ' ' .  l('<span class="glyphicon glyphicon-search"></span>', 'user/' . $isuser . "/vku", array("html" => true));
-    $rows[2][0] .= ' ' .  l('<span class="glyphicon glyphicon-search"></span>', 'user/' . $isuser . "/vku", array("html" => true, 'query' => array('vku_status_2' => 2)));
     $rows[3][0] .= ' ' . l('<span class="glyphicon glyphicon-search"></span>', 'merkliste', array("html" => true));
     $rows[4][0] .= ' ' .  l('<span class="glyphicon glyphicon-search"></span>', 'user/' . $isuser . "/searches", array("html" => true));
     $rows[5][0] .= ' ' .  l('<span class="glyphicon glyphicon-search"></span>', 'history', array("html" => true));
+
+
+    if(\LK\get_user($isuser)->isLKTestverlag()) {
+      $rows[2][0] .= ' ' .  l('<span class="glyphicon glyphicon-search"></span>', 'user/' . $isuser . "/lizenzen", array("html" => true));
+    }
+    else {
+      $rows[2][0] .= ' ' .  l('<span class="glyphicon glyphicon-search"></span>', 'user/' . $isuser . "/vku", array("html" => true, 'query' => array('vku_status_2' => 2)));
+    }
 
     return $rows;
   }

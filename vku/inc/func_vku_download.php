@@ -30,11 +30,14 @@ function _vku_download_vku($account, $vku_id, $ppt = FALSE){
     $mime = "application/pdf";
   }
 
-   if(!$filename OR !in_array($status, array('downloaded', 'ready'))){
+   if(!$filename OR !in_array($status, array('downloaded', 'ready', 'deleted'))){
     drupal_goto("user");
    }
 
-   $vku -> setStatus('downloaded');
+   if(!$vku ->is('deleted')) {
+    $vku -> setStatus('downloaded');
+   }
+  
    $company = $vku -> get('vku_company');
 
   if(!$company){

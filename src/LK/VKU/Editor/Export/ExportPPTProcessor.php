@@ -217,7 +217,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
         $cell->getBorders()->getTop()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
         $cell->getBorders()->getRight()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
         $paragraph = $cell->getActiveParagraph();
-        $paragraph->getAlignment()->setMarginLeft(5)->setMarginTop(2)->setMarginBottom(5)->setMarginTop(2);
+        $paragraph->getAlignment()->setMarginLeft(5)->setMarginTop(2)->setMarginRight(5)->setMarginBottom(2);
         
         $cell_content_sanitized = $this->getTableMarkupSpripped($cell_content);
 

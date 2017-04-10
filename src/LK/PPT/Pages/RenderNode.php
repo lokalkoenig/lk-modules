@@ -72,7 +72,7 @@ class RenderNode extends PPT_Base {
       $slide2 = $this ->getCurrentSlide();
 
       $shape = $this->getPPT()->createRichTextShape()->setHeight(40)->setWidth(500)->setOffsetX(60)->setOffsetY(130);
-      $this ->textRun($shape, $medium -> title, 30, false);
+      $this ->textRun($shape, $medium -> title, 20, false);
     }
     
     
@@ -150,17 +150,17 @@ class RenderNode extends PPT_Base {
       $teaser_img = $node->field_kamp_teaserbild['und'][0]['uri'];
       $teaser_img_url = $this -> getImageFile($teaser_img, 'medium');
 
-      $this->getPPT()->addImage($teaser_img_url, ['width' => 200, "offsetX" => 150, "offsetY" => 140]);
+      $this->getPPT()->addImage($teaser_img_url, ['width' => 200, "offsetX" => 150, "offsetY" => 140 + 20]);
 
 
-      $shape = $this->getPPT()->createRichTextShape()->setHeight(40)->setWidth(500)->setOffsetX(400)->setOffsetY(130);
+      $shape = $this->getPPT()->createRichTextShape()->setHeight(40)->setWidth(500)->setOffsetX(400)->setOffsetY(130 + 20);
       $textRun = $shape->createTextRun($title);
-      $textRun->getFont()->setBold(true)->setSize(30);
+      $textRun->getFont()->setBold(true)->setSize(23);
 
       $shape -> createBreak();
       $shape -> createBreak();
 
-      $this ->textRun($shape, $subtitle, 26);
+      $this ->textRun($shape, $subtitle, 20);
 
       $shape -> createBreak();
       $shape -> createBreak();
@@ -195,7 +195,7 @@ class RenderNode extends PPT_Base {
         $shape->setName('logo')->setPath($teaser_img_url)->setHeight(530)->setOffsetX(350)->setOffsetY(100);
         
         $shape = $slide2->createRichTextShape()->setHeight(40)->setWidth(500)->setOffsetX(60)->setOffsetY(180);
-        $this ->textRun($shape, $title, 30, false);
+        $this ->textRun($shape, $title, 20, false);
     
         $shape2 = $slide2->createRichTextShape()->setWidth(300)->setOffsetX(60)->setOffsetY(250);
         $this ->textRun($shape2, $teaser_text, 14);
@@ -205,7 +205,7 @@ class RenderNode extends PPT_Base {
     
     function addOnlineMediumHeader($medium){
       $shape = $this->getPPT()->createRichTextShape()->setHeight(40)->setWidth(500)->setOffsetX(60)->setOffsetY(130);
-      $this ->textRun($shape, $medium -> title, 30, false);
+      $this ->textRun($shape, $medium -> title, 20, false);
       
       $shape2 = $this->getPPT()->createRichTextShape()->setHeight(40)->setWidth(500)->setOffsetX(400)->setOffsetY(140);
       $this ->textRun($shape2, 'Animiertes Banner', 16, false);

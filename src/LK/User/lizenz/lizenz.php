@@ -1,39 +1,33 @@
 <?php
 namespace LK;
 
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+use LK\Log\LogTrait;
 
 class Lizenz {
   
-   use \LK\Log\LogTrait; 
-  
-   var $id = null;
-   var $data;
-   var $vku_id;
-   var $ausgaben = array();
-   
-   
-   function __construct($id) {
-       $dbq2 = db_query("SELECT * FROM lk_vku_lizenzen WHERE id='". $id ."'");
-       $lizenz = $dbq2 -> fetchObject();
-       
-       if(!$lizenz){
-           return ;
-       }
-   
-       $this -> data = $lizenz;
-       $this -> id = $id;
-       $this -> vku_id = $this -> data -> vku_id;
-       
-       $dbq = db_query("SELECT ausgabe_id FROM lk_vku_lizenzen_ausgabe WHERE lizenz_id='". $id ."'");
-       foreach($dbq as $all){
-            $this -> ausgaben[] = $all -> ausgabe_id;
-       } 
-   }
+  use LogTrait;
+  var $id = null;
+  var $data;
+  var $vku_id;
+  var $ausgaben = array();
+
+  function __construct($id) {
+    $dbq2 = db_query("SELECT * FROM lk_vku_lizenzen WHERE id='". $id ."'");
+    $lizenz = $dbq2 -> fetchObject();
+
+    if(!$lizenz){
+        return ;
+    }
+
+    $this -> data = $lizenz;
+    $this -> id = $id;
+    $this -> vku_id = $this -> data -> vku_id;
+
+    $dbq = db_query("SELECT ausgabe_id FROM lk_vku_lizenzen_ausgabe WHERE lizenz_id='". $id ."'");
+    foreach($dbq as $all){
+         $this -> ausgaben[] = $all -> ausgabe_id;
+    }
+  }
    
    /**
     * Gets an Object for the Template
@@ -104,6 +98,17 @@ class Lizenz {
    }
    
    /**
+    * Lizenz is Downloadable now
+    * 
+    * @return boolean
+    */
+   function isDownloadable(){
+
+     $test = $this->canDownload();
+     return $test['access'];
+   }
+
+   /**
     * Checks if the Lizenz can be downloaded or not
     * 
     * @return Array Descriptions
@@ -164,7 +169,7 @@ class Lizenz {
        $downloads = array();
        $db2 = db_query("SELECT * FROM lk_vku_lizenzen_downloads WHERE lizenz_id='". $this -> id ."'");
        foreach($db2 as $all2){
-          $downloads[] = u($all2 -> uid) . " (". format_date($all2 -> download_date) .")"; 
+          $downloads[] = u($all2 -> uid) . " <small>(". date('d.m.Y', $all2 -> download_date) .")</small>";
        } 
        
    return $downloads;    
@@ -273,33 +278,58 @@ class Lizenz {
   }
 
   /**
+   * Gets the PLZ of the Lizenz
+   *
+   * @return boolean|\LK\Kampagne\Sperre
+   */
+  function getPLZSperre() {
+
+    if(!$this -> data -> plz_sperre_id){
+
+      return FALSE;
+    }
+
+    $manager = new \LK\Kampagne\SperrenManager();
+    $sperre = $manager ->getSperre($this -> data -> plz_sperre_id);
+
+    return $sperre;
+  }
+
+  /**
    * Gets a Summary of the Lizenz
    *
    * @return string
    */
   function getSummary(){
+
+    $current = \LK\current();
+
     $vku = new \VKUCreator($this -> vku_id);
     $node = node_load($this -> data -> nid);
     $array = array();
 
-    $array['Kampagne'] = l($node->title, 'node/'. $node->nid) . ' ('. $node -> sid .')';
-    $array['Benutzer'] = \LK\u($this -> data -> lizenz_uid);
+    if($this -> data -> lizenz_uid !== $current->getUid()) {
+      $array['Benutzer'] = \LK\u($this -> data -> lizenz_uid);
+    }
+    
     $array['Lizenziert am'] = format_date($this -> data -> lizenz_date);
     $array['Downloads gültig bis'] = format_date($this -> data -> lizenz_until);
-    $array['VKU'] = l($vku ->getValue('vku_title'), $vku -> url(), array("html" => true));
+    $array['Verkaufsunterlage'] = $vku ->getValue('vku_title') . ' ['. $vku->getId() .']';
 
-    if($this -> data -> lizenz_verlag_uid && lk_is_moderator()){
-     $verlag = \LK\get_user($this -> data -> lizenz_verlag_uid);
-     $array['Verlag'] = (string)$verlag;
-
-     if($this -> data -> plz_sperre_id){
-        $manager = new \LK\Kampagne\SperrenManager();
-        $sperre = $manager ->getSperre($this -> data -> plz_sperre_id);
-        $date = strtotime($sperre->entity->field_plz_sperre_bis['und'][0]['value']);
-        $array['Lizenz gültig'] = format_date($date) . " <small>(Ablauf der Sperre)</small>";
-      }
+    if($current->isModerator()) {
+      $array['Verkaufsunterlage'] = l($array['Verkaufsunterlage'], $vku->url(), ['html' => TRUE]);
     }
 
+    if($this -> data -> lizenz_verlag_uid && $current->isModerator()){
+      $verlag = \LK\get_user($this -> data -> lizenz_verlag_uid);
+      $array['Verlag'] = (string)$verlag;      
+    }
+
+    $sperre = $this->getPLZSperre();
+    if($sperre){
+      $date = strtotime($sperre->entity->field_plz_sperre_bis['und'][0]['value']);
+      $array['Ablauf der PLZ-Sperre'] = date('d.m.Y', $date);
+    }
 
     $ausgaben = $this ->getAusgaben();
     $ausgaben_formatted = array();
@@ -312,29 +342,42 @@ class Lizenz {
       $array['Ausgaben'] = implode(" ", $ausgaben_formatted);
     }
 
+    $array['Downloads'] = '';
+    $downloads = $this ->getDownloads();
 
-
-    $data = '<span class="label label-default pull-right">Lizenz #' . $this->getId() . '</span>';
-    $data .= '<div class="row clearfix">';
-
-       // add a check, otherwise Drupal will break
-    if(lk_is_moderator() && arg(2) != "editlizenz"){
-      $data .= '<div class="col-xs-12">' . l('<span class="glyphicon glyphicon-pencil"></span> Lizenz editieren', $this ->getEditUrl(), array('html' => true, "query" => drupal_get_destination(), 'attributes' => array('class' => 'btn btn-sm btn-default'))) . "</div>";
+    if(!$downloads) {
+      $array['Downloads'] = '<em>Keine Downloads bisher</em>';
     }
+    else {
+      $array['Downloads'] = count($downloads) . ' &times; heruntergeladen';
+
+      if($current ->isModerator()) {
+        $array['Downloads'] .= '<ul class="small"><li>'. implode("</li><li>", $downloads) .'</li></ul>';
+      }
+    }
+ 
+    $data = '<div class="row clearfix">';
+    $data .= '<div class="col-xs-12"><span class="label label-default pull-right" style="margin-left: 10px;">Lizenz #' . $this->getId() . '</span>';
+
+    // add a check, otherwise Drupal will break
+    if($current->isModerator() && arg(2) != "editlizenz"){
+      $data .= l('<span class="glyphicon glyphicon-pencil"></span> Lizenz editieren', $this ->getEditUrl(), array('html' => true, "query" => drupal_get_destination(), 'attributes' => array('class' => 'btn btn-xs btn-default pull-right')));
+    }
+
+    $data .= '<h4 style="margin: 0; margin-bottom: 10px;">Kampagne: ' .l($node->title, 'node/'. $node->nid) . ' <small>'. $node -> sid .'</small></h4>';
+    $data .= '</div>';
 
     $data .= '<div class="col-xs-8">'. \LK\UI\DataList::render($array) .'</div>'
-           . '<div class="col-xs-4">';
-      
-    $downloads = $this ->getDownloads();
-    if($downloads){
-      $data .= '<strong>Downloads: (' . count($downloads) . ')</strong> <div>' . implode("</div><div>", $downloads) . '</div>';
-    } 
-    else {
-      $data .= '<em>Keine Downloads bisher</em>';
-    }
+           . '<div class="col-xs-4 text-right">';
 
+    $data .= \LK\UI\Kampagne\Picture::get($node->nid, ['height' => 150, 'width' => 150]);
     $data .= '</div>';
     $data .= '</div>';
+
+    if($this->isDownloadable() && $current->getUid() == $this->getAuthor()) {
+      $widget = theme('node_page_lizenz_purchased_small', ["lizenz" => $this->getTemplateData()]);
+      $data .= '<hr />' . $widget;
+    }
 
     return $data;
   }

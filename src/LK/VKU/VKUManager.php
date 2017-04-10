@@ -70,8 +70,18 @@ class VKUManager {
     return $result -> count;
   }
 
+  public static function getLizenzActiveCount($uid) {
 
- /**
+    $time = time() + (60*60*24*30);
+    $dbq = db_query('SELECT count(*) as count FROM lk_vku_lizenzen WHERE lizenz_uid=:uid AND lizenz_until<=:date AND lizenz_downloads <= 9',
+            [':uid' => $uid, ':date' => $time]);
+    $all = $dbq -> fetchObject();
+
+    return $all->count;
+  }
+
+
+   /**
    * Gets the Active VKU-ID of the given Account
    * 
    * @param int $uid 

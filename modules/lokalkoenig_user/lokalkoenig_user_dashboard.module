@@ -59,8 +59,12 @@ function _lokalkoenig_user_dashboard_links($account){
   }
 
  if(!$obj ->isAgentur()){
-     $links[] = array('link' => 'user/' . $uid . "/vku", 'title' => '<span class="glyphicon glyphicon-cloud-download"></span>&nbsp;&nbsp;Verkaufsunterlagen'); 
-  }
+    $links[] = array('link' => 'user/' . $uid . "/vku", 'title' => '<span class="glyphicon glyphicon-lock"></span>&nbsp;&nbsp;Verkaufsunterlagen');
+    
+    if($obj->isLKTestverlag()) {
+      $links[] = array('link' => 'user/' . $uid . "/lizenzen", 'title' => '<span class="glyphicon glyphicon-cloud-download"></span>&nbsp;&nbsp;Lizenz-Downloads'); 
+    }
+ }
   
   if(!$obj ->isAgentur()){
      $links[] = array("title" => '<span class="glyphicon glyphicon-tag"></span>&nbsp;&nbsp; Merkliste', 'link' => "merkliste");
