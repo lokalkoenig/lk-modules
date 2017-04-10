@@ -184,10 +184,10 @@ class RenderDefault extends PPT_Base {
     
         $slide = $this -> createSlide();
         $vku = $this ->getVku();
-    
-        $title = $vku -> get("vku_title", true);
-        $sub_title = $vku -> get("vku_untertitel", true);
-        $company = $vku -> get("vku_company", true);
+
+        $title = $vku -> get("vku_title", FALSE);
+        $sub_title = $vku -> get("vku_untertitel", FALSE);
+        $company = $vku -> get("vku_company", FALSE);
 
         $title_bg_color = $this ->getColorFromHex($this -> getSetting('title_bg_color'));
         $shape_bg = $slide->createRichTextShape()->setHeight(300)->setWidth(960)->setOffsetX(0)->setOffsetY(100);

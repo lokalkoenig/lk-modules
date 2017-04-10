@@ -66,7 +66,7 @@ function lokalkoenig_user_profile_links_verlag(\LK\User $account){
   $links[] = array('title' => "Verlags-Statistiken", "link" => "user/" . $verlag_uid . "/verlagstats", 'icon' => "stats");
 
   if($verlag->isLKTestverlag()) {
-    $links[] = array('title' => "Lizenzen", "link" => "user/" . $verlag_uid . "/user_lizenzen", 'icon' => "cloud-download");
+    $links[] = array('title' => "Mitarbeiter-Lizenzen", "link" => "user/" . $verlag_uid . "/user_lizenzen", 'icon' => "cloud-download");
   }
 
   if($verlag -> showProtokoll()){

@@ -37,7 +37,11 @@ abstract class PPT_Base {
     function getFont(){
       return 'Calibri';
     }   
-    
+
+    /**
+     *
+     * @return \VKUCreator
+     */
     function getVku(){
         return $this -> reference ->getVku();
     }

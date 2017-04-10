@@ -77,9 +77,9 @@ endif;
       $vkuscount = \LK\VKU\VKUManager::getNotfinalCount($account -> uid);
       $links[] = ['title' => 'Verkaufsunterlagen', 'count' => $vkuscount, 'icon' => 'lock', 'url' => 'user/' . $account -> uid . '/vku'];
 
-      if($accessed->isLKTestverlag()) {
+      if($accessed->isLKTestverlag() || $accessed->isModerator()) {
         $lizenz_count = \LK\VKU\VKUManager::getLizenzActiveCount($account->uid);
-        $links[] = ['title' => 'Lizenz-Downloads', 'count' => $lizenz_count, 'icon' => 'cloud-download', 'url' => 'user/' . $account -> uid . '/lizenzen'];
+        $links[] = ['title' => 'Lizenzen', 'count' => $lizenz_count, 'icon' => 'cloud-download', 'url' => 'user/' . $account -> uid . '/lizenzen'];
       }
 
       $links[] = ['title' => 'Suchhistorie', 'icon' => 'search', 'url' => 'user/' . $account -> uid . '/searches'];

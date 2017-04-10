@@ -355,7 +355,12 @@ class Lizenz {
         $array['Downloads'] .= '<ul class="small"><li>'. implode("</li><li>", $downloads) .'</li></ul>';
       }
     }
- 
+
+    if($this->isDownloadable() && $current->getUid() == $this->getAuthor()) {
+      $widget = theme('node_page_lizenz_purchased_small', ["lizenz" => $this->getTemplateData()]);
+      $array['Download-Link'] = $widget;
+    }
+    
     $data = '<div class="row clearfix">';
     $data .= '<div class="col-xs-12"><span class="label label-default pull-right" style="margin-left: 10px;">Lizenz #' . $this->getId() . '</span>';
 
@@ -367,17 +372,15 @@ class Lizenz {
     $data .= '<h4 style="margin: 0; margin-bottom: 10px;">Kampagne: ' .l($node->title, 'node/'. $node->nid) . ' <small>'. $node -> sid .'</small></h4>';
     $data .= '</div>';
 
-    $data .= '<div class="col-xs-8">'. \LK\UI\DataList::render($array) .'</div>'
-           . '<div class="col-xs-4 text-right">';
+
+
+
+    $data .= '<div class="col-xs-9">'. \LK\UI\DataList::render($array) .'</div>'
+           . '<div class="col-xs-3 text-right">';
 
     $data .= \LK\UI\Kampagne\Picture::get($node->nid, ['height' => 150, 'width' => 150]);
     $data .= '</div>';
     $data .= '</div>';
-
-    if($this->isDownloadable() && $current->getUid() == $this->getAuthor()) {
-      $widget = theme('node_page_lizenz_purchased_small', ["lizenz" => $this->getTemplateData()]);
-      $data .= '<hr />' . $widget;
-    }
 
     return $data;
   }
