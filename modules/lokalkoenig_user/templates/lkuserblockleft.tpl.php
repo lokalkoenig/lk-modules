@@ -74,13 +74,17 @@ endif;
   $links = [];
   $links[] = ['title' => '&nbsp;Dashboard', 'icon' => 'home', 'url' => 'user/' . $account -> uid . '/dashboard'];
     if(!$accessed -> isAgentur()):
+
+      // Neues Feature
+      //if($accessed->isLKTestverlag() && $accessed ->isTeamleiter()) {
+      //  $links[] = ['title' => 'VKU Vorlagen', 'icon' => 'file', 'url' => 'user/' . $account -> uid . '/vku_team_editor'];
+      //}
+
       $vkuscount = \LK\VKU\VKUManager::getNotfinalCount($account -> uid);
       $links[] = ['title' => 'Verkaufsunterlagen', 'count' => $vkuscount, 'icon' => 'lock', 'url' => 'user/' . $account -> uid . '/vku'];
 
-      if($accessed->isLKTestverlag() || $accessed->isModerator()) {
-        $lizenz_count = \LK\VKU\VKUManager::getLizenzActiveCount($account->uid);
-        $links[] = ['title' => 'Lizenzen', 'count' => $lizenz_count, 'icon' => 'cloud-download', 'url' => 'user/' . $account -> uid . '/lizenzen'];
-      }
+      $lizenz_count = \LK\VKU\VKUManager::getLizenzActiveCount($account->uid);
+      $links[] = ['title' => 'Lizenzen', 'count' => $lizenz_count, 'icon' => 'cloud-download', 'url' => 'user/' . $account -> uid . '/lizenzen'];
 
       $links[] = ['title' => 'Suchhistorie', 'icon' => 'search', 'url' => 'user/' . $account -> uid . '/searches'];
       $links[] = ['title' => 'Statistiken', 'icon' => 'stats', 'url' => 'user/' . $account -> uid . '/stats'];

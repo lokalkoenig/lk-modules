@@ -46,12 +46,6 @@ $themes["lk_user_change_ausgaben"] = [
             'variables' => array('account' => NULL),
         );
  
-  $themes["lkteam_left"] = array(
-            'template' => 'templates/lkteam_left', // your template file called custompage.tpl.php
-            'variables' => array('team' => NULL),
-        );
- 
- 
  $themes["lk_user_block_top"] = array(
             'template' => 'templates/lk_user_block_top', // your template file called custompage.tpl.php
             'variables' => array("form" => NULL, "account" => NULL),

@@ -41,8 +41,11 @@ function lokalkoenig_user_info($account_user){
     if($action === 'remove'){
       $v = $account ->getVerlag();
       drupal_set_message($manager ->userRemove($account));
-
-      if($v){
+      
+      if($account->isVerlag()) {
+        drupal_goto('backoffice/users');
+      }
+      elseif($v){
         drupal_goto('user/'. $v .'/struktur');
       }
       else {

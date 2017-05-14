@@ -93,6 +93,12 @@ class Stats {
   
   private static function log($bundle, $user_id, $key){
 
+    // prevent from tracking on masquerading
+    if(isset($_SESSION['masquerading'])) {
+
+      return ;
+    }
+
     $id = self::__get_id($bundle, $user_id, date("Y-m"));
     $id2 = self::__get_id($bundle . '-weekly', $user_id, date('Y') . "-KW-". date('W'));
 

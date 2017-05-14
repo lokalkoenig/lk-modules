@@ -40,7 +40,7 @@ function lk_kampagnen_administrate_form_submit($form, &$form_state){
   
   if(lk_is_admin() AND $newstatus == 'permanent' AND $node -> lkstatus == 'deleted'){
       $node = node_load($form["#nid"]);
-      $msg = lk_note('node-delete', "Die Kampagne " . $node -> title . " [".$node -> nid  ."] wurde administrativ gelöscht");
+      $msg = lk_note('Remove Kampagne', "Die Kampagne " . $node -> title . " [".$node -> nid  ."] wurde administrativ gelöscht");
       drupal_set_message($msg);
       
       node_delete($node -> nid);

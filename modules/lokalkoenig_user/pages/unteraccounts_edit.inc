@@ -186,20 +186,17 @@ function lk_user_edit_ma($form, &$form_state){
      $form['profile_mitarbeiter']["field_team"]["#access"] = true;
      
     if($account_obj ->isTeamleiter()){
-        $form['profile_mitarbeiter']["field_team"]["#access"] = false;
-        // Prevent 0 Save
-        //dpm($form['profile_mitarbeiter']['field_team']);
-        //$...['und']['#default_value'][0]
-        $form['profile_mitarbeiter']['field_team']["und"]["#default_value"][0] = $account_obj -> getTeam();
+      $form['profile_mitarbeiter']["field_team"]["#access"] = false;
+      $form['profile_mitarbeiter']['field_team']["und"]["#default_value"][0] = $account_obj -> getTeam();
     } 
   
     if(!$account_obj ->isTelefonmitarbeiter()){
-        $form['profile_mitarbeiter']["field_ausgabe"]["#access"] = true;
-        $form['profile_mitarbeiter']['field_ausgabe']['und']['#required'] = true;
+        $form['profile_mitarbeiter']["field_ausgabe"]["#access"] = TRUE;
+        $form['profile_mitarbeiter']['field_ausgabe']['und']['#required'] = TRUE;
      }
      
-     if($account_obj ->isVerlagController()){
-        $form['profile_mitarbeiter']['field_team']['#access'] = false;
+     if($account_obj ->isVerlagController() || $account_obj->isVerlag()){
+        $form['profile_mitarbeiter']['field_team']['#access'] = FALSE;
      }
      
      $teams = $verlag_obj -> getTeams();
@@ -230,7 +227,7 @@ function lk_user_edit_ma($form, &$form_state){
      endif; 
      
      $form['profile_mitarbeiter']['field_ausgabe']["und"]["#default_value"] = $ma_ausgaben;
-  
+     $form['#process'][] = 'bootstrap_lk_form_horizontal';
      
   return $form;
 }

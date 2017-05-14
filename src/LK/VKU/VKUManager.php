@@ -72,8 +72,8 @@ class VKUManager {
 
   public static function getLizenzActiveCount($uid) {
 
-    $time = time() + (60*60*24*30);
-    $dbq = db_query('SELECT count(*) as count FROM lk_vku_lizenzen WHERE lizenz_uid=:uid AND lizenz_until<=:date AND lizenz_downloads <= 9',
+    $time = time();
+    $dbq = db_query('SELECT count(*) as count FROM lk_vku_lizenzen WHERE lizenz_uid=:uid AND lizenz_until>=:date AND lizenz_downloads <= 9',
             [':uid' => $uid, ':date' => $time]);
     $all = $dbq -> fetchObject();
 

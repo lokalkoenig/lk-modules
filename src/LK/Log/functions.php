@@ -67,17 +67,18 @@ function lk_log_verlag($message){
  * @return type
  */
 function lk_note($type, $message, $uid = NULL){
-global $user;
+  global $user;
     
-    if(!$uid){
-        $uid = $user -> uid;
-    }
+  if(!$uid){
+    $uid = $user -> uid;
+  }
    
-    $log = new DebugLog($type . ": " . $message);
-    $log->set("uid", $uid);
-    $log ->save();
+  $log = new DebugLog($message);
+  $log->setSubcategory($type);
+  $log->set("uid", $uid);
+  $log ->save();
    
-return $message;  
+  return $message;
 }
 
 /**

@@ -260,8 +260,8 @@ global $user;
    
    if(arg(0) == 'user' AND arg(2) == 'edit' AND in_array(arg(3), array("mitarbeiter", 'verlag'))){
        if(!$current -> isVerlag()){
-            lk_note('debug', "Zugriff auf Funktion (". arg(3) .")");
-            drupal_goto('user/' . $current ->getUid());     
+        lk_note('debug', "Zugriff auf Funktion (". arg(3) .")");
+        drupal_goto('user/' . $current ->getUid());     
        }
     }
   
@@ -492,6 +492,8 @@ function lokalkoenig_user_form_alter(&$form, &$form_state, $form_id){
       else {
           pathtitle("user/x/edit");
       }
+
+      $form['#process'][] = 'bootstrap_lk_form_horizontal';
      
       if(lk_is_moderator()){
           if($form["#user_category"] == 'account' AND $form['#user']->uid){

@@ -50,10 +50,10 @@
     ?>                                        
       
       <tr>
-          <td><a href="<?php print url("user/" . $uid . "/ausgaben", array("query" => array("ausgabe" => $bereich -> getId()))); ?>"><?php print $bereich -> getTitle(); ?></a></td>
+        <td><?php print $bereich -> getTitle(); ?></td>
         <td><?php print $bereich -> getPlzFormatted(); ?></td>
-         <td><?php print $bereich -> getUserCount(); ?> 
-         </td>
+        <td><?php print $bereich -> getUserCount(); ?> 
+        </td>
           <?php if($current -> hasRight('edit ausgabe')): ?>
             <td><a href="<?php print url('user/' . $uid . '/ausgaben', array("query" => array('action' => "editausgabe", 'ausgabe' => $bereich -> getId()))); ?>" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-pencil"></span> Editieren</a></td>
          <?php endif; ?>

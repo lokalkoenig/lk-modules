@@ -25,6 +25,15 @@ function vku_editor_menu(){
       'title' => 'VKU Dokumente',
       'type' => MENU_LOCAL_TASK);
 
+  //$items['user/%user/vku_team_editor'] = array(
+  //    'access callback' => 'vku_editor_verlag_team_access',
+  //    'access arguments' => array(1),
+  //    'page callback' => 'vku_editor_page_team_cb',
+  //    'page arguments' => array(1),
+  //    'file' => 'pages/vku_team_editor.php',
+  //    'title' => 'VKU Dokumente (Team)',
+  //    'type' => MENU_LOCAL_TASK);
+
   $items['user/%user/vku_editor/settings'] = array(
       'access callback' => 'lk_verlag_access',
       'access arguments' => array(1),
@@ -45,6 +54,33 @@ function vku_editor_menu(){
   
   
 return $items;  
+}
+
+/**
+ * Verifies if Team-Access is there
+ *
+ * @param stdClass $account
+ * @return boolean
+ */
+function vku_editor_verlag_team_access($account) {
+
+  $current = \LK\current();
+  $obj = \LK\get_user($account->uid);
+  if(!$obj || !$obj->isTeamleiter()) {
+
+    return FALSE;
+  }
+
+  if(!$obj ->isLKTestverlag()) {
+
+    return FALSE;
+  }
+
+  if($current ->isModerator() || $obj === $current) {
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 /**

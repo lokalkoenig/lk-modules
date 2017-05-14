@@ -25,8 +25,8 @@ function _vku_create(){
     exit;
   }
   
-  $title_id =  $vku -> getPageId('title');
-  drupal_goto("vku/" . $id . "/edit/" . $title_id);
+  $title =  $vku -> getPageId('title'); 
+  drupal_goto("vku/" . $id . "/edit/" . $title['id']);
 }
 
 /**

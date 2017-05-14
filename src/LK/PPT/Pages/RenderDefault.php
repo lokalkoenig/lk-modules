@@ -145,14 +145,22 @@ class RenderDefault extends PPT_Base {
       $array_data[] = array('text' => $zip . " " . $town, 'size' => 16, 'bold' => false); 
       $array_data[] = array('text' => false);
 
+
+
       // Add Profile Image
       if($layout == 'default'){
-        $this->getPPT()->addImage($bild, array("height" => 300, "offsetX" => 60, "offsetY" => 260));
+        if($bild) {
+          $this->getPPT()->addImage($bild, array("height" => 300, "offsetX" => 60, "offsetY" => 260));
+        }
+
         $shape = $this->getPPT()->createRichTextShape();
         $shape->setHeight(300)->setWidth(500)->setOffsetX(310)->setOffsetY(260);
       }
       else {
-        $this->getPPT()->addImage($bild, array("height" => 200, "offsetX" => 60, "offsetY" => 140));
+        if($bild) {
+          $this->getPPT()->addImage($bild, array("height" => 200, "offsetX" => 60, "offsetY" => 140));
+        }
+        
         $shape = $this->getPPT()->createRichTextShape();
         $shape->setHeight(300)->setWidth(500)->setOffsetX(60)->setOffsetY(150 + 190);
       }

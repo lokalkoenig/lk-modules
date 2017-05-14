@@ -36,6 +36,16 @@ global $user;
   }
 }
 
+/**
+ * Make sure all Session Vars are destroyed
+ * on Logout
+ */
+function lokalkoenig_admin_user_logout() {
+  while(list($key, $val) = each($_SESSION)) {
+    unset($_SESSION[$key]);
+  }
+}
+
 
 /**
  * Sets the Param "field_kamp_suche" as default value on the 

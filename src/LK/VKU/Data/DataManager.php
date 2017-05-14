@@ -2,6 +2,8 @@
 
 namespace LK\VKU\Data;
 use LK\Admin\Interfaces\DataManager as DM;
+use LK\VKU\VKUManager;
+use LK\VKU\PageManager;
 
 /**
  * Description of DataManager
@@ -11,12 +13,13 @@ use LK\Admin\Interfaces\DataManager as DM;
 class DataManager extends DM {
 
   function removeUserData(\LK\User $acccount){
-    $manager = new \LK\VKU\PageManager();
+    
     $dbq = db_query('SELECT vku_id FROM lk_vku WHERE uid=:uid', [':uid' => $acccount ->getUid()]);
 
     $count = 0;
     foreach($dbq as $all){
-      $manager ->removeVKU(\LK\VKU\VKUManager::getVKU($all -> vku_id));
+      $manager = new PageManager(VKUManager::getVKU($all -> vku_id));
+      $manager ->removeVKU();
       $count++;
     }
 

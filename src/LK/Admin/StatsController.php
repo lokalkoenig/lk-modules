@@ -54,7 +54,7 @@ class StatsController {
      return '<div class="well well-white"><div class="well well-white"><strong>Überblick über die aktuelle Verwendung von Paketen und Medien-Uploads</strong></div>'. implode("", $table) .'</div>';    
     }
     
-    private function count_kampagnen_paket_media_size($pak_id , $media_size_id){
+    private static function count_kampagnen_paket_media_size($pak_id , $media_size_id){
           
         $dbq = db_query("SELECT count(*) as count "
                 . "FROM field_data_field_kamp_preisnivau p, node n,  field_data_field_medium_node m, field_data_field_medium_typ t "
@@ -67,7 +67,7 @@ class StatsController {
     }
     
     
-    private function count_kampagnen_paket($tid){
+    private static function count_kampagnen_paket($tid){
          $dbq = db_query("SELECT count(*) as count "
            . "FROM field_data_field_kamp_preisnivau p, node n WHERE n.nid=p.entity_id AND n.status='1' AND p.field_kamp_preisnivau_tid='". $tid ."'");
         $all = $dbq -> fetchObject();

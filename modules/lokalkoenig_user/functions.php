@@ -64,11 +64,8 @@ function lokalkoenig_user_profile_links_verlag(\LK\User $account){
   $links[] = array('title' => "Mitarbeiter", "link" => "user/" . $verlag_uid . "/struktur", 'icon' => "user");
   $links[] = array('title' => "Ausgaben", "link" => "user/" . $verlag_uid . "/ausgaben", 'icon' => "globe");
   $links[] = array('title' => "Verlags-Statistiken", "link" => "user/" . $verlag_uid . "/verlagstats", 'icon' => "stats");
-
-  if($verlag->isLKTestverlag()) {
-    $links[] = array('title' => "Mitarbeiter-Lizenzen", "link" => "user/" . $verlag_uid . "/user_lizenzen", 'icon' => "cloud-download");
-  }
-
+  $links[] = array('title' => "Mitarbeiter-Lizenzen", "link" => "user/" . $verlag_uid . "/user_lizenzen", 'icon' => "cloud-download");
+  
   if($verlag -> showProtokoll()){
     $links[] = array('title' => "Mitarbeiter Protokoll", "link" => "user/" . $verlag_uid . "/verlagsprotokoll", 'icon' => "list");
   }

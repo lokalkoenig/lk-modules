@@ -345,7 +345,7 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
  * Saves the Document
    *
    * @param array $data
-   * @return Document
+   * @return LK\VKU\Editor\Document
    */
   function saveDocument($data){
 
@@ -361,7 +361,6 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
       $document ->setUser($this->getAccount()->getUid());
     }
 
-
     $document ->setLayout($data['layout']);
     $document ->setCategory($data['category']);
     $document ->setPreset($data['preset']);
@@ -372,7 +371,7 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
     $document ->setPageTitle($data['page_title']);
     $document ->save();
 
-  return $document;
+    return $document;
   }
 
 
@@ -411,7 +410,6 @@ class Manager extends \LK\PXEdit\DyanmicLayout {
   /**
    * Gets the available Presets per Account
    *
-   * @param \LK\Verlag $account Account
    * @return array
    */
   function getPresetsAvailable(){

@@ -11,6 +11,7 @@
        "LK\\Solr\\Tests\\TestSolr": "SOLR: Solr Search Test (Date)",
        "LK\\Alert\\Test\\AlertTest": "SOLR: Alert Test",
        "LK\\Solr\\Tests\\MLTTest": "SOLR: Check More like this",
-       "LK\\Solr\\Tests\\Autocomplete": "SOLR: Autocomplete Test"
+       "LK\\Solr\\Tests\\Autocomplete": "SOLR: Autocomplete Test",
+      "LK\\Admin\\Tests\\UserTeamTest": "User Team Test"
     }]  
 }

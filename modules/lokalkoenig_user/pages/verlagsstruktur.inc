@@ -51,14 +51,14 @@ function lokalkoenig_user_verlag_ausgaben($verlag){
    
     // Edit the Team
    if($action == 'editteam' AND $current -> hasRight('edit team')){
-        if(isset($teams[$team] )){
-            drupal_set_title("Team editieren");
-            $id = $teams[$team] -> getId();
-            
-            $form = eck__entity__edit('team', 'team', $id);
-            return $form;
-        } 
+    if(isset($teams[$team] )){
+      drupal_set_title("Team editieren");
+      $id = $teams[$team] -> getId();
+
+      $form = eck__entity__edit('team', 'team', $id);
+      return $form;
     }
+  }
   
   drupal_set_title("Ausgaben");
   return theme("lk_ausgaben_admin", array("teams" => $teams, "verlag" => $verlag_obj, "bereiche" => $bereiche));
@@ -250,5 +250,3 @@ function lk_edit_team_submit(&$form, &$form_state){
   
   drupal_goto("team/" . $entity -> id);
 }
-
-?>

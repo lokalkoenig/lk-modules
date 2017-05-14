@@ -36,13 +36,17 @@ abstract class LogInterface {
              $this ->setContext($key, $val);
         }
     }
-    
+
+    final public function setSubcategory($category) {
+      $this -> set("sub_category", $category);
+    }
+
     final public function setCategory($category){
-        $this -> set("category", $category);
+      $this -> set("category", $category);
     }
     
     final function setNid($nid){
-        $this -> set("node_nid", $nid);
+      $this -> set("node_nid", $nid);
     }
     
     final function set($key, $val){

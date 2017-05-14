@@ -22,7 +22,7 @@ function _lk_privatemsg_autocomplete($string) {
   
   $matches = array();
   if ($string) {
-    $result = db_select('users')->fields('users', array('name', "uid"))->condition('name', db_like($string) . '%', 'LIKE')->range(0, 10)->execute();
+    $result = db_select('users')->fields('users', array('name', "uid"))->condition('status', 1)->condition('name', db_like($string) . '%', 'LIKE')->range(0, 10)->execute();
     foreach ($result as $user) {
       $matches[$save . $user->name . ", "] = (\LK\u($user->uid));
     }
@@ -30,6 +30,3 @@ function _lk_privatemsg_autocomplete($string) {
 
   drupal_json_output($matches);
 }
-
-
-?>

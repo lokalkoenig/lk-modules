@@ -54,16 +54,13 @@ function _lokalkoenig_user_dashboard_links($account){
   $links[] = array('link' => "messages", 'title' => '<span class="glyphicon glyphicon-envelope"></span>&nbsp;&nbsp; Nachrichten');
 
   if($obj ->isVerlag() OR $obj -> isVerlagController()){
-     $verlag_id = $obj ->getVerlag();
-     $links[] = array('link' => 'user/' . $verlag_id . "/struktur", 'title' => '<span class="glyphicon glyphicon-user"></span>&nbsp;&nbsp;Mitarbeiter-Accounts'); 
+    $verlag_id = $obj ->getVerlag();
+    $links[] = array('link' => 'user/' . $verlag_id . "/struktur", 'title' => '<span class="glyphicon glyphicon-user"></span>&nbsp;&nbsp;Mitarbeiter-Accounts'); 
   }
 
  if(!$obj ->isAgentur()){
-    $links[] = array('link' => 'user/' . $uid . "/vku", 'title' => '<span class="glyphicon glyphicon-lock"></span>&nbsp;&nbsp;Verkaufsunterlagen');
-    
-    if($obj->isLKTestverlag()) {
-      $links[] = array('link' => 'user/' . $uid . "/lizenzen", 'title' => '<span class="glyphicon glyphicon-cloud-download"></span>&nbsp;&nbsp;Lizenz-Downloads'); 
-    }
+  $links[] = array('link' => 'user/' . $uid . "/vku", 'title' => '<span class="glyphicon glyphicon-lock"></span>&nbsp;&nbsp;Verkaufsunterlagen');
+  $links[] = array('link' => 'user/' . $uid . "/lizenzen", 'title' => '<span class="glyphicon glyphicon-cloud-download"></span>&nbsp;&nbsp;Lizenzen');
  }
   
   if(!$obj ->isAgentur()){

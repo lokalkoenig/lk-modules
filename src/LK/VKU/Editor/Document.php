@@ -57,6 +57,10 @@ class Document {
       
    return $this;
   }
+
+  function setTeam($team_id) {
+    $this->setData('team_id', $team_id);
+  }
   
   /**
    * Gets the preset

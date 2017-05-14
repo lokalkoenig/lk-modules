@@ -9,10 +9,7 @@ global $user;
   $message = $vars['message'];
   
   // Kampagnen
-  if(
-    isset($vars['message']->field_msg_kampagnen['und']) 
-    && $vars['message']->field_msg_kampagnen['und']
-  ){
+  if(isset($vars['message']->field_msg_kampagnen['und']) && $vars['message']->field_msg_kampagnen['und']){
     $nodes = array();
     foreach($message->field_msg_kampagnen["und"] as $nodeobj){
       if($nodeobj["access"]){
@@ -44,29 +41,24 @@ global $user;
   
   // news
   if(isset($message->field_neuigkeit['und'][0]['target_id'])){
-      $entities = entity_load('neuigkeit', array($message->field_neuigkeit['und'][0]['target_id']));
-      $view = entity_view('neuigkeit', $entities, 'teaser');
+    $entities = entity_load('neuigkeit', array($message->field_neuigkeit['und'][0]['target_id']));
+    $view = entity_view('neuigkeit', $entities, 'teaser');
+
+    $vars['news'] = [
+        '#markup' => render($view),
+        '#weight' => 10,
+    ];
       
-      $vars['news'] = [
-          '#markup' => render($view),
-          '#weight' => 10,
-      ];
-      
-      // track it
-      track_read_neuigkeit($user -> uid, $message->field_neuigkeit['und'][0]['target_id']);
+    // track it
+    track_read_neuigkeit($user -> uid, $message->field_neuigkeit['und'][0]['target_id']);
   }
 }
 
 
 function lokalkoenig_messages_entity_view($entity, $type, $view_mode) {
     
-   if(
-        $type == "neuigkeit" && 
-        ($view_mode == 'teaser' || $view_mode == 'full') && 
-        isset($entity->field_suchwort['und'][0]['value'])
-    ){
+   if($type == "neuigkeit" && ($view_mode == 'teaser' || $view_mode == 'full') && isset($entity->field_suchwort['und'][0]['value'])){
      $suche = $entity->field_suchwort['und'][0]['value'];
-     
      
      if($suche){
          $search = array(
@@ -192,9 +184,9 @@ function lokalkoenig_messages_init(){
 function _lokalkoenig_messages_check_users(&$form, &$form_state){
    
     if(!isset($form_state["values"]["recipient"])){
-        return ;
+      return ;
     }
-    
+
     $to = _generate_to_options(true);
     
     $explode = explode(",", $form_state["values"]["recipient"]);
@@ -231,25 +223,25 @@ function _lokalkoenig_messages_check_users(&$form, &$form_state){
 function lk_theme_search_result_view($search){
 
   $solr = new \LK\Solr\Search();
-    $solr ->addFromQuery($search);
-    $count = $solr ->getCount();
+  $solr ->addFromQuery($search);
+  $count = $solr ->getCount();
     
-    if($count == 0){
-        return false;
-    }
+  if($count == 0){
+      return false;
+  }
 
-    $title = \LK\Solr\SearchQueryParser::toMarkup($search);
-    $link = \LK\Solr\SearchQueryParser::buildLink($search);
-    $solr ->setLimit(4);
-    $nodes = $solr ->getNodes();
-    
-    $array = [
-        'nodes' => $nodes, 
-        'total' => $count, 
-        'show' => count($nodes), 
-        'title' => $title, 
-        'link' => $link
-    ];
+  $title = \LK\Solr\SearchQueryParser::toMarkup($search);
+  $link = \LK\Solr\SearchQueryParser::buildLink($search);
+  $solr ->setLimit(4);
+  $nodes = $solr ->getNodes();
+
+  $array = [
+    'nodes' => $nodes,
+    'total' => $count,
+    'show' => count($nodes),
+    'title' => $title,
+    'link' => $link
+  ];
     
 return $array;
 }
@@ -291,7 +283,7 @@ return theme('lokalkoenig_messages_search_result', $array);
 
 
 function lokalkoenig_messages_form_alter(&$form, &$form_state, $form_id){
-  
+
    if($form_id == 'privatemsg_new'){
       $form["field_neuigkeit"]["#access"] = false;
       $form["field_such_query"]["#access"] = false;

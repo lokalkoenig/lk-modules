@@ -31,6 +31,12 @@ class TimeTracker {
   public function track(\LK\User $account){
     $this->account = $account;
 
+    // prevent from tracking on masquerading
+    if(isset($_SESSION['masquerading'])) {
+
+      return ;
+    }
+
     if(!isset($_SESSION['lk_timetrack_time']) || !isset($_SESSION['lk_timetrack_id'])) {
       $this->createNewTrack();
     }

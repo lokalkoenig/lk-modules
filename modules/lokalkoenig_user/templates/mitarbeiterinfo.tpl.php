@@ -87,7 +87,7 @@
   
   
   
-  <?php if(!$accessed -> isVerlag() AND $accessed ->getVerlag() AND $verlag AND $current -> hasRight("edit profile")) :?>
+  <?php if($accessed ->getVerlag() AND $verlag AND $current -> hasRight("edit profile") && $accessed != $current) :?>
   <a class="btn btn-sm btn-success" href="<?php print url("user/" . $verlag ->getUid() . "/struktur", array("query" => array("action" => "edit", "uid" => $account -> uid, "profile" => 1))); ?>"><span class="glyphicon glyphicon-pencil"></span> Account editieren</a>
   <?php endif; ?>
 </div>
