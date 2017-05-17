@@ -155,7 +155,7 @@ class LK_PDF extends \TCPDF {
     $logo = $this->getUserSettings('logo_oben');
     $verlag_logo_position = $this->getUserSettings('logo_position');
 
-    if($logo) {
+    if($logo && $verlag_logo_position !== 'bottom_right') {
       $logo_img = \LK\Files\FileGetter::get(image_style_url('ppt_logos', $logo));
 
       if($verlag_logo_position === 'right'){
@@ -189,6 +189,21 @@ class LK_PDF extends \TCPDF {
     $logos = $this->getUserSettings('logos_unten', []);
 
     $y = 25;
+    $verlag_logo_position = $this->getUserSettings('logo_position');
+
+    // Verlag logo bottom_right
+    if($verlag_logo_position === 'bottom_right') {
+      $logo = $this->getUserSettings('logo_oben');
+      
+      if(!$logo) {
+        return;
+      }
+      
+      $logo_img = \LK\Files\FileGetter::get(image_style_url('pxedit_footer_logo', $logo));
+      $this->Image($logo_img, (297 - 25 - 37), 193, 37);
+      return;
+    }
+
     foreach($logos as $logo){
       $logo_img = \LK\Files\FileGetter::get(image_style_url('pxedit_footer_logo', $logo));
       $this->Image($logo_img, $y, 193, 37);

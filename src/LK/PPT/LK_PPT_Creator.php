@@ -349,11 +349,12 @@ class LK_PPT_Creator {
       $shape2->getFill()->setFillType(Fill::FILL_SOLID)->setRotation(90)->setStartColor($color)->setEndColor($color);
       $header_logo = $this ->getSetting('logo_oben');
 
-      if($header_logo):
+      // Once position is not bottom_right
+      if($header_logo && $logo_pos !== 'bottom_right'):
         $shape = $currentSlide->createDrawingShape();
         $image = $this -> getImageFile($header_logo, "ppt_logos");
         $shape->setName('logo')->setDescription('logo')->setPath($image)->setHeight(60)->setOffsetX(60)->setOffsetY(20);
-     
+
         // when the Logo position is right side
         if($logo_pos === 'right'):
           $size = getimagesize($image);
@@ -373,19 +374,33 @@ class LK_PPT_Creator {
       $shape_footer->setOffsetX(0);
       $shape_footer->setOffsetY(621);
       $shape_footer->getFill()->setFillType(Fill::FILL_SOLID)->setRotation(90)->setStartColor($color)->setEndColor($color);
-        
-      $logos = $this ->getSetting('logos_unten');
+      
       $logo_height = 40;
-        
+      if($logo_pos === 'bottom_right' && $header_logo) {
+        $logo_img = \LK\Files\FileGetter::get(image_style_url('pxedit_footer_logo', $header_logo));
+        $shape_bottom = $currentSlide->createDrawingShape();
+        $size = getimagesize($logo_img);
+        $height = $size[1];
+        $width = $size[0];
+        $calc =  $logo_height / $height;
+        $calc_width = round($width * $calc);
+        $shape_bottom->setName('logo_bottom')
+          ->setDescription('logo')
+          ->setPath($logo_img)
+          ->setHeight($logo_height)
+          ->setOffsetX(960 - $calc_width - LK_PPT_MARGIN)
+          ->setOffsetY(650);
+      }
+
+      $logos = $this ->getSetting('logos_unten');
+
       if($logos):
         $offset_x = 60;
         $x = 0;
         $marken_shapes = array();
 
         foreach($logos as $logo){
-
           $logo_img = \LK\Files\FileGetter::get(image_style_url('pxedit_footer_logo', $logo));
-
           $size = getimagesize($logo_img);
           $height = $size[1];
           $width = $size[0];

@@ -172,7 +172,11 @@ function lokalkoenig_user_verlag_admin_settings_form($form, &$form_state, \LK\Ve
     '#type' => 'select',
     '#title' => 'Position des Logos',
     '#default_value' => $verlag ->getVerlagSetting('verlag_logo_position', 'left'),
-    '#options' => ['left' => 'Links (Standard)', 'right' => "Rechts"],
+    '#options' => [
+      'left' => 'Links (Standard)',
+      'right' => "Rechts",
+      'bottom_right' => 'Unten Rechts (Footer-Logos werden ausgeblendet)',
+     ],
     '#description' => 'Die Position des Logos in der Verkaufsunterlage',
   ];
 

@@ -181,13 +181,16 @@ class VKUManager {
     // Logos unten
     $logos = array();
     if(isset($verlag->profile['verlag']->field_verlag_marken_logos['und'])){
-        foreach($verlag->profile['verlag']->field_verlag_marken_logos['und'] as $logo){
-          $logos[] = $logo["uri"];
-        }
+      foreach($verlag->profile['verlag']->field_verlag_marken_logos['und'] as $logo){
+        $logos[] = $logo["uri"];
+      }
     }
-    
-    $array["logos_unten"] = $logos;
-   
+
+    // Wenn bottom_right dann keine Logos unten
+    if($array["logo_position"] != 'bottom_right') {
+      $array["logos_unten"] = $logos;
+    }
+ 
     // HG-Farbe VKU
     if($color = $verlag -> getVerlagSetting("vku_hintergrundfarbe", false, 'jquery_colorpicker')){
       $array["vku_hintergrundfarbe"] = $color;
