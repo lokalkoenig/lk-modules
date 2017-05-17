@@ -106,7 +106,11 @@ class LK_PDF extends \TCPDF {
 
   public function setUserSettings($settings){
     $this->_settings = $settings;
-    $this -> font_usage = $this->getUserSettings('', 'lato');
+    $font = $this->getUserSettings('font', 'lato');
+  
+    if($font === 'arial') {
+      $this -> font_usage = 'myarial';
+    }
 
     if($this -> font_usage === 'lato'){
       $this->AddFont('lato');
@@ -123,7 +127,7 @@ class LK_PDF extends \TCPDF {
 
   public function getUserSettings($key, $default = FALSE){
     if(isset($this->_settings[$key])){
-      return  $this->_settings[$key];
+      return $this->_settings[$key];
     }
 
     return $default;
