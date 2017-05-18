@@ -72,7 +72,6 @@ class PageDefault extends PageInterface {
     return $item;  
   }
   
-  
   /**
    * Gets the possibile Pages
    * 
@@ -82,24 +81,31 @@ class PageDefault extends PageInterface {
   function getPossibilePages($category){
     
     $items = [];
-    
+    $hide_documents = $this->getVKU()->getVerlagSetting('vku_standard_documents_hide', []);
+   
     if($category === 'print'){
-      $items["default-tageszeitung"] = self::getPageTitle('tageszeitung');
-      $items["default-wochen"] = self::getPageTitle('wochen');
+      $items["tageszeitung"] = self::getPageTitle('tageszeitung');
+      $items["wochen"] = self::getPageTitle('wochen');
     }
   
     if($category === 'online'){
-      $items["default-onlinewerbung"] = self::getPageTitle('onlinewerbung');
+      $items["onlinewerbung"] = self::getPageTitle('onlinewerbung');
     }
     
     if($category === 'sonstiges'){
-      $items["default-kplanung"] = self::getPageTitle('kplanung');
-      $items["default-kontakt"] = self::getPageTitle('kontakt');
+      $items["kplanung"] = self::getPageTitle('kplanung');
+      $items["kontakt"] = self::getPageTitle('kontakt');
     }
-    
-    return $items;
+
+    $return_items = [];
+    foreach($items as $key => $item) {
+      if(!in_array($key, $hide_documents)) {
+        $return_items['default-' . $key] = $item;
+      }
+    }
+
+    return $return_items;
   }
-  
   
   /**
    * Adds a PDF Page

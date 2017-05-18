@@ -565,28 +565,34 @@ class VKU {
   }
 
   /**
+   * Gets a Verlag-Render-Setting
+   *
+   * @param string $key
+   * @param mixed $default
+   */
+  function getVerlagSetting($key, $default) {
+    $account = $this->getAuthorObject();
+    if($account ->isModerator()) {
+      $verlag = \LK\get_user(LK_TEST_VERLAG_UID);
+    }
+    else {
+      $verlag = $account->getVerlagObject();
+    }
+
+    if(!$verlag) {
+      return $default;
+    }
+
+    $value = $verlag->getVerlagSetting($key, $default);
+    return $value;
+  }
+
+  /**
    * Active PPTX Generation for the User
    *
    * @return boolean
    */
   function canGeneratePPTX() {
-
-    $account = $this->getAuthorObject();
-    if($account ->isModerator()) {
-      return TRUE;
-    }
-
-    $verlag = $account->getVerlagObject();
-    if(!$verlag) {
-      return FALSE;
-    }
-
-    $value = $verlag->getVerlagSetting('vku_2_pptx', FALSE);
-    if($value) {
-
-      return TRUE;
-    }
-
-    return FALSE;
+    return $this->getVerlagSetting('vku_2_pptx', FALSE);
   }
 }

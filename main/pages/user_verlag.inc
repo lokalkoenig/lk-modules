@@ -104,6 +104,24 @@ function lokalkoenig_user_verlag_admin_settings_form($form, &$form_state, \LK\Ve
     '#description' => 'VKU 2.0 Dokumente für den Verlag freischalten.',
   ];
 
+  $documents_default = [
+    'wochen' => \LK\VKU\Pages\PageDefault::getPageTitle('wochen'),
+    'tageszeitung' => \LK\VKU\Pages\PageDefault::getPageTitle('tageszeitung'),
+    'onlinewerbung' => \LK\VKU\Pages\PageDefault::getPageTitle('onlinewerbung'),
+    'kplanung' => \LK\VKU\Pages\PageDefault::getPageTitle('kplanung'),
+    'kontakt' => \LK\VKU\Pages\PageDefault::getPageTitle('kontakt'),
+  ];
+
+  $form['vku2']['vku_standard_documents_hide'] = [
+    '#type' => 'select',
+    '#title' => 'Standard-Dokumente ausblenden (VKU 2.0)',
+    '#multiple' => true,
+    '#default_value' => $verlag ->getVerlagSetting('vku_standard_documents_hide', []),
+    '#options' => $documents_default,
+    '#size' => count($documents_default),
+    '#description' => 'Diese Dokumente können optional für den Verlag ausgeblendet werden.',
+  ];
+
   $manager = new \LK\VKU\Editor\Manager();
   $documents = $manager->getPresetsAvailable();
 

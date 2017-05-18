@@ -10,18 +10,18 @@
       <th>Erstellt</th>
       <th>Letzte Bearbeitung</th>
       <th width="160">
-      <div class="btn-group">
-        <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown">
-          <span class="glyphicon glyphicon-plus"></span> Dokument erstellen <span class="caret"></span>
-        </button>
-
-        <ul class="dropdown-menu" role="menu">
-          <?php while(list($key2, $val2) = each($val['presets'])): ?>
-            <li><a href="#" class="btn-document-create" data-preset="<?= $key2; ?>"><?= $val2['title']; ?></a></li>
-          <?php endwhile; ?>
-        </ul>
-      </div>
-
+        <?php if($val['presets']): ?>
+        <div class="btn-group">
+          <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown">
+            <span class="glyphicon glyphicon-plus"></span> Dokument erstellen <span class="caret"></span>
+          </button>
+            <ul class="dropdown-menu" role="menu">
+              <?php while(list($key2, $val2) = each($val['presets'])): ?>
+                <li><a href="#" class="btn-document-create" data-preset="<?= $key2; ?>"><?= $val2['title']; ?></a></li>
+              <?php endwhile; ?>
+            </ul>
+        </div>
+        <?php endif; ?>
       </th>
     </tr>
  </thead>

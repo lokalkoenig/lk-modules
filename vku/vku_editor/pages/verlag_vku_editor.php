@@ -25,7 +25,7 @@ function vku_editor_page_verlag_cb($account){
   $manager -> setAccount($verlag);
   $presets = $manager->getPresetsAvailable();
   $documents = vku_editor_verlag_documents_themed($verlag);
-  
+
   drupal_add_library('vku_editor', 'vku_inlace_editor');
   drupal_add_js(drupal_get_path('module', 'vku_editor'). '/js/verlag_controller.js');
   
@@ -34,10 +34,15 @@ function vku_editor_page_verlag_cb($account){
       'presets' => $presets,
       'documents' => $documents,
   ]);
+  
+  $available_docs = $verlag->getVerlagSetting('vku_editor_dokumente', []);
+  if(!in_array('OnlineMedium', $available_docs)) {
+    return $theme;
+  }
 
   $links = [
-      ['url' => url('user/' . $verlag ->getUid() . '/vku_editor'), 'title' => "VKU-Dokumente", 'active' => TRUE],
-      ['url' => url('user/' . $verlag ->getUid() . '/vku_editor/settings'), 'title' => "Einstellungen"],
+    ['url' => url('user/' . $verlag ->getUid() . '/vku_editor'), 'title' => "VKU-Dokumente", 'active' => TRUE],
+    ['url' => url('user/' . $verlag ->getUid() . '/vku_editor/settings'), 'title' => "Einstellungen"],
   ];
 
   $tabs = \LK\UI\Tabs::render($links);
