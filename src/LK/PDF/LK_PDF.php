@@ -190,6 +190,7 @@ class LK_PDF extends \TCPDF {
 
     $y = 25;
     $verlag_logo_position = $this->getUserSettings('logo_position');
+    $footer_logo_x = 192;
 
     // Verlag logo bottom_right
     if($verlag_logo_position === 'bottom_right') {
@@ -200,13 +201,13 @@ class LK_PDF extends \TCPDF {
       }
       
       $logo_img = \LK\Files\FileGetter::get(image_style_url('pxedit_footer_logo', $logo));
-      $this->Image($logo_img, (297 - 25 - 37), 193, 37);
+      $this->Image($logo_img, (297 - 25 - 37), $footer_logo_x, 37);
       return;
     }
 
     foreach($logos as $logo){
       $logo_img = \LK\Files\FileGetter::get(image_style_url('pxedit_footer_logo', $logo));
-      $this->Image($logo_img, $y, 193, 37);
+      $this->Image($logo_img, $y, $footer_logo_x, 37);
       $y += 42;
     }
   }

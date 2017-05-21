@@ -81,7 +81,7 @@ class PageDefault extends PageInterface {
   function getPossibilePages($category){
     
     $items = [];
-    $hide_documents = $this->getVKU()->getVerlagSetting('vku_standard_documents_hide', []);
+    $show_documents = $this->getVKU()->getVerlagSetting('vku_standard_documents', []);
    
     if($category === 'print'){
       $items["tageszeitung"] = self::getPageTitle('tageszeitung');
@@ -99,7 +99,7 @@ class PageDefault extends PageInterface {
 
     $return_items = [];
     foreach($items as $key => $item) {
-      if(!in_array($key, $hide_documents)) {
+      if($show_documents === [] || in_array($key, $show_documents)) {
         $return_items['default-' . $key] = $item;
       }
     }

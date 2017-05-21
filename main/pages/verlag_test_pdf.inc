@@ -15,7 +15,12 @@ function lokalkoenig_user_test_pdf($account){
     drupal_goto('user');
   }
   
-  $overwrite = ['vku_hintergrundfarbe', 'vku_hintergrundfarbe_titel', 'vku_vordergrundfarbe_titel'];
+  $overwrite = [
+    'vku_hintergrundfarbe',
+    'vku_hintergrundfarbe_titel',
+    'vku_vordergrundfarbe_titel',
+    'verlag_logo_position',
+  ];
   
   foreach($overwrite as $id) {
     $obj->settings[$id] = $_GET[$id];

@@ -159,7 +159,7 @@ class VKUManager {
         'title_vg_color_rgb' => [255,255,255],
         'logo_oben' => '',
         'logos_unten' => array(),
-        'exclude_pages' => [],
+        'show_default_pages' => [],
     );
     
     if(!$verlag instanceof \LK\Verlag){
@@ -173,7 +173,7 @@ class VKUManager {
     }
     
     // Exclude pages
-    $array["exclude_pages"] = $verlag -> getVerlagSetting("vku_standard_documents_hide", []);
+    $array["show_default_pages"] = $verlag -> getVerlagSetting("vku_standard_documents", []);
 
     // Logo position
     $array["logo_position"] = $verlag -> getVerlagSetting("verlag_logo_position", 'left');

@@ -112,14 +112,14 @@ function lokalkoenig_user_verlag_admin_settings_form($form, &$form_state, \LK\Ve
     'kontakt' => \LK\VKU\Pages\PageDefault::getPageTitle('kontakt'),
   ];
 
-  $form['vku2']['vku_standard_documents_hide'] = [
+  $form['vku2']['vku_standard_documents'] = [
     '#type' => 'select',
-    '#title' => 'Standard-Dokumente ausblenden (VKU 2.0)',
+    '#title' => 'Standard-Dokumente (VKU 2.0)',
     '#multiple' => true,
-    '#default_value' => $verlag ->getVerlagSetting('vku_standard_documents_hide', []),
+    '#default_value' => $verlag ->getVerlagSetting('vku_standard_documents', []),
     '#options' => $documents_default,
     '#size' => count($documents_default),
-    '#description' => 'Diese Dokumente können optional für den Verlag ausgeblendet werden.',
+    '#description' => 'Hinweis: Sind keine Dokumente ausgewählt, werden alle angezeigt.',
   ];
 
   $manager = new \LK\VKU\Editor\Manager();
