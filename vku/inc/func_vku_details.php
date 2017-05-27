@@ -172,7 +172,7 @@ if($status == 'purchased_done' AND !$lizenzen){
         $vku ->remove();
         drupal_get_messages();
         drupal_set_message("Die Verkaufsunterlage wurde gelöscht.");
-        drupal_goto('logbuch/vku');    
+        drupal_goto('backoffice/logbuch/vku');
     }
     
     $msg = 'Diese VKU hat keine aktiven Lizenzen und sollte deshalb entfernt werden.';

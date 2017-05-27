@@ -31,7 +31,6 @@ class UserData extends \LK\Admin\Interfaces\DataManager {
       }
 
       $return['Mitarbeiter'] = count($ma);
-      return $return;
     }
 
     // Lizenzen
@@ -42,11 +41,15 @@ class UserData extends \LK\Admin\Interfaces\DataManager {
       $manager ->disableUserCanChange();
       $return['Lizenzen Hinweis'] = "<small>Bitte editieren Sie die Lizenzen. Todo-Lizenz-Listing.</small>";;
     }
-    
+
     $return['Erstellte Blog-Einträge'] = $this->count('eck_neuigkeit', ['uid' => $account ->getUid()]);
     $return['Ansichten Blog-Einträge'] = $this->count('lk_neuigkeiten_read', ['uid' => $account ->getUid()]);
 
 
+    if(!$account->isMitarbeiter()) {
+      return $return;
+    }
+ 
     $team = $account ->getTeamObject();
     $return['Team'] = l($team ->getTitle(), $team ->getUrl());
     $return['Team Leiter'] = \LK\u($team ->getLeiter());
@@ -115,7 +118,7 @@ class UserData extends \LK\Admin\Interfaces\DataManager {
 
     // Assign the Downloads to some User
     db_query("UPDATE lk_vku_lizenzen_downloads SET uid=0 WHERE uid=:uid", [':uid' => $acccount ->getUid()]);
-    db_query("DELETE lk_verlag_stats WHERE stats_bundle_id=:uid AND stats_user_type IN ('user', 'user-weekly')", [':uid' => $acccount ->getUid()]);
+    db_query("DELETE FROM lk_verlag_stats WHERE stats_bundle_id=:uid AND stats_user_type IN ('user', 'user-weekly')", [':uid' => $acccount ->getUid()]);
   }
 
   private function _removeMitarbeiter(\LK\User $acccount){

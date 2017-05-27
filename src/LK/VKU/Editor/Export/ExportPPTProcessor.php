@@ -194,7 +194,7 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
     foreach($content['rows'] as $row_content){
 
       $row = $shape->createRow();
-      
+
       if($x_row % 2){
         $row->getFill()->setFillType(Fill::FILL_GRADIENT_LINEAR)
                ->setStartColor(new Color('FFEEEEEE'))
@@ -208,8 +208,6 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
       }
       $row->setHeight(10);
 
-      $tmp_paragraph_size = 3;
-
       foreach($row_content as $cell_content){
         $cell = $row->nextCell();
         $cell->getBorders()->getBottom()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
@@ -217,28 +215,16 @@ class ExportPPTProcessor extends Interfaces\ExportProcessorInterface {
         $cell->getBorders()->getTop()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
         $cell->getBorders()->getRight()->setLineWidth(0)->setLineStyle(Border::LINE_NONE);
         $paragraph = $cell->getActiveParagraph();
-        $paragraph->getAlignment()->setMarginLeft(5)->setMarginTop(2)->setMarginRight(5)->setMarginBottom(2);
+        $paragraph->getAlignment()->setMarginLeft(4)->setMarginTop(3)->setMarginRight(4)->setMarginBottom(3);
         
         $cell_content_sanitized = $this->getTableMarkupSpripped($cell_content);
-
-        $paragraph->getFont()->setSize($tmp_paragraph_size);
-        $paragraph->createTextRun(' ');
-
-        $paragraph2 = $cell->createParagraph();
-        $paragraph2->getFont()->setSize($this->table_font_size);
-
+        $paragraph->getFont()->setSize($this->table_font_size);
         if($cell_content_sanitized) {
-          $this->SimpleMarkupParser($paragraph2, (html_entity_decode($cell_content_sanitized)), $this->table_font_size, false);
+          $this->SimpleMarkupParser($paragraph, (html_entity_decode($cell_content_sanitized)), $this->table_font_size, false);
         }
         else {
-          $paragraph2->createTextRun(' ');
+          $paragraph->createTextRun(' ');
         }
-
-        $paragraph3 = $cell->createParagraph();
-        $paragraph3->getFont()->setSize($tmp_paragraph_size);
-        $paragraph3->createTextRun(' ');
-
-
       }
 
       $x_row++;

@@ -75,7 +75,11 @@ abstract class ExportProcessorInterface {
     $html = str_replace('</p><p>', "</p><br><p>", $html);
     $html = strip_tags($html, "<br><b><strong><u><i><em>");
     $html = $this->removeTrailingBR($html);
-    
+
+    // Ending FF br
+    $html = str_replace('<br></strong>', "</strong>", $html);
+    $html = str_replace('<br></em>', "</em>", $html);
+
     return $html;
   }
 
